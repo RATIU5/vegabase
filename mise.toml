@@ -6,7 +6,7 @@ odin = "dev-2026-10"
 
 [tasks.dev]
 description = "Run the app"
-run = "odin run src -vet -strict-style"
+run = "odin run source -vet -strict-style"
 
 [tasks.build]
 description = "Build the binary into dist/"
@@ -14,15 +14,15 @@ run = "sh scripts/build.sh"
 
 [tasks.lint]
 description = "Type-check and vet"
-run = "odin check src -vet -vet-cast -strict-style"
+run = "odin check source -vet -vet-cast -strict-style"
 
 [tasks.test]
 description = "Run tests"
-run = "odin test src -vet -strict-style"
+run = "odin test source -vet -strict-style"
 
 [tasks.fmt]
 description = "Format the source"
-run = "sh scripts/fmt.sh -w src"
+run = "sh scripts/fmt.sh -w source"
 
 [tasks."lint:title"]
 description = "Check a commit or PR title"

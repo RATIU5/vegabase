@@ -28,6 +28,10 @@ run = "sh scripts/fmt.sh -w source"
 description = "Check a commit or PR title"
 run = "sh scripts/lint-commit.sh"
 
+[tasks.logchange]
+description = "Log a changeset entry via Knope"
+run = "knope document-change"
+
 [tasks."lint:changeset"]
 description = "Check the PR adds a changeset"
 run = "sh scripts/check-changeset.sh"

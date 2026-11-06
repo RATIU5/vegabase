@@ -1,7 +1,7 @@
 [tools]
 cocogitto = "7.0.0"
 "github:DanielGavin/ols" = "dev-2026-10"
-"github:knope-dev/knope" = "knope-v0.23.2"
+"github:knope-dev/knope" = "knope/v0.23.2"
 odin = "dev-2026-10"
 
 [tasks.dev]

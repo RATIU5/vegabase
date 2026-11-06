@@ -1,0 +1,76 @@
+[packages.vegabase]
+assets = "dist/vegabase*"
+versioned_files = [{ path = "VERSION", regex = '(?<version>\d+\.\d+\.\d+(?:-[0-9A-Za-z.]+)?)' }]
+changelog = "CHANGELOG.md"
+extra_changelog_sections = [{ name = "Documentation", types = ["docs"] }, { name = "Maintenance", types = ["chore"] }]
+
+[changes]
+ignore_conventional_commits = true
+
+[release_notes]
+change_templates = [
+  "### $summary ([#$pr_number](https://github.com/RATIU5/vegabase/pull/$pr_number))\n\n$details",
+  "### $summary ([#$pr_number](https://github.com/RATIU5/vegabase/pull/$pr_number))",
+  "### $summary ([$commit_hash](https://github.com/RATIU5/vegabase/commit/$commit_hash))\n\n$details",
+  "### $summary ([$commit_hash](https://github.com/RATIU5/vegabase/commit/$commit_hash))",
+  "### $summary\n\n$details",
+  "### $summary",
+]
+
+[[workflows]]
+name = "document-change"
+
+[[workflows.steps]]
+type = "CreateChangeFile"
+
+[[workflows]]
+name = "changelog"
+
+[[workflows.steps]]
+type = "PrepareRelease"
+
+[[workflows.steps]]
+type = "Command"
+command = "mise run fmt"
+
+[[workflows]]
+name = "prepare-release"
+
+[[workflows.steps]]
+type = "Command"
+command = "git switch -c release"
+
+[[workflows.steps]]
+type = "PrepareRelease"
+
+[[workflows.steps]]
+type = "Command"
+command = "mise run fmt"
+
+[[workflows.steps]]
+type = "Command"
+command = "git commit -a -m 'chore: prepare release'"
+
+[[workflows.steps]]
+type = "Command"
+command = "git push --force --set-upstream origin release"
+
+[[workflows.steps]]
+type = "CreatePullRequest"
+base = "main"
+
+[workflows.steps.title]
+template = "chore: prepare release"
+
+[workflows.steps.body]
+template = "Created by Knope. Merging this pull request prepares the next release of every changed component."
+
+[[workflows]]
+name = "release"
+
+[[workflows.steps]]
+type = "Release"
+
+[github]
+owner = "RATIU5"
+repo = "vegabase"

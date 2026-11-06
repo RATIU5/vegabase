@@ -1,0 +1,24 @@
+name: stale
+
+on:
+  schedule:
+    - cron: "17 3 * * *"
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  stale:
+    permissions:
+      pull-requests: write
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/stale@4391f3da665fdf50b6810c1a66712fb9ba21aa93
+        with:
+          days-before-issue-stale: -1
+          days-before-issue-close: -1
+          days-before-pr-stale: 45
+          days-before-pr-close: 14
+          stale-pr-message: No activity for 45 days. Push a commit or comment to keep this open, or it closes in 14 days.
+          exempt-pr-labels: keep-open

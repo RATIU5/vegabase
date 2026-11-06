@@ -1,0 +1,49 @@
+[tools]
+cocogitto = "7.0.0"
+"github:DanielGavin/ols" = "dev-2026-10"
+"github:knope-dev/knope" = "knope-v0.23.2"
+odin = "dev-2026-10"
+
+[tasks.dev]
+description = "Run the app"
+run = "odin run src -vet -strict-style"
+
+[tasks.build]
+description = "Build the binary into dist/"
+run = "sh scripts/build.sh"
+
+[tasks.lint]
+description = "Type-check and vet"
+run = "odin check src -vet -vet-cast -strict-style"
+
+[tasks.test]
+description = "Run tests"
+run = "odin test src -vet -strict-style"
+
+[tasks.fmt]
+description = "Format the source"
+run = "sh scripts/fmt.sh -w src"
+
+[tasks."lint:title"]
+description = "Check a commit or PR title"
+run = "sh scripts/lint-commit.sh"
+
+[tasks."lint:changeset"]
+description = "Check the PR adds a changeset"
+run = "sh scripts/check-changeset.sh"
+
+[tasks."label:pr"]
+description = "Label a PR by its title type"
+run = "sh scripts/label-pr.sh"
+
+[tasks.changelog]
+description = "Record the changelog and version locally"
+run = """sh -c 'GITHUB_TOKEN="${GITHUB_TOKEN:-$(gh auth token 2>/dev/null)}" knope changelog "$@"' _"""
+
+[tasks."release:prepare"]
+description = "Open or refresh the release pull request"
+run = "knope prepare-release"
+
+[tasks."release:publish"]
+description = "Create tags and GitHub releases"
+run = "knope release"

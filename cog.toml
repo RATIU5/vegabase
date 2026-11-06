@@ -1,0 +1,2 @@
+[git_hooks.commit-msg]
+script = 'mise x -- sh scripts/lint-commit.sh --file "$1"'

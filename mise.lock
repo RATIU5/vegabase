@@ -9,6 +9,11 @@ checksum = "sha256:379949f50c4f8245ef9532913e83f351c048b55e40ebd52ed8a850642c07a
 url = "https://github.com/cocogitto/cocogitto/releases/download/7.0.0/cocogitto-7.0.0-aarch64-unknown-linux-gnu.tar.gz"
 url_api = "https://api.github.com/repos/cocogitto/cocogitto/releases/assets/366659384"
 
+[tools.cocogitto."platforms.linux-arm64-musl"]
+checksum = "sha256:379949f50c4f8245ef9532913e83f351c048b55e40ebd52ed8a850642c07a753"
+url = "https://github.com/cocogitto/cocogitto/releases/download/7.0.0/cocogitto-7.0.0-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/cocogitto/cocogitto/releases/assets/366659384"
+
 [tools.cocogitto."platforms.linux-x64"]
 checksum = "sha256:e03938ff2c4c86d71c00c0f3284dbbe95c5ca76fe34a51f33e945c23010d59bb"
 url = "https://github.com/cocogitto/cocogitto/releases/download/7.0.0/cocogitto-7.0.0-x86_64-unknown-linux-musl.tar.gz"
@@ -38,12 +43,22 @@ url_api = "https://api.github.com/repos/cocogitto/cocogitto/releases/assets/3666
 version = "dev-2026-10"
 backend = "github:DanielGavin/ols"
 
+[tools."github:DanielGavin/ols"."platforms.linux-arm64"]
+checksum = "sha256:37d8b437954b6ccbae93ea248427db403b89fc2cb54aef0aa664c91a6ed3ccbb"
+url = "https://github.com/DanielGavin/ols/releases/download/dev-2026-10/ols-arm64-unknown-linux-gnu.zip"
+url_api = "https://api.github.com/repos/DanielGavin/ols/releases/assets/634156603"
+
 [tools."github:DanielGavin/ols"."platforms.linux-arm64-musl"]
 checksum = "sha256:37d8b437954b6ccbae93ea248427db403b89fc2cb54aef0aa664c91a6ed3ccbb"
 url = "https://github.com/DanielGavin/ols/releases/download/dev-2026-10/ols-arm64-unknown-linux-gnu.zip"
 url_api = "https://api.github.com/repos/DanielGavin/ols/releases/assets/634156603"
 
 [tools."github:DanielGavin/ols"."platforms.linux-x64"]
+checksum = "sha256:1ee224fcd7b0818acf2e2160e5d4e380d89261d9d96328c9b0a1cb8cc193bb7f"
+url = "https://github.com/DanielGavin/ols/releases/download/dev-2026-10/ols-x86_64-unknown-linux-gnu.zip"
+url_api = "https://api.github.com/repos/DanielGavin/ols/releases/assets/634156678"
+
+[tools."github:DanielGavin/ols"."platforms.linux-x64-musl"]
 checksum = "sha256:1ee224fcd7b0818acf2e2160e5d4e380d89261d9d96328c9b0a1cb8cc193bb7f"
 url = "https://github.com/DanielGavin/ols/releases/download/dev-2026-10/ols-x86_64-unknown-linux-gnu.zip"
 url_api = "https://api.github.com/repos/DanielGavin/ols/releases/assets/634156678"
@@ -64,8 +79,43 @@ url = "https://github.com/DanielGavin/ols/releases/download/dev-2026-10/ols-x86_
 url_api = "https://api.github.com/repos/DanielGavin/ols/releases/assets/634156657"
 
 [[tools."github:knope-dev/knope"]]
-version = "knope-v0.23.2"
+version = "knope/v0.23.2"
 backend = "github:knope-dev/knope"
+
+[tools."github:knope-dev/knope"."platforms.linux-arm64"]
+checksum = "sha256:65ec774bd37d7d030100c896bd7fc635b11acade0fb039ffcb57c2b56be9da11"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-aarch64-unknown-linux-musl.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846723"
+
+[tools."github:knope-dev/knope"."platforms.linux-arm64-musl"]
+checksum = "sha256:65ec774bd37d7d030100c896bd7fc635b11acade0fb039ffcb57c2b56be9da11"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-aarch64-unknown-linux-musl.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846723"
+
+[tools."github:knope-dev/knope"."platforms.linux-x64"]
+checksum = "sha256:c64f6281e012fc8e046ebd6f30be76c583e88b9ad55b00c7b1809b030db92eee"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-x86_64-unknown-linux-musl.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846724"
+
+[tools."github:knope-dev/knope"."platforms.linux-x64-musl"]
+checksum = "sha256:c64f6281e012fc8e046ebd6f30be76c583e88b9ad55b00c7b1809b030db92eee"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-x86_64-unknown-linux-musl.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846724"
+
+[tools."github:knope-dev/knope"."platforms.macos-arm64"]
+checksum = "sha256:9ca0403d8e528af48b6451eb14ef4d3110b570a323e761bab8994fc14c04dc49"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-aarch64-apple-darwin.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846725"
+
+[tools."github:knope-dev/knope"."platforms.macos-x64"]
+checksum = "sha256:e35cd3857477134a0ebd9395fa97eddcdf41217f6f8e426369d44f1b9c16df63"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-x86_64-apple-darwin.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846726"
+
+[tools."github:knope-dev/knope"."platforms.windows-x64"]
+checksum = "sha256:ddde4b768353bde46aeacb4067f6ec50b5bccc6373afd4ac2c2396b144b5336a"
+url = "https://github.com/knope-dev/knope/releases/download/knope/v0.23.2/knope-x86_64-pc-windows-msvc.tgz"
+url_api = "https://api.github.com/repos/knope-dev/knope/releases/assets/666846730"
 
 [[tools.odin]]
 version = "dev-2026-10"

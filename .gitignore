@@ -20,4 +20,5 @@
 !/scripts/**
 !/VERSION
 !/odinfmt.json
-!/src/**
+!/source/**
+!/third_party/**

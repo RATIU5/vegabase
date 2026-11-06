@@ -34,8 +34,8 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.RELEASE_TOKEN }}
       - run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c
       - id: pending
         run: if find .changeset -name '*.md' 2> /dev/null | grep -q .; then echo found=true >> "$GITHUB_OUTPUT"; fi

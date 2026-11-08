@@ -31,7 +31,7 @@ Data is fetched once and shared by every page and extension. Extensions add data
 
 ## Scope (1.0)
 
-- Multi-tenant hosting with admin-owned routes, redirects, market and language URLs, and a composer
+- Multi-tenant hosting with admin-managed routes, redirects, market and language URLs, and a composer
 - Typed themes, templates and transforms, plus a distributable language toolchain (D-012)
 - A shared data layer: declared reads, read index, caches, published and computed fields, events, actions
 - Fragments: pull by default; push over SSE is opt-in
@@ -45,7 +45,6 @@ Data is fetched once and shared by every page and extension. Extensions add data
 - Client frameworks, SPA routing, optimistic UI: hypermedia only.
 - Distributing core or vendor lib source or binaries: hosted only by us (the language toolchain is separate, D-012).
 - A public plugin marketplace: plugins are admin-approved per tenant.
-- Extensions calling each other (hard line below).
 - Failover beyond supervisor restarts and restore from backup.
 
 ## Audience

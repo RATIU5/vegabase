@@ -30,13 +30,13 @@ updated: 2026-11-08
 
 | Part              | Responsibility                                                      | Owns                                                                                              | Status           |
 | ----------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------- |
-| Edge              | Caches public output; routes requests to the owning worker          | Host normalization, forwarded-header trust, tenant → worker mapping cache                         | decided          |
-| Control plane     | Holds platform-wide state; propagates versioned changes             | Tenants, domains, leases, activation pointer, gates, enablement, approvals, event delivery, sagas | decided          |
-| Deploy pipeline   | Validates and compiles themes and compositions into deployments     | Type checking (via the language toolchain), fetch plans, deployments, readiness check             | decided          |
-| Request pipeline  | Turns a request into a page, fragment or SSE patch                  | Gate → redirect → route → render; fragment endpoints; open streams                                | decided          |
-| Data layer        | Serves declared reads locally; the only path to core-owned data     | Entities, read index, caches, ingestion, published and computed fields, actions, outbox, routes and redirects | decided          |
-| Extension host    | Loads vendor libs, sandboxes plugins, enforces capabilities         | Vendor lib registration, plugin invocations, contracts, plugin private storage                    | decided          |
-| Shopify vendor lib | The only home of Shopify commerce concepts (D-015)                  | Shopify entity types, cart, customer login, B2B context                                           | decided          |
+| Edge              | Caches public output; routes requests to the owning worker          | Host normalization, forwarded-header trust, tenant → worker mapping cache                         | draft (D-001)    |
+| Control plane     | Holds platform-wide state; propagates versioned changes             | Tenants, domains, leases, activation pointer, gates, enablement, approvals, event delivery, sagas | draft (D-001)    |
+| Deploy pipeline   | Validates and compiles themes and compositions into deployments     | Type checking (via the language toolchain), fetch plans, deployments, readiness check             | draft (D-001)    |
+| Request pipeline  | Turns a request into a page, fragment or SSE patch                  | Gate → redirect → route → render; fragment endpoints; open streams                                | draft (D-001)    |
+| Data layer        | Serves declared reads locally; the only path to core-owned data     | Entities, read index, caches, ingestion, published and computed fields, actions, outbox, routes and redirects | draft (D-001)    |
+| Extension host    | Loads vendor libs, sandboxes plugins, enforces capabilities         | Vendor lib registration, plugin invocations, contracts, plugin private storage                    | draft (D-001)    |
+| Shopify vendor lib | The only home of Shopify commerce concepts (D-015)                  | Shopify entity types, cart, customer login, B2B context                                           | draft (D-001)    |
 | Admin app         | Lets editors compose and approve without code or data wiring        | Composer, side-effect-free preview, approval screens                                              | proposed (Q-012) |
 
 ## Seams
@@ -63,7 +63,7 @@ updated: 2026-11-08
 - Always: gates fail closed. Broken if: a gated page is served while verification is unavailable.
 - Always: untrusted code never runs natively. Broken if: a plugin fault crashes a worker.
 - Always: extensions share only through published fields, owned entity types and events. Broken if: one reads another's storage or calls it.
-- Always: only the core writes core-owned data (routes, redirects, compositions, deployments, ownership). Extensions write their private storage, tenant-owned databases through connectors, and published fields, owned entities, events and gates through host functions (D-017). Broken if: an extension changes core-owned data directly.
+- Always: only the core writes core-owned data; extensions write only through core-mediated paths (D-017). Broken if: an extension changes routes, redirects, compositions, deployments or ownership directly.
 - Always: one request reads one deployment version end to end.
 - Absent by design: everything in the CHARTER non-goals.
 - Absent by design: plugins rendering HTML or acting as middleware; only the core renders.
@@ -77,7 +77,8 @@ updated: 2026-11-08
 | `source/schema/`   | Schema language and type checker (language toolchain)                     |
 | `source/store/`    | Data layer (name clashes with the glossary "store"; consider `data/`)     |
 | `source/plugin/`   | Extension host: WASM sandbox, capabilities, host functions                |
-| `third_party/`     | Vendored C libraries behind `bind/*` packages (DESIGN §7)                 |
+| `source/bind/`     | One hand-written binding package per C library (DESIGN §7)                |
+| `third_party/`     | Vendored C library sources, pinned by commit                              |
 
 ## Open questions
 

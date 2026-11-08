@@ -14,11 +14,11 @@ Vegabase is a hosted, multi-tenant storefront and CMS engine in Odin that render
 | CHARTER.md      | Purpose, goals, scope, non-goals, assumptions, ranked principles, hard lines     | Judging scope, a tradeoff between principles, a hard line   |
 | GLOSSARY.md     | Terms, banned synonyms, ambiguous words                                          | Naming anything, in docs or code                            |
 | ARCHITECTURE.md | Parts, seams, key flows, invariants, quality goals, code map                     | Changing a part or seam, checking an invariant              |
-| DESIGN.md       | Mechanism detail: runtime, themes, routing, data layer, plugins, vendor libs, stores | Designing or building a mechanism, C interop                |
+| DESIGN.md       | Mechanism detail: runtime, themes, routing, data layer, plugins, vendor libs, databases | Designing or building a mechanism, C interop                |
 | STACK.md        | Pins, libraries, verified external facts, environment, workload, spikes          | Choosing a library or version, any Shopify, CDN or hosting fact |
 | DECISIONS.md    | Decisions, open questions, risks, influences                                     | Before treating anything as settled; logging a ruling       |
 
-**Precedence**: CHARTER > DECISIONS > GLOSSARY > ARCHITECTURE > DESIGN > STACK > this file's State section. When docs conflict, the higher one wins; flag the lower line that needs fixing. Each fact lives in one doc; cite it by doc and section or by ID (G-, P-, D-, Q-, R-, S-, I-).
+**Precedence**: CHARTER > DECISIONS > GLOSSARY > ARCHITECTURE > DESIGN > STACK > this file's State section. When docs conflict, the higher one wins; flag the lower line that needs fixing. Each fact lives in one doc; cite it by doc and section or by ID: G, P in CHARTER; D, Q, R, I in DECISIONS; S in STACK.
 
 Repo process (commits, PRs, releases) is in `docs/WORKFLOW.md`. Done means `mise run lint` and `mise run test` pass.
 

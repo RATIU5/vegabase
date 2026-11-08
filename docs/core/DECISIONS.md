@@ -17,7 +17,7 @@ updated: 2026-11-08
 
 **D-004 Hypermedia UI**: Draft (rebuilt). Datastar over SSE; theme CSS on replaceable design tokens (Stellar CSS or our own, Q-017). Why: server state, morphing, no client framework (I-003, I-004).
 
-**D-005 Data stores**: Draft (rebuilt). One StardustDB database per tenant for content, routes and the read index; Postgres for the control plane. Why: an embedded per-tenant database gives local reads and simple tenant moves; Postgres gives durable shared state and `LISTEN/NOTIFY`. Risk: StardustDB is alpha (Q-018, Q-019).
+**D-005 Databases**: Draft (rebuilt). One StardustDB database per tenant for content, routes and the read index; Postgres for the control plane. Why: an embedded per-tenant database gives local reads and simple tenant moves; Postgres gives durable shared state and `LISTEN/NOTIFY`. Risk: StardustDB is alpha (Q-018, Q-019).
 
 **D-006 Isolation model**: Draft (rebuilt). Logical isolation at API boundaries; hard resource limits only for WASM; dedicated workers for sensitive tenants. Why: density for most tenants; vendor libs are encapsulated, not sandboxed.
 
@@ -25,7 +25,7 @@ updated: 2026-11-08
 
 **D-008 Declared reads**: Draft (rebuilt). Every reader (component, plugin, vendor lib) declares its fields; the core plans, batches and caches them. Why: fetch once (P3); it makes G3 measurable.
 
-**D-009 Typed themes, admin-owned routes**: Draft (rebuilt). Static types end to end; routes and redirects are owned in the admin app; themes are component libraries with no routes or data wiring. Why: errors at deploy or save (P4, I-001).
+**D-009 Typed themes, admin-managed routes**: Draft (rebuilt). Static types end to end; editors manage routes and redirects in the admin app and the core writes them (D-017); themes are component libraries with no routes or data wiring. Why: errors at deploy or save (P4, I-001).
 
 **D-010 Editions**: Draft (rebuilt). The spec is the API. Two supported editions at a time, with migrations and retirement deadlines. Retiring an edition carries features forward and never drops them (D-014).
 
@@ -48,9 +48,9 @@ updated: 2026-11-08
 | ID    | Question                                                                    | Options · settled by                                                                              |
 | ----- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Q-001 | What % cut in LCP and shipped JS weight is G1's pass line?                  | Measure the current themes on the same pages (needs Q-002) · project lead                         |
-| Q-002 | Which stores are "our own", and how many must be live for 1.0?              | · project lead                                                                                    |
+| Q-002 | Which stores are "our own", and how many must run in production for 1.0?              | · project lead                                                                                    |
 | Q-003 | Is there a time or effort bound (appetite) for 1.0?                         | None · fixed, with scope cut by goal · project lead                                               |
-| Q-004 | Is a non-commerce tenant a 1.0 deliverable?                                 | Live tenant · CI test tenant · design property only · project lead                                |
+| Q-004 | Is a non-commerce tenant a 1.0 deliverable?                                 | Production tenant · CI test tenant · design property only · project lead                                |
 | Q-005 | May any field be never-stale (B2B prices, balances), and may it block a page? | None · closed list rendering "unavailable" · closed list that may block · D- entry amending P2    |
 | Q-006 | Should the domain-agnostic core become a hard line?                         | Keep as P1 · promote · D- entry                                                                   |
 | Q-007 | How are third-party browser scripts admitted, and who owns the allowlist?   | Plugin theme components only · platform-owned script model · D- entry                             |

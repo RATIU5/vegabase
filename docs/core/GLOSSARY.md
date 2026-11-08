@@ -13,6 +13,8 @@ updated: 2026-11-08
 
 **Activate**: Make a deployment the one served for a tenant by moving its activation pointer. _Avoid:_ go live, publish, ship, release.
 
+**Admin**: A person who uses the admin app to approve plugins and manage users and domains; a separate role from editor. _Avoid:_ owner, superuser.
+
 **Cache class**: How a component's output is served: **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
 
 **CDN**: The third-party cache in front of origin that serves public shells, cached fragments and assets. Never a security boundary. "Edge cache" means the same thing. _Avoid:_ public cache.
@@ -91,7 +93,7 @@ updated: 2026-11-08
 
 **Readiness check**: The rule that a deployment activates only after its required fields are in the read index and it fits the origin budget. _Avoid:_ readiness gate.
 
-**Route**: An admin-owned URL or URL pattern that maps to a page kind and a composition. _Avoid:_ template, path (a path is one URL).
+**Route**: An editor-managed URL or URL pattern that maps to a page kind and a composition. _Avoid:_ template, path (a path is one URL).
 
 **Shell**: The cacheable, non-personalized HTML frame of a page, into which fragments are placed. _Avoid:_ layout (a kind), skeleton.
 
@@ -123,7 +125,6 @@ updated: 2026-11-08
 - Each tenant has exactly one owning worker at a time; a new generation replaces the old.
 - Each entity type has exactly one type owner; any extension may publish fields onto it.
 - Every page is a shell plus fragments; every component instance can be re-rendered as a fragment.
-- Every gate is an override (everyone) or an access policy (per visitor).
 - Exactly two editions are supported at any time.
 - Extensions share only through published fields, owned entity types and events.
 
@@ -144,6 +145,5 @@ updated: 2026-11-08
 
 - **Entity page**: rename the `entity` page kind to pair with fixed page.
 - **Save / deploy**: editors save compositions; developers deploy themes.
-- **Admin**: a role separate from editor (approvals, users, domains), or the same person?
 - **Global region**: a shared, localized composition placed across pages (like Shopify section groups).
 - **Shared plugin**: a platform-reviewed plugin with one signed hash, used by several tenants.

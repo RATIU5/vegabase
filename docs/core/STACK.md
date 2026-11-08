@@ -30,25 +30,25 @@ updated: 2026-11-08
 | Shopify API version      | 2026-10, env `SHOPIFY_API_VERSION`        |
 | LLVM/zig cc, sysroot, CLDR, tzdata, Stellar CSS | TBD                |
 
-- C libraries are pinned by commit and fetched by a hash-checked task.
+- C libraries are pinned by commit. Planned: a hash-checked mise fetch task (S-8).
 - wasmtime ships a new major on the 20th of each month; bump only after S-3 passes.
 - Odin at dev-2026-10 provides `core:os`, `vendor:curl`, `core:encoding/cbor`, `core:time/timezone`, `core:crypto/ed25519`, `core:dynlib`, `core:odin/parser`, the `freestanding_wasm32` target and `-build-mode:shared`.
 
 ## 2. Libraries
 
-| Layer          | Choice                                                         | Notes                                                                      |
-| -------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------- |
-| HTTP and TLS   | libh2o (picotls/OpenSSL)                                       | Origin mTLS or authenticated pulls; router ↔ router mTLS; libh2o built without LTO |
-| Outbound HTTP  | libcurl multi (`vendor:curl`)                                  | SSRF rules in DESIGN §6                                                    |
-| Postgres       | libpq                                                          | Pool threads; one `LISTEN/NOTIFY` connection per process                   |
-| WASM           | wasmtime C API, official prebuilt                              | Fuel, epoch interruption, pooling allocator                                |
-| JSON, CBOR     | `core:encoding/json`, `core:encoding/cbor`                     | C only if profiling demands it                                             |
-| HTML           | Own parser on the lexbor tokenizer; lexbor tree for `RichText` | Security and differential tests                                            |
-| Formatting     | Odin formatter over pinned CLDR and tz data                    | Decimal currency, numbers, plurals, fixed date styles; tested against ICU  |
-| Compression    | brotli, zstd                                                   | Pre-compress at deploy; h2o compresses dynamic responses                   |
-| Hash and sign  | `core:hash` (xxHash), `core:crypto/sha2`, `core:crypto/ed25519` |                                                                            |
-| Editor tooling | tree-sitter plus an LSP on the language toolchain (D-012)      |                                                                            |
-| Images         | Image CDN or imgproxy, out of process                          |                                                                            |
+| Layer          | Choice                                                                                              |
+| -------------- | --------------------------------------------------------------------------------------------------- |
+| HTTP and TLS   | libh2o (picotls/OpenSSL), built without LTO; origin mTLS or authenticated pulls; router ↔ router mTLS |
+| Outbound HTTP  | libcurl multi (`vendor:curl`); SSRF rules in DESIGN §6                                              |
+| Postgres       | libpq on pool threads; one `LISTEN/NOTIFY` connection per process                                   |
+| WASM           | wasmtime C API, official prebuilt; fuel, epoch interruption, pooling allocator                      |
+| JSON, CBOR     | `core:encoding/json`, `core:encoding/cbor`; C only if profiling demands it                          |
+| HTML           | Own parser on the lexbor tokenizer; lexbor tree for `RichText`; security and differential tests     |
+| Formatting     | Odin formatter over pinned CLDR and tz data: decimal currency, numbers, plurals, fixed date styles; tested against ICU |
+| Compression    | brotli, zstd; pre-compress at deploy; h2o compresses dynamic responses                              |
+| Hash and sign  | `core:hash` (xxHash), `core:crypto/sha2`, `core:crypto/ed25519`                                     |
+| Editor tooling | tree-sitter plus an LSP on the language toolchain (D-012)                                           |
+| Images         | Image CDN or imgproxy, out of process                                                               |
 
 ## 3. StardustDB facts
 

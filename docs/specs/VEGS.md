@@ -1,112 +1,86 @@
-# VegaBase Schema Language (`.vegs`): Spec v0.13 draft
+---
+status: draft
+updated: 2026-11-08
+---
 
-A small, typed schema language for a plugin-based, hypermedia-first CMS. One language describes **content shapes, page shapes, server data inputs, and function contracts**. A `check` step validates everything before publish. The admin UI is generated from the schema.
+# Vegabase schema language (.vegs)
 
-It is a typing and contract layer. It does not describe behavior: logic lives in Go.
+Edition draft; index in [README.md](README.md). Shared rules (namespaces, `use`, expressions, directive syntax, `check` levels, extension policy) are in [COMMON.md](COMMON.md). Data, routes and caching are in [VEGS-DATA.md](VEGS-DATA.md).
 
-**Design rules**
+## 1. Overview
 
-- The core is bare: four scalars and a reference. Everything else comes from an owner (`std`, a plugin, or your project) and is imported with `use`.
-- Two sigils: `@` (directive) and `?` (nullable). Declarations use `::`, fields use `:`, values use `=`.
+A `.vegs` file declares typed content shapes, component shapes, function contracts and locale strings. The admin app generates its forms from these declarations. `check` validates them on deploy (COMMON §6).
+
+The schema is a contract layer. It describes no behavior: functions are implemented by the core, a vendor lib or a plugin (§4.4).
+
+- The core is bare: four scalars and a reference (§3). Everything else is declared by a namespace and imported with `use` (COMMON §2).
 - One declaration shape: `Name :: ...`. One construction shape: `Type { field = value }`.
-- Structure is words, decoration is directives: the field roles `slot` and `data` are keywords in type position; `@` directives only decorate or constrain.
-- Values are pure literals. No variables, expressions (outside `@show`), floats, or I/O.
-- The language has no file, folder, or name rules. Location carries no meaning.
-- Extend by adding names, never by changing meanings.
+- Field roles are keywords in type position (`slot`, `data`). Directives only decorate or constrain (COMMON §5).
+- The theme manifest (`theme.vegs`: edition, name, vendor libs, global settings) has no syntax yet: Q-044.
 
----
+## 2. Lexical
 
-## 1. Files and ownership
+Strings, numbers, identifiers and qualified names: COMMON §3.
 
-The host scans configured roots for `*.vegs` (schemas). Go files carry logic. Each `.vegs` file is a list of `use` lines followed by declarations. A file's name and location mean nothing to the language.
+| Item       | Rule                                                                                             |
+| ---------- | ------------------------------------------------------------------------------------------------ |
+| Comments   | `//` to end of line                                                                              |
+| Separators | Newline or comma, in bodies and lists. One-line forms need commas. A `use` line ends at its newline |
+| Keywords   | `use as fn loader action directive on locale slot data any and or not in true false null`        |
 
-```
-project/
-  types.vegs
-  pages.vegs
-  locales/en.vegs
-  plugins/shopify/
-    shopify.go
-    types.vegs
-```
+After `on` in a directive declaration (§4.5), the words `field data alias type fn loader action for render` name targets. They are contextual and not reserved elsewhere.
 
-**Ownership.** The loader assigns every file an **owner**. This is a host rule, not a language rule.
+**Casing.** `Upper` declares a type (record, alias, union). `lower` declares a function (`fn`, `loader`, `action`), a directive or a locale table.
 
-| Owner    | Files                                 | Written as                                        |
-| -------- | ------------------------------------- | ------------------------------------------------- |
-| `app`    | the project's own files               | bare name in app files; `app.Name` from elsewhere |
-| `std`    | first-party types shipped by the host | `std.Image`                                       |
-| a plugin | files under that plugin               | `shopify.Product`                                 |
+| Sigil | Meaning                                    |
+| ----- | ------------------------------------------ |
+| `::`  | Declares a name                            |
+| `:`   | Declares a type (field or parameter)       |
+| `=`   | Assigns a value (default, entry, string)   |
+| `@`   | Directive                                  |
+| `?`   | Nullable                                   |
 
-- In a file, a **bare name resolves to the file's own owner**, then to the core types.
-- A name from any other owner is **qualified** (`owner.Name`) and needs a `use` line in that file (§2).
-- Names are unique per owner **across all its files**. A duplicate is an error.
-- Every declaration is visible to the whole project; there is no export keyword.
-- `app` and `std` are reserved owner names. Plugins cannot use them. Redeclaring a core name is an error.
-- To use a short local name for another owner's type, declare an alias: `Product :: shopify.Product` (needs `use shopify` in that file). The alias is an ordinary `app` declaration, so other app files write `Product` without `use shopify`.
+## 3. Types
 
-**Types are typesafe components.** A record type's fields are its props. The admin form is generated from the fields.
+| Core type | Notes                                                                                    |
+| --------- | ---------------------------------------------------------------------------------------- |
+| `Text`    | UTF-8 string                                                                             |
+| `Int`     | 64-bit integer                                                                           |
+| `Decimal` | Exact decimal, no floats                                                                 |
+| `Bool`    |                                                                                          |
+| `Ref(T)`  | Stored identifier of entity type `T`; `T` must be a `@collection` (VEGS-DATA §4). The admin app shows a picker |
 
-**Identity.** Every type has one identity: `owner.Name` (`app.Hero`, `shopify.Hero`). Identity never depends on file or folder, so moving, copying, or deeply nesting a `.vegs` file changes nothing. A copy of `Testimonials` in a second file of the same owner is a duplicate-declaration error that names both file paths. The same name in two owners is two different types (`app.Testimonials`, `acme.Testimonials`). Stored content records the full identity, and the admin shows it (owner badge plus source path) wherever a component is picked or listed.
+The core defines no content or commerce types. Date and time types: Q-035.
 
----
+`std` ships first-party types:
 
-## 2. Imports: `use`
+| Type                    | Shape (illustrative)                         |
+| ----------------------- | -------------------------------------------- |
+| `std.Image`             | `src: Text`, `alt: Text`, `width: Int?`      |
+| `std.Link`              | `url: Text`, `label: Text`                   |
+| `std.RichText`          | Structure owned by `std`. Sanitized on output (VEGT §8) |
+| `std.Page`, `std.Post`, `std.Media` | Core content types (D-020). Fields: Q-049 |
 
-```
-use std
-use shopify
-use shopify as shop
-```
+`std` follows every rule here. A theme may ignore it and declare its own `Image`. Domain helpers in `std`: Q-043.
 
-- `use` imports an **owner**, never individual names. Names stay qualified at each use site, so their origin is always visible.
-- `use` lines come first in the file, before any declaration.
-- `use` is **non-transitive**: it affects only the file it is in and is never re-exported.
-- `as` is optional and renames the owner inside that file only. With `use shopify as shop`, write `shop.Product`.
-- A `use` is **required** for every qualified reference to that owner in the file: types, functions, `t(...)` keys, and plugin directives.
-- Core types and the file's own owner need no `use`. `use app` is an error.
-- Unknown owner → error. Duplicate `use` → error. Unused `use` → warning.
-- An alias must not collide with another owner or with a declared name in the file.
+| Type form        | Meaning                                                                                      |
+| ---------------- | -------------------------------------------------------------------------------------------- |
+| `T`              | Required, non-null                                                                           |
+| `T?`             | Nullable. Absent = `null`                                                                    |
+| `"a" \| "b"`     | Union of string literals (enum)                                                              |
+| `T[0..3]`        | List with min..max items. `[1..]` open-ended, `[..5]` no minimum, `[..]` any                 |
+| `(A \| B)[0..3]` | List of a union of record types. The union must be parenthesized. Valid only after `slot`    |
+| `any[0..6]`      | List of any component. Valid only after `slot`; narrowed in §6.2                             |
 
----
-
-## 3. Lexical
-
-| Item           | Rule                                                                                             |
-| -------------- | ------------------------------------------------------------------------------------------------ |
-| Comments       | `// to end of line`                                                                              |
-| Separators     | Newline **or** comma, in bodies and lists. One-line forms need commas.                           |
-| Strings        | `"..."`, escapes `\" \\ \n \t \uXXXX`                                                            |
-| Int            | `42`, `-7`                                                                                       |
-| Decimal        | `19.99d`, `0d`. Must end in `d`.                                                                 |
-| Float          | **Not supported.** `1.5` is a lex error.                                                         |
-| Bool / null    | `true` `false` `null`                                                                            |
-| `Upper` ident  | `[A-Z][A-Za-z0-9]*`: type names                                                                  |
-| `lower` ident  | `[a-z_][A-Za-z0-9_]*`: fields, fns, locales, owners, directives                                  |
-| Qualified name | `owner.Name` or `owner.fn`                                                                       |
-| Keywords       | `use as fn loader action directive on locale slot data any except and or not in true false null` |
-
-**Casing carries meaning:** `Upper` declares a type (record, alias, union); `lower` declares a function (`fn`, `loader`, `action`), a directive, or a locale table.
-
-After `on` in a directive declaration (§4), the words `field data alias type fn loader action` name targets. They are contextual and are not reserved elsewhere.
-
-### Sigils and punctuation
-
-| Token | Meaning                                               |
-| ----- | ----------------------------------------------------- |
-| `::`  | Declares a name (is defined as)                       |
-| `:`   | Declares a type: field or parameter                   |
-| `=`   | Assigns a value: default, record entry, locale string |
-| `@`   | Directive                                             |
-| `?`   | Nullable                                              |
-
----
+- Lists are never null: empty is `[]`. `T[0..3]?` is an error.
+- A bare union is valid only for string literals. A union of non-strings is an error.
+- `Ref(T)?` is a nullable reference; `Ref(T)[0..5]` is a list of references.
 
 ## 4. Declarations
 
-Every top-level item has the shape `Name :: ...`.
+Every top-level item has the shape `Name :: ...`. A theme declares records, aliases, unions and locale tables only. It has no code, so it declares no `fn`, `loader`, `action` or `directive` (an error).
 
-### Record type
+### 4.1 Record
 
 ```
 Image :: {
@@ -116,198 +90,157 @@ Image :: {
 }
 ```
 
-- The body holds **directive lines** first (they apply to the record), then **fields**.
-- Empty `{}` is an empty record.
+- The body holds directive lines first (they apply to the record), then fields. `{}` is an empty record.
+- A record value is written `Type { field = value }`. A positional entry is an error.
 
-### Alias
+### 4.2 Alias
 
 ```
-Headline :: Text @max(80) @label("Headline") @hint("Shown as the banner H1")
+Headline :: Text @max(80) @label("Headline")
 Product  :: shopify.Product
 ```
 
-- An alias names another type, optionally with directives.
-- A field of the alias type inherits its directives. A field directive overrides the same one, except `@validate`, which accumulates (§7.4).
+- An alias names another type, optionally with directives. A field of the alias type inherits them.
+- A field directive overrides the same directive on the alias, except `@validate`, which accumulates (§7.4).
+- An alias is an ordinary declaration of its namespace: other files of that namespace use it without `use` of the aliased namespace.
 
-### Union
+### 4.3 Union
 
 ```
 Tone :: "light" | "dark"
 ```
 
-- A bare union is allowed only for string literals (an enum).
-
-### Functions: `fn`, `loader`, `action`
-
-The kind is visible in the declaration. It decides what the function may do and where it may be used.
+### 4.4 Functions: `fn`, `loader`, `action`
 
 ```
-money     :: fn(m: shopify.Money, locale: Text? = null) -> Text
+money     :: fn(m: shopify.Money, currency: Text? = null) -> Text
 productBy :: loader(handle: Text) -> shopify.Product?
 addToCart :: action(product: Ref(shopify.Product), qty: Int = 1) -> shopify.Cart
 clearCart :: action()
 ```
 
-| Kind     | May do                                      | `->`     | Used for                                                      |
-| -------- | ------------------------------------------- | -------- | ------------------------------------------------------------- |
-| `fn`     | Nothing outside its arguments: pure, no I/O | required | `@show`, template expressions, `@validate(check = ...)`       |
-| `loader` | Read-only I/O (database, network)           | required | Backing a `data` field with `@load`; `@validate(check = ...)` |
-| `action` | Reads and writes                            | optional | Write endpoints invoked by the host. Not usable as a value    |
+A declaration is valid only in `std` or an extension namespace. The kind decides what the function may do, who implements it and where it is callable.
 
-- Params: `name: Type [= default]`.
-- Only `fn` is callable in templates and `@show`. Only `loader` can back a `data` field. Only `action` is a write endpoint. `@validate(check = ...)` accepts `fn` or `loader` (read-only).
-- An `action` always has a name and may omit `->`. A function with no return value cannot be used as a value, in a default, in `@show`, or in `@validate`.
-- Bodies are implemented by the host or a plugin (Go, or a guest language such as WASM). The schema declares the contract. The host links I/O capabilities by kind, so a pure `fn` has no way to reach the network or the database.
-- A function with no registered implementation is a `check` error.
-- In `@validate`, a function follows the **field-function contract**:
-  - `@validate` functions return `Bool` (`true` = pass) or `Text?` (`null` = pass, text = the failure message, §7.4);
-  - a param named `value` receives the field's own value, and its type must match the field;
-  - every other param binds **by name to a sibling field** of the same record (type must match);
-  - `data` fields cannot be bound (same rule as §7.3).
-- In `@show`, calls use **named arguments** like any call in the expression grammar (§7.3). The implicit binding above is the one documented exception, and exists only for `@validate`.
+| Kind     | May do                                      | `->`     | Implemented by          | Callable from                                                                                  |
+| -------- | ------------------------------------------- | -------- | ----------------------- | ---------------------------------------------------------------------------------------------- |
+| `fn`     | Nothing outside its arguments: pure, no I/O | required | core, vendor lib, plugin | Templates: core and vendor lib `fn` only (a plugin `fn` in a template is an error). `@show` and `@validate(check = ...)`: any `fn` |
+| `loader` | Read-only I/O                               | required | core, vendor lib, plugin | Backs a `data` field (VEGS-DATA §1). `@validate(check = ...)`. Never a template or `@show`    |
+| `action` | Reads and writes                            | optional | any extension           | Write endpoints invoked by the core. Not a value, not callable from expressions                |
 
-### Directive
+- Params: `name: Type [= default]`. A function with no return value cannot be used as a value, in a default or in an expression.
+- A template-callable `fn` is a transform (GLOSSARY). A plugin `loader` is a resolver the data layer batches, never called per render (VEGS-DATA §2).
+- An `action` runs behind core mechanisms: CSRF, Origin, authorization and idempotency key (DESIGN §5).
+- The core links I/O capabilities by kind, so a `fn` cannot reach the network or the database.
+- A function with no registered implementation is an error.
+- Built-in functions (`t`, `url`, `length`, ...) are core-only. Their generic notation is not valid `.vegs` and they cannot be declared: VEGT §7.
+
+### 4.5 Directive declarations
 
 ```
 swatch :: directive on field | alias (format: "hex" | "rgb" = "hex")
 store  :: directive on type (kind: Text)
 ```
 
-- `name :: directive on target { | target } [ ( params ) ]` declares a directive. Targets are `field` (a prop or slot), `data`, `alias`, `type` (a record), `fn`, `loader`, `action`.
-- Params are written like function params. A directive with exactly one param may be called positionally (`@max(80)`); otherwise arguments are named (`@swatch(format = "hex")`). No params, no parentheses (`@internal`).
-- Any `Text` param accepts `t(...)`.
-- The declaration is static and checked without running any plugin code. The behavior (validation, storage, processing) ships with the plugin as Go or WASM.
-- Used as `@owner.name`. A bare `@name` resolves to the file's own owner, then to the core directives, the same as types.
+- Syntax: `name :: directive on target { | target } [ ( params ) ]`.
+- Targets: `field` (a prop or slot), `data`, `alias`, `type` (a record), `fn`, `loader`, `action`, and the template targets `for` and `render` (VEGT §9).
+- Params are written like function params. Calling rules: COMMON §5. Any `Text` param accepts `t(...)`.
+- Only the core and vendor libs may declare directives with a template target. A theme declares none.
+- A declaration is checked without running extension code. The behavior ships with the declaring extension.
 
-### Locale table
+### 4.6 Locale tables
 
 ```
-// locales/en.vegs
 en :: locale {
   hero = {
     label   = "Hero banner"
-    hint    = "Full-width banner with heading and CTA"
     heading = { label = "Headline" }
   }
 }
 ```
 
 - `name :: locale { ... }` declares one language's strings. The name is a `lower` ident (`en`, `fr`, `pt_BR` for `pt-BR`).
-- The body is a tree: `name = "string"` leaves and `name = { ... }` groups. **Leaves are strings only.**
-- Tables with the same language name merge by key path across all files of an owner. A duplicate key path is an error.
-- Looked up by `t(...)` (§7.5).
+- The body is a tree of `name = "string"` leaves and `name = { ... }` groups. Leaves are strings only.
+- Tables with the same language name merge by key path across all files of a namespace. A duplicate key path is an error.
+- Read by `t(...)` (§7.5).
 
----
-
-## 5. Types
-
-### Core types (the entire core)
-
-| Type      | Notes                                                                                           |
-| --------- | ----------------------------------------------------------------------------------------------- |
-| `Text`    | UTF-8 string                                                                                    |
-| `Int`     | 64-bit integer                                                                                  |
-| `Decimal` | Exact decimal, no floats                                                                        |
-| `Bool`    |                                                                                                 |
-| `Ref(T)`  | Stored identifier of a `@collection` type or a plugin-registered type; the admin shows a picker |
-
-The core defines **no content types and no commerce types**. They come from `std`, a plugin, or the project.
-
-### `std` (first-party owner, shipped by the host)
-
-| Type           | Shape (illustrative)                                |
-| -------------- | --------------------------------------------------- |
-| `std.Image`    | `src: Text`, `alt: Text`, `width: Int?`             |
-| `std.Link`     | `url: Text`, `label: Text`                          |
-| `std.RichText` | structure owned by `std` (for example `html: Text`) |
-
-`std` is ordinary: it is an owner that follows every rule here. A project can ignore it and define its own `Image`.
-
-### Type forms
-
-| Form             | Meaning                                                                                    |
-| ---------------- | ------------------------------------------------------------------------------------------ |
-| `T`              | Required, non-null                                                                         |
-| `T?`             | Nullable. Absent = `null`                                                                  |
-| `"a" \| "b"`     | Union of string literals (enum)                                                            |
-| `T[0..3]`        | List with min..max items. `[1..]` open-ended, `[..5]` no minimum, `[..]` any               |
-| `(A \| B)[0..3]` | List of a union of record types. **Union must be parenthesized.** Only valid after `slot`. |
-| `any[0..6]`      | List of any component. Only valid after `slot`. Narrowed with `any(...)` (§6.1)            |
-| `Ref(T)`         | Reference to `T`                                                                           |
-
-- Lists are **never null**: empty = `[]`. `T[0..3]?` is an error.
-- A list binds to the nearest atom or parenthesized group.
-
----
-
-## 6. Fields
+## 5. Fields
 
 ```
 name: [slot | data] Type [= default] [@directive ...]
 ```
 
-A field is exactly one of three kinds. The kind is always visible right after the colon.
+A field is exactly one of three kinds. The kind is visible right after the colon.
 
-| Kind     | How it looks                    | Meaning                                                   |
-| -------- | ------------------------------- | --------------------------------------------------------- |
-| **Prop** | `name: Type`                    | Set by editors                                            |
-| **Slot** | `name: slot (A \| B)[0..3]`     | Child area: editors add, order, and remove components     |
-| **Data** | `name: data Type @load(loader)` | Resolved by the server, read-only, never in the editor UI |
+| Kind | Form                              | Meaning                                                  |
+| ---- | --------------------------------- | -------------------------------------------------------- |
+| Prop | `name: Type`                      | Set by editors                                           |
+| Slot | `name: slot (A \| B)[0..3]`       | Child area: editors add, order and remove components     |
+| Data | `name: data Type @load(loader)`   | Resolved by the server, read-only, never in the editor UI |
 
-```
-Hero :: {
-  heading: Headline = "Welcome"
-  content: slot (Button | Callout)[0..3] = [Button { label = "Shop now" }]
-  product: data shopify.Product @load(shopify.productBy) @route("handle")
-}
-```
+Data fields, `@load`, `@route` and the source roles they map to: VEGS-DATA §1.
 
-`slot` and `data` are **keywords**, not directives. Directives trail a field and decorate or constrain it; the role is structure, so it sits in type position, like `chan` or `map` in Go.
+**Props.** A prop is required when it has no `?`, no `=` and is not a list with `min = 0`. A required prop left empty is a Content error: the entity stays a draft (COMMON §6). `@show` hides a prop and skips the check (§7.3). `= null` on a nullable prop is redundant (Warning).
 
-### Required fields (see also §6.1 for slot sets)
+**Defaults** are literals or `Type { ... }` values. A default must type-check: a union default is a member, a list default fits `[min..max]`, `null` only on a nullable.
 
-A prop is **required** when it has no `?`, no `=`, and is not a list with `min = 0`. A required field with no value **blocks publish** (it is not a compile error). A field hidden by `@show` skips the check.
+**Slots.**
 
-### Slots
-
-- `slot` must be followed by a list of **components**: a record type, a parenthesized union of them, or a slot set (§6.1).
+- `slot` is followed by a list of components: one record type, a parenthesized union of them, or a slot set (§6.2). Otherwise it is an error.
 - A slot is never null (`slot ...?` is an error). Its default is `[]`. `min > 0` with no default makes it required.
-- A plain list of types (without `slot`) is an ordinary list, for example `Image[1..5]`, a gallery.
+- Default entries must be members of the slot's set.
+- A plain list without `slot` is an ordinary list (`Image[1..5]`, a gallery).
+- Editor-saved slot contents are compositions, and the core limits their depth: VEGS-DATA §8.
 
-### 6.1 Components and slot sets
+## 6. Components
 
-A **component** is a record type marked `@component`: it may be placed in slots. Unmarked records (`Seo`, `Image`) are plain values and never appear in a slot or in `any`. A component cannot also be `@page` or `@collection`.
+### 6.1 `@component`
+
+A **component** is a record type marked `@component` that has a template. Its fields are its props and slots; the admin app form is generated from them.
 
 ```
 Hero :: {
   @component
   @group(sections)
-  ...
+  heading: Headline = "Welcome"
 }
 ```
 
-`@group(name)` is optional on components. It is an **owner-scoped tag** written in the declaration, not a folder. Groups are not declared anywhere else; a group exists when a component names it.
+| Concept     | Rule                                                                                                 |
+| ----------- | ---------------------------------------------------------------------------------------------------- |
+| Binding     | A template starts with `use` tags, then exactly one `{type Name}` tag naming its subject (VEGT §1)    |
+| Bindable    | Any record type that is not `@collection` or `@global`                                                |
+| Renderable  | A bound record can be output with `{render}` (VEGT §5.3)                                              |
+| Placeable   | Only a `@component` can be placed in a slot or matched by `any`, and appears in admin app pickers     |
+| No template | A `@component` with no template is an error. The engine supplies no default                           |
+
+- Two templates naming one type, or a template naming an unknown type, is an error.
+- A plain record with a template and no `@component` is a helper: renderable, never placeable. Add `@internal` to hide it from other namespaces (§6.4).
+- A `@component` cannot also be `@page`, `@collection`, `@not_found` or `@global`.
+- Page types are `@page` records (VEGS-DATA §4). A page type nests shared records or components for a shared frame (`header: Header`, §6.4). There is no layout construct.
+- Cache class of a component: `@fragment` (VEGS-DATA §5). A component placed in a composition may use `@route` data (VEGS-DATA §3).
+- Replacing a plugin's component with a theme component: Q-045.
+
+### 6.2 Slot sets and `@group`
+
+`@group(name)` is an optional namespace-scoped tag on a component. A group exists when a component names it. A component has one group (Q-038).
 
 A slot's allowed children are one of:
 
-| Form                                            | Allows                                  |
-| ----------------------------------------------- | --------------------------------------- |
-| `slot (A \| B)[0..3]`                           | exactly the listed components           |
-| `slot any[0..6]`                                | every component in the project          |
-| `slot any(in shopify)[0..6]`                    | every component of an owner             |
-| `slot any(in app.sections)[0..6]`               | every component of an owner's group     |
-| `slot any(except Button \| shopify.Cart)[0..6]` | everything except the listed components |
-| `slot any(in app.sections, except Hero)[0..6]`  | combine: `in` first, then `except`      |
+| Form                              | Allows                                        |
+| --------------------------------- | --------------------------------------------- |
+| `slot (A \| B)[0..3]`             | Exactly the listed components                 |
+| `slot any[0..6]`                  | Every component                               |
+| `slot any(in shopify)[0..6]`      | Every component of a namespace                |
+| `slot any(in theme.sections)[0..6]` | Every component of a namespace's group      |
 
-- `in X`: `X` is an owner (`shopify`) or `owner.group` (`app.sections`). An owner's own name never needs `use`; another owner does.
-- `except` takes components, qualified like any name. Excluding a type outside the `in` set is a warning.
-- A set is evaluated by `check` against all declarations, so adding a component to an owner or group extends every slot that selects it. Pin a slot to an explicit list when new components must not appear automatically.
-- An empty set is an error. An explicit member that is not `@component` is an error.
-- Default values still use `Type { ... }` and must be members of the set.
+- In `in X`, `X` is a namespace or `ns.group`. A namespace other than the file's own needs `use`.
+- `check` evaluates a set against all declarations, so adding a component to a namespace or group extends every slot that selects it. Pin a slot to an explicit list when new components must not appear automatically. `check --expand` prints the resolved set (COMMON §6).
+- An empty set is an error. An explicit member that is not a `@component` is an error. An unknown namespace or group in `any(in ...)` is an error. `@group` on a non-component is an error.
+- An `@internal` component never appears in another namespace's `any` set (§6.4).
 
-**Placeable vs renderable.** A record type with a bound template (§6.3) is **renderable** from templates. `@component` additionally makes it **placeable** in slots and visible in admin pickers. A `@component` with no bound template and no engine-provided default would render nothing in a slot, so that is a `check` error. A dev-only partial needs no new directive: it is a plain record with props and a template, and optionally `@internal`.
+### 6.3 `@yields`
 
-**`@yields`.** A record directive for a type whose template accepts markup from its caller:
+`@yields` marks a record whose template accepts a **body**: markup passed by the caller.
 
 ```
 MaybeLink :: {
@@ -317,47 +250,17 @@ MaybeLink :: {
 }
 ```
 
-- `@yields` has no admin UI and stores no data. It is not a `slot`: a `slot` is editor-placed component content, whereas a yielded body is template markup supplied by the caller.
-- An editor-placed `@yields` component simply gets an empty body.
-- It lets `check` verify that templates pass a body to yielding types only, and not to others. Valid on any record type.
+- A caller passes a body only to a `@yields` type: `{render X(...)}body{/render}`. A bare `{slot}` in the template outputs the body (VEGT §5.3, §5.4).
+- A body is template markup. It is not a `slot` field and stores no data. An editor-placed `@yields` component gets an empty body.
+- Valid on any record type.
 
-### 6.2 Composition and `@internal`
+### 6.4 Composition by nesting, aliases and `@internal`
 
-Composition needs no extra syntax:
+- **Nesting.** A field's type can be any record (`seo: Seo`, `base: BasePage`). A shared field set is a record used as a field.
+- **Aliases** share one field type with its directives (§4.2).
+- **Slots** place components inside components (§5).
 
-- **Nesting:** a field's type can be any record (`seo: Seo`, `cta: std.Link`). Shared field sets are a record used as a field.
-- **Aliases:** `Headline :: Text @max(80)` shares one field type with its directives.
-- **Slots:** components inside components (§6.1).
-
-**Flattening** copies another record's fields into this one with no nesting level:
-
-```
-BasePage :: {
-  seo:    Seo
-  header: Header
-  footer: Footer
-}
-
-MarketingPage :: {
-  @page
-  ..BasePage
-  main: slot any(in app.sections)[1..]
-}
-```
-
-Flattening is strict. It is a line holding only `..Name`:
-
-- **Fields only.** The fields arrive exactly as declared, with their own types, defaults, directives, and roles (`slot`, `data`). The record-level directives of the source (`@page`, `@component`, `@collection`, `@label`, `@internal`, and so on) are **not** copied.
-- **No directives on the line**, no renaming, no picking, no overriding. `..BasePage @label("x")` is a syntax error.
-- A field name that collides with another field or another spread is an error.
-- The source must be a record type, qualified as usual (`..shopify.Base`, needs `use`), and cannot be `@internal` to another owner. Spreads cannot be cyclic.
-- Field order follows the position of the spread line.
-- The result is flat: stored data has no trace of `BasePage`. `check --expand` prints each field's source type.
-- `data` fields come along and are checked against the including record's `@page` route.
-
-If one field needs a change, write it out in full or use nesting.
-
-`@internal` limits who may use a name:
+`@internal` limits a type or function to its own namespace:
 
 ```
 Seo :: {
@@ -366,368 +269,195 @@ Seo :: {
 }
 ```
 
-- A type or function marked `@internal` can be referenced only by declarations of its **own owner**. A reference from any other owner is an error.
-- An internal component never appears in another owner's `any` set, and an explicit mention from another owner is an error. It still appears in slots of its own owner.
-- Internal stays valid inside shared data: a public type may have a field of an internal type, so the plugin can expose a type without exposing its parts. Other owners cannot name that type but can read or edit the value through the field.
-- Unmarked records that are not `@component` are already unplaceable in slots. `@internal` is about visibility to other owners, not placement.
-- It is a visibility marker, not access control (§9).
-
-**Origin stays visible.** Folders mean nothing, so origin is the owner:
-
-- Explicit names are qualified (`shopify.Hero`), so a reader sees the owner in the source.
-- `any(in ...)` names the owner or group in the source.
-- Stored children keep their full identity (`app.Testimonials`), so a copied or nested `Testimonials` is never ambiguous.
-- `vegs check --expand` prints each slot's resolved set with identity and source file. The admin picker groups by owner and group, and shows each item's source path on hover.
-
-### Data
-
-```
-product: data shopify.Product @load(shopify.productBy) @route("handle")
-```
-
-- Exactly one `@load(loader)`: a declared `loader` (§4) that produces the value. The loader's return type must equal the field type.
-- **Parameters.** Each loader param binds **by name** to a `@route` param. A param with a default may be left unbound. A param with no default and no matching `@route` is an error. `@route("name")` may appear more than once on a field.
-- A `@route` param name must be a valid identifier, and the loader param it binds must be `Text` or `Int` (something a URL can carry).
-- No `=` default. The UI directives `@label`, `@hint`, `@show` are errors on a data field.
-- Non-null type: not found → 404. `Type?`: not found → `null`.
-- A plugin supplies data by declaring a `loader`. There are no separate source directives.
-
-### 6.3 Templates and types
-
-Templates are specified separately. The schema only needs one rule: **a template binds to exactly one record type, and names that type in its own header** (for example `type Hero`, qualified through the template's own `use` lines).
-
-- The `.vegs` side is unaware of templates; no name or folder rule is involved. Moving or renaming a template file changes nothing.
-- A template naming an unknown type, or two templates naming one type, is a `check` error.
-- "One schema per template" is therefore "one type per template". A `.vegs` file can still hold many types and functions.
-- There is no per-component CSS directive. Styling uses the design system's classes.
-
-### 6.4 Ambient data: `@context` and `@personal`
-
-```
-Site :: {
-  @context
-  settings: data SiteSettings @load(siteSettings)
-    @cache(ttl = "10m")
-}
-
-cart :: loader() -> shopify.Cart @personal
-```
-
-- `@context` marks a record whose fields are **in scope in every template of its owner** (`site`, `market`, `request`, and so on). Plugins supply their own (`shopify.cart`), qualified and needing `use`.
-- A `@context` record holds `data` fields only. They resolve with the ordinary data rules (`@load`, `@cache`, `@timeout`, `@fallback`) but have no URL, so every loader param needs a default. Field names must be unique across all `@context` records of one owner. A `@context` cannot be `@page`, `@collection`, or `@component`.
-- `@personal` marks a loader (or a single `data` field) whose result depends on who is asking.
-- **Personal data is never cached.** `@cache` on a `@personal` field, or on a `@page` or data type that reads one, is an error. This makes "personalized data never enters the shared cache" a compile-time rule.
-- A personal field may be read only from an **island** (a template construct, specified separately). `check` fails any inline component that reads one.
-
----
+- A reference from another namespace is an error. `@internal` on anything but a type or function is an error.
+- A public type may have a field of an internal type. Other namespaces cannot name the internal type but can read or edit the value through the field.
+- `@internal` is visibility, not access control. Permissions are not language: Q-029.
+- Origin stays visible: explicit names are qualified (COMMON §1), stored children keep their full identity, and the admin app picker shows namespace and source path.
 
 ## 7. Directives
 
-One concept: a directive is a named instruction starting with `@`.
-
-```
-@name
-@name(value)
-@name(key = value, key = value)
-```
+Syntax, resolution and unknown-directive rules: COMMON §5. This section covers placement, the core directive table and the schema-only directives.
 
 ### 7.1 Placement
 
-- A directive **after a field or declaration on the same line** applies to it. Several may follow each other.
-- A directive **line before the first field** of a record body applies to the **record**.
-- A directive **line right after a field, alias, or function line** (with no other field between) **continues that field or declaration**.
-- Parentheses, brackets, and braces may span lines.
+- A directive after a field or declaration on the same line applies to it. Several may follow.
+- A directive line before the first field of a record body applies to the record.
+- A directive line right after a field, alias or function line (no field between) continues that line.
+- Parentheses, brackets and braces may span lines.
 
 ```
 Post :: {
-  @collection("posts")                    // before the first field: applies to Post
-  @label("Blog post")
+  @label("Blog post")                      // before the first field: the record
 
-  title: Text @max(120)                   // same line: applies to title
+  title: Text @max(120)                    // same line: title
   slug:  Text
     @validate(pattern = "^[a-z0-9-]+$", message = "Lowercase letters, digits, dashes")
     @validate(pattern = "^[^-]", message = "Must not start with a dash")
 }
 ```
 
-### 7.2 Core directives
+### 7.2 Core directive table
 
-| Directive                           | Applies to                                                 | Meaning                                                                                |
-| ----------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| `@label(text)`                      | fields, types                                              | Editor title. Default: field name, title-cased                                         |
-| `@hint(text)`                       | fields, types                                              | Small helper text, always visible under a field. On a type, the subtitle in pickers    |
-| `@max(n)` / `@min(n)`               | `Text` → length; `Int`, `Decimal` → value                  | Bounds. Decimal arguments must be decimal literals                                     |
-| `@validate(...)`                    | fields, aliases                                            | Pattern or function rule with optional message (§7.4)                                  |
-| `@show(expr)`                       | non-data fields                                            | Show the field in the admin only when `expr` is true; `expr` may call functions (§7.3) |
-| `@internal`                         | types, functions                                           | Usable only inside its own owner (§6.2)                                                |
-| `@cache(ttl, stale?, vary?, tags?)` | `data` fields, `@page` and `@collection` types, data types | Cache the resolved value or page (§7.8)                                                |
-| `@timeout("2s")`                    | `data` fields                                              | Max time for the loader (§7.8)                                                         |
-| `@fallback(mode)`                   | `data` fields                                              | What to do when the loader fails: `"stale"`, `"null"`, `"error"` (§7.8)                |
-| `@editor("route")`                  | fields, aliases, types                                     | Replace the generated input with a server route that renders it (§7.7)                 |
-| `@load(loader)`                     | `data` fields                                              | The loader that produces the value (§6)                                                |
-| `@route("param")`                   | `data` fields                                              | Binds a URL route parameter to the loader param of the same name (§6, §8)              |
-| `@yields`                           | record types                                               | The template accepts a caller-passed body (§6.1)                                       |
-| `@context`                          | record types                                               | Fields are ambient in every template of the owner (§6.4)                               |
-| `@personal`                         | loaders, `data` fields                                     | Result depends on the requester; never cached (§6.4)                                   |
-| `@component`                        | record types                                               | May be placed in slots (§6.1)                                                          |
-| `@group(name)`                      | components                                                 | Owner-scoped tag for slot sets (§6.1)                                                  |
-| `@page` / `@page("/route/{param}")` | record types                                               | Routable page (§8)                                                                     |
-| `@collection("name")`               | record types                                               | Stored documents (§8)                                                                  |
+Every core directive. Text arguments (`@label`, `@hint`, `message`) accept a string or `t(...)`.
 
-Text arguments (`@label`, `@hint`, `message`) accept a string or `t(...)`.
+| Directive                           | Applies to                           | Meaning                                                           | Detail         |
+| ----------------------------------- | ------------------------------------ | ----------------------------------------------------------------- | -------------- |
+| `@label(text)`                      | fields, types                        | Editor title. Default: field name, title-cased                    | here           |
+| `@hint(text)`                       | fields, types                        | Helper text under a field; on a type, the subtitle in pickers     | here           |
+| `@min(n)` / `@max(n)`               | `Text` (length), `Int`, `Decimal` (value) | Bounds; also drive widget hints (counter). `Decimal` args are decimal literals | here |
+| `@validate(...)`                    | fields, aliases                      | Pattern or function rule                                          | §7.4           |
+| `@show(expr)`                       | non-data fields                      | Show the field only when `expr` is true                           | §7.3           |
+| `@editor("route")`                  | fields, aliases, types               | Replace the generated input with a server route                   | §7.6           |
+| `@internal`                         | types, functions                     | Usable only in its own namespace                                  | §6.4           |
+| `@component`                        | record types                         | May be placed in slots                                            | §6.1           |
+| `@group(name)`                      | components                           | Namespace-scoped tag for slot sets                                | §6.2           |
+| `@yields`                           | record types                         | Template accepts a caller-passed body                             | §6.3           |
+| `@load(loader)`                     | `data` fields                        | The loader that produces the value                                | VEGS-DATA §1   |
+| `@route("param")`                   | `data` fields                        | Binds a route param to the loader param of the same name          | VEGS-DATA §3   |
+| `@page` / `@page("/pattern")`       | record types                         | Routable page; optional default pattern                           | VEGS-DATA §4   |
+| `@not_found`                        | record types                         | The page served for unmatched URLs and missing route subjects     | VEGS-DATA §4   |
+| `@collection("name")`               | record types                         | Entity type; only in `std` or an extension                        | VEGS-DATA §4   |
+| `@global`                           | record types                         | Fields are in scope in every template of the namespace            | VEGS-DATA §6   |
+| `@private`                          | loaders, `data` fields               | Result is storage class private; never cached shared             | VEGS-DATA §6   |
+| `@cache(ttl, stale?, vary?, tags?)` | loaders, `data` fields, `@page` types | Freshness window and staleness limit                             | VEGS-DATA §7   |
+| `@timeout(duration)`                | loaders, `data` fields               | Maximum time for the loader                                       | VEGS-DATA §7   |
+| `@fallback(mode)`                   | `data` fields                        | What a field with no acceptable value does                        | VEGS-DATA §7   |
+| `@fragment(class?, push?)`          | components                           | Tighten the derived cache class; opt in to push                   | VEGS-DATA §5   |
+| `@limit(n)` `@offset(n)` `@reverse` | `for` tags                           | Template list directives                                          | VEGT §9        |
 
-Reserved, not yet active: `@private`, `@unique`, `@placeholder`.
+Reserved, not active: `@unique`, `@placeholder`.
 
-### 7.3 Expressions
+### 7.3 `@show`
 
-One expression grammar, defined here. `@show` uses it; the template language reuses it. `check` restricts what is in scope by context (for example, `data` fields and loops are not available in `@show`).
+`@show(expr)` shows a field in the admin app only when `expr` is true.
 
 ```
 overlay:  Text? @show(tone == "dark")
-ctaStyle: "solid" | "outline" = "solid" @show(cta != null and tone in ["light", "dark"])
-discount: Decimal? @show(isWholesale(customer = customer))
-bulk:     Text?    @show(qty > 5 and tone == "dark")
+discount: Decimal? @show(shopify.isWholesale(customer = customer))
 ```
 
-| Element    | Forms                                                                                                                               |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| Comparison | `==`, `!=`, `<`, `<=`, `>`, `>=` (ordering on `Int`, `Decimal`, and `Text`), `in [list]`                                            |
-| Logic      | `and`, `or`, `not`, parentheses                                                                                                     |
-| Operands   | in-scope names, string, int, decimal, `true`, `false`, `null`                                                                       |
-| Call       | `fnName(name = expr, ...)` or `owner.fnName(...)`: a declared `fn`. **Named arguments only.** A param with a default may be omitted |
-
-- In `@show`, a bare name refers to a **sibling field** in the same record. `data` fields cannot be read.
-- A call used as a condition must return `Bool`. It is usable with `and`, `or`, `not`. Only `fn` may be called (§4). The `value` param does not exist here: the field is not being validated.
-- Qualified calls need `use`. The function needs an implementation.
-- The admin may call it on every edit, so it must be fast. A call that errors or panics counts as `true` (field shown) and logs a warning.
-- No arithmetic, `??`, or assignment.
-- A hidden field skips the required check. Its stored value is kept.
-- An unknown name, a type mismatch (`tone == 3`), or ordering on non-ordered types is an error.
+- Grammar and scope: COMMON §4 (`@show` row). A bare name is a sibling prop of the same record. `data` fields cannot be read.
+- A call must be a `fn` returning `Bool` (§4.4). A plugin `fn` is allowed. `value` does not exist here.
+- The admin app may evaluate `@show` on every edit, so a `fn` must be fast. A call that errors counts as `true` (field shown) and logs a warning.
+- A hidden field skips the required check. Its stored value is kept. UI directives on `data` fields are errors (VEGS-DATA §1).
 
 ### 7.4 `@validate`
 
-```
-slug: Text
-  @validate(pattern = "^[a-z0-9-]+$", message = "Lowercase letters, digits, dashes")
-  @validate(pattern = "^[^-]", message = t(errors.slug_start))
-```
+A field may carry several `@validate` directives. Each is an independent rule, evaluated in declaration order; each failing rule reports its own message. An alias's rules and the field's own rules all apply.
 
-| Parameter | Meaning                                                                                                                                                         |
-| --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pattern` | Go RE2 regular expression the value must match. `Text` fields only                                                                                              |
-| `check`   | A declared `fn` or `loader` following the field-function contract (§4), returning `Bool` or `Text?`. Any field type. Named bare, with the implicit binding (§4) |
-| `message` | Text shown when the rule fails. String or `t(...)`. Optional: the host supplies a default. Not allowed with a `Text?` check                                     |
+| Parameter | Meaning                                                                                              |
+| --------- | ---------------------------------------------------------------------------------------------------- |
+| `pattern` | Regular expression the value must match. `Text` fields only                                          |
+| `check`   | One call to a declared `fn` or `loader` with explicit named arguments (COMMON §4). Any field type    |
+| `message` | Text shown when the rule fails: a string or `t(...)`. Optional. Not allowed with a `Text?` check    |
 
 ```
 endDate: Int
-  @validate(check = afterStart, message = t(errors.end_after_start))
+  @validate(check = acme.notBefore(value = value, floor = startDate), message = t(errors.end_after_start))
 slug: Text
-  @validate(check = slugFree)
+  @validate(check = acme.slugFree(value = value))
 
-afterStart :: fn(value: Int, startDate: Int) -> Bool
-slugFree   :: loader(value: Text) -> Text?  // reads the database; null = ok, text = the message
+notBefore :: fn(value: Int, floor: Int) -> Bool            // declared by acme
+slugFree  :: loader(value: Text) -> Text?                  // reads; null = pass
 ```
 
-**Messages from a function.** A `check` that returns `Text?` supplies its own message. `null` passes (nullable already means "maybe nothing"), and any text fails with that text. The returned text is shown as-is, so the implementation picks the language. A `Bool` check uses `message`, then the host default.
+- Exactly one rule parameter (`pattern` or `check`) per directive. `message` alone, both rules in one directive, or `message` with a `Text?` check is an error. Use two directives for two rules.
+- `value` is in scope inside `@validate` only and holds the field's own value. Other arguments are sibling props or literals. There is no implicit binding.
+- A `check` returns `Bool` (`true` = pass; failure uses `message`, then the host default) or `Text?` (`null` = pass; text = the failure message, shown as-is). Any other return type is an error.
+- A `loader` may read (a uniqueness lookup) and never writes. A `check` that errors fails validation with the host default message.
+- A `check` is not evaluated while its field is hidden by `@show`.
+- Enforced on the server, on save and in the API. The admin app shows messages inline. `@min` and `@max` are the short form.
+- Extra parameters (`min`, `max`, cross-field expression): Q-037.
 
-- All parameters are optional, but **exactly one rule parameter** (`pattern` or `check`) is required per directive. `message` alone, both rules in one directive, or `message` with a `Text?` check is an error. Use two directives for two rules.
-- `check` runs server-side and is authoritative. A `fn` is pure; a `loader` may read (for example a uniqueness lookup) but never write. A `check` error or panic fails validation with the host's default message.
-- A `check` function is not evaluated while its field is hidden by `@show`.
-- A field may carry **several** `@validate` directives. Each is an independent rule. All are evaluated in declaration order and each failing rule reports its own message.
-- **Accumulates:** an alias's `@validate` rules and the field's own rules all apply.
-- Enforced **server-side** on save and in the API. The admin shows messages inline.
-- The server uses RE2. A browser's regex differs, so client-side checks are advisory and the server is authoritative.
-- `@min` / `@max` remain the short form. They also drive widget hints such as character counters.
-- Reserved for later, additively: `min`, `max`, and a cross-field `expr`.
+**Regex dialect.** `pattern` uses the Odin `core:text/regex` dialect:
 
-### 7.5 `t(path)`: locale lookup
+| Supported                                                   | Not supported            |
+| ----------------------------------------------------------- | ------------------------ |
+| Alternation, classes and negated classes, `.`, `* + ?`, `{m,n}`, lazy variants | Lookaround     |
+| Capture and non-capture groups, `^ $`, `\b \B`              | Backreferences           |
+| `\d \s \w` and negations (ASCII only)                       |                          |
+
+An invalid pattern, or `pattern` on a non-`Text` field, is an error. A browser's regex differs, so browser checks are advisory; the server is authoritative.
+
+### 7.5 `t(path)`
 
 ```
 @label(t(hero.heading.label))
 @hint(t(shopify.cart.title))
 ```
 
-- `t` is a built-in call, valid only as the argument of a text parameter (`@label`, `@hint`, `message`). It is not allowed in defaults, which stay pure literals.
-- The path walks `locale` tables. Keys of the file's own owner are bare; keys of another owner start with that owner's name, which needs `use`. The path must end at a string leaf; a group is an error.
-- Resolved when the admin renders, for the editor's locale, then the project default locale. The default locale is project configuration, not part of the language.
-- A key missing in the default locale is an error. Missing in another locale is a warning (falls back to the default).
-- A top-level key group may not share a name with an owner.
-- Plain strings remain valid: `@label("Headline")` is default-language text with no lookup.
+- `t` is valid only as the argument of a `Text` parameter of a schema directive (`@label`, `@hint`, `message`). It is not valid in defaults.
+- The path walks locale tables (§4.6). Keys of the file's own namespace are bare; keys of another namespace start with its name and need `use`. The path must end at a string leaf; a group is an error.
+- In the schema, `t` resolves for the editor's admin language, then the default locale. Where the default locale is configured, placeholders and plurals: Q-036.
+- A key missing in the default locale is an error. Missing in another locale is a Warning (falls back to the default).
+- A top-level key group may not share a name with a namespace.
+- Plain strings stay valid: `@label("Headline")` is default-language text. In templates `t` has its own rules: VEGT §7. Translating merchant content: Q-031.
 
-### 7.6 Rules
+### 7.6 `@editor`
 
-- Every directive is **declared**: core directives by the host in the same `directive` syntax (§4), plugin directives in the plugin's `.vegs` files. A declaration fixes the targets and parameters.
-- A directive takes one positional value (only if it has exactly one param) or named arguments, as its declaration says.
-- **An unknown directive is an error.** A directive on the wrong target, or with bad arguments, is an error. None of this needs plugin code to run.
-- Plugin directives are namespaced: `@shopify.swatch`, and need `use shopify`.
-- A field's kind is set only by the words `slot` and `data`, never by a directive.
-
-### 7.7 `@editor("route")`
-
-By default the admin generates the input for each field from its type. `@editor` replaces that with a **server route** that renders the input.
+`@editor("route")` replaces the generated input of its target with a server route that renders it.
 
 ```
 Swatch :: Text @editor("/admin/widgets/swatch")
 
 Hero :: {
-  tone:  "light" | "dark" @editor("/admin/widgets/toggle")
-  image: std.Image        @editor("/admin/widgets/image-crop")
-}
-
-Gallery :: {
-  @editor("/admin/widgets/gallery")      // replaces the whole record form
-  images: std.Image[1..12]
+  tone:  Tone      @editor("/admin/widgets/toggle")
+  image: std.Image @editor("/admin/widgets/image-crop")
 }
 ```
 
-- **Replaces every generated input** for its target. On a field or alias, the whole input for that value (a record value gets one editor, not its sub-fields). On a type, the whole form of that record. No generated widget, no `@min` / `@max` widget hint (counter, stepper) is used.
-- **What does not change:** the field's label, hint, and error messages still frame it; `@show` still decides visibility; `@validate`, types, and required rules are still enforced **server-side**. A custom editor cannot bypass validation.
-- **Targets:** a field, an alias (every field of that alias inherits it; a field-level `@editor` overrides it), or a record type. One `@editor` per target. Not valid on `data` fields (they have no input).
-- **The route** is an absolute path served by the host or a plugin, written as a string. It is a **URL, not a file**, so folders of widgets can live anywhere the host chooses (for example an `admin/` folder) without the schema knowing.
-- `check` verifies the route is **registered** by the host or a plugin. An unregistered route is an error. It cannot verify that the fragment is correct.
-- **Contract (illustrative):** the admin loads the route as a hypermedia fragment, passing the document id, the field path, the input `name`, and the current value. The fragment returns HTML whose inputs use that `name` (sub-fields as `name.sub`). Saves go through the normal form post, so the server validates and re-renders.
-- Plugins may ship routes for their own types (`/shopify/admin/swatch`). Qualified names are not used, because a route is not a language name.
+- Targets: a field, an alias (every field of that alias inherits it; a field-level `@editor` overrides) or a record type (replaces the whole form). One `@editor` per target. Not valid on `data` fields.
+- It replaces every generated input for its target, including `@min`/`@max` widget hints. Label, hint and error messages still frame it. `@show`, `@validate`, types and required rules are still enforced on the server, so a custom editor cannot bypass validation.
+- The route is an absolute path served by the core or a vendor lib. It is a URL, not a file. `check` verifies it is registered; an unregistered route is an error. It cannot verify the HTML.
+- A plugin never serves an `@editor` route and never renders HTML. A plugin that needs a custom input ships a theme component that the core renders.
+- Contract (illustrative): the admin app loads the route with the entity ID, the field path, the input `name` and the current value. The response is HTML whose inputs use that `name` (sub-fields as `name.sub`). Saves use the normal form post.
 
-### 7.8 Server directives: `@cache`, `@timeout`, `@fallback`
+## 8. Extensions
 
-```
-Hero :: {
-  product: data shopify.Product @load(shopify.productBy) @route("handle")
-    @cache(ttl = "5m", stale = "1h")
-    @timeout("2s")
-    @fallback("stale")
-}
+An extension is a namespace that adds names. It never changes the language (COMMON §7).
 
-BlogPost :: {
-  @page("/blog/{slug}")
-  @cache(ttl = "10m", vary = ["locale"])
-  post: data Post @load(postBy) @route("slug")
-}
-```
+| An extension can add        | How                                                                                        |
+| --------------------------- | ------------------------------------------------------------------------------------------ |
+| Types                       | Records, aliases, unions; entity types with `@collection` (VEGS-DATA §4)                    |
+| Functions, loaders, actions | Declarations (§4.4); the tier decides who may implement and call each                      |
+| Directives                  | Declarations (§4.5), used as `@ns.name`. Template targets: vendor libs only                 |
+| `@global` records           | Records whose `data` fields load its loaders (VEGS-DATA §6)                                 |
+| Locale strings              | Locale tables (§4.6)                                                                        |
+| Page kinds                  | Plugin page kinds served through gates: Q-046                                               |
 
-| Directive                           | Meaning                                                                                                                                                                            |
-| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `@cache(ttl, stale?, vary?, tags?)` | `ttl`: fresh time. `stale`: how long a stale copy may be served while it refreshes. `vary`: extra cache-key parts (`"locale"`, or plugin-defined). `tags`: extra invalidation tags |
-| `@timeout(duration)`                | Max time for the loader before it counts as failed                                                                                                                                 |
-| `@fallback(mode)`                   | On failure or timeout: `"stale"` serve the cached copy, `"null"` return `null` (type must be `T?`), `"error"` fail the request (default)                                           |
+An extension cannot add keywords, sigils or syntax, redefine core names, or declare in `theme` or `std`. Namespace collisions and component replacement: Q-045. Permissions are not language: Q-029.
 
-- **Durations** are strings: `"30s"`, `"5m"`, `"1h"`, `"1d"`. `ttl` is required in `@cache`.
-- **Targets:** `data` fields, and `@page` or `@collection` types. On a page, `@cache` caches the rendered response. On a record or alias used as a data type, `@cache` is the default for every `data` field of that type; the field's own `@cache` overrides it. On any other prop it is an error.
-- **Cache key:** the loader params (the `@route` values) plus `vary`. `@personal` data is never cached (§6.4).
-- **Invalidation:** entries are tagged `owner.Type` automatically, and saving a document of that type clears them. `tags` adds more, for plugins to clear from Go.
-- `@fallback("stale")` needs a `@cache` (own or inherited) with `stale`.
-- Rate limits, CDN headers, retries, and similar belong in plugin directives, not the core.
+A theme with no extensions and no `std` uses the whole language: the core types plus its own records.
 
----
+## 9. Grammar
 
-## 8. Pages and collections
-
-A type has one of three roles, set only by directives:
-
-| Role           | Directive                      | Meaning                                                        |
-| -------------- | ------------------------------ | -------------------------------------------------------------- |
-| Embedded value | none                           | Lives inside other records                                     |
-| Stored entity  | `@collection("name")`          | Stored documents with an admin list view; makes `Ref(T)` legal |
-| Routable page  | `@page` or `@page("/pattern")` | Appears under "New page"; one instance has one URL             |
-
-- **A page type is separate from its routes.** Routes are created in the admin (pattern → page type). The type's **param set** is derived from the `@route` params of its `data` fields.
-- `@page("/blog/{slug}")` gives only an optional **default pattern** for the "New page" flow. `@page` alone has no default.
-- Admin-created routes are validated against the param set when saved, since `check` cannot see them: every `{param}` must be in the set, and every param in the set must appear.
-- If a default pattern is present and its `{param}` names differ from the param set, `check` warns.
-- `@route` param names must be valid identifiers, and each binds a `Text` or `Int` loader param (§6). A name used by several fields is one param with one type.
-- A type has at most one of `@page`, `@collection`.
-- A **layout** is just a page type whose fields are regions (`slot`) and data.
-- Page types are the names that reverse routing uses (specified with templates).
-
----
-
-## 9. Plugins
-
-A plugin is an owner. It adds names; it never changes the language.
-
-| A plugin can add            | How                                                                                                      |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- |
-| Types                       | Declarations in its `.vegs` files, referenced `plugin.Name`                                              |
-| Functions, loaders, actions | `fn`, `loader`, `action` declarations; bodies in Go or WASM, with I/O linked by kind                     |
-| Directives                  | `directive` declarations in its `.vegs` files, namespaced `@plugin.name`; behavior shipped as Go or WASM |
-| Contexts                    | `@context` records whose loaders it implements                                                           |
-| Locale strings              | `locale` tables in its files                                                                             |
-
-A plugin cannot add keywords, sigils, or syntax, redefine core types or directives, or declare in `app` or `std`.
-
-**Access control is a plugin, not language.** The language defines no permissions. An access plugin declares namespaced directives (for example `@access.role("editor")` on types and fields, or `@access.owner`), whose Go handlers receive the user and the target and return allow, deny, or hide. Directive targets and arguments are checked by `check` like any other, and the admin and API call the plugin's hook. `@show` and `check` functions can also read the current user only if the plugin exposes it as a function (`access.can("publish")`).
-
-A project with **no plugins and no `std`** uses the whole language: the five core types plus its own declarations under `app`.
-
----
-
-## 10. `check` rules
-
-| Level            | Rule                                                                                                                                                                                                                                                   |
-| ---------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Error            | Unresolved name; unknown owner; qualified reference with no `use` for that owner in the file; bare name that belongs to another owner                                                                                                                  |
-| Error            | `use` after a declaration; duplicate `use`; `use app`; alias colliding with an owner or declared name                                                                                                                                                  |
-| Error            | Duplicate declaration in an owner; redeclaring a core name; plugin using `app` or `std`                                                                                                                                                                |
-| Error            | `Upper` declaration that is not a type, or `lower` declaration that is not `fn`, `loader`, `action`, `directive`, or `locale`                                                                                                                          |
-| Error            | `fn` or `loader` with no `->`; function with no implementation; `action` or a function with no return value used as a value                                                                                                                            |
-| Error            | `loader` or `action` called in `@show` or a template expression; `@load` naming a non-loader; `check =` naming an `action`                                                                                                                             |
-| Error            | Default does not type-check; union default not a member; list default outside `[min..max]`; `null` on a non-nullable                                                                                                                                   |
-| Error            | `T[..]?` (nullable list); `(A \| B)` not after `slot`; bare union of non-strings                                                                                                                                                                       |
-| Error            | `slot` not followed by a list of components (or a union or slot set of them); `slot` on a nullable                                                                                                                                                     |
-| Error            | Slot member (explicit, or default value) that is not `@component` or not in the slot's set; empty slot set; unknown owner or group in `any(in ...)`                                                                                                    |
-| Error            | `@component` together with `@page` or `@collection`; `@group` on a non-component                                                                                                                                                                       |
-| Warning          | `except` entry outside the `in` set                                                                                                                                                                                                                    |
-| Error            | `data` with no `@load`, more than one, a `=` default, or a UI directive (`@label`, `@hint`, `@show`)                                                                                                                                                   |
-| Error            | `@load` return type differs from the field type; loader param with no default and no matching `@route`; `@route` bound to a param that is not `Text` or `Int`, or with an invalid name                                                                 |
-| Error            | `@load` or `@route` on a field that is not `data`                                                                                                                                                                                                      |
-| Error            | `directive` declaration with an unknown target or duplicate param; directive used on a target it does not list                                                                                                                                         |
-| Error            | Unknown directive; directive on the wrong target; bad directive arguments                                                                                                                                                                              |
-| Error            | `@validate` with no rule parameter, only `message`, or both `pattern` and `check`, `message` with a `Text?` check; invalid RE2 pattern; `pattern` on a non-`Text` field                                                                                |
-| Error            | `@show` call that is not a `fn` returning `Bool`; `check` function that returns neither `Bool` nor `Text?`; `check` param that is not `value` or a type-matching sibling name; call with a positional or missing required argument; `value` in `@show` |
-| Error            | `@show` with an unknown name, type mismatch, ordering on unordered types, or reference to a `data` field                                                                                                                                               |
-| Error            | Reference to an `@internal` name from another owner; `@internal` on a non-type, non-function                                                                                                                                                           |
-| Error            | `@cache`, `@timeout`, or `@fallback` on a target they do not apply to; bad duration; `ttl` missing; `stale` shorter than `ttl`; `@fallback("null")` on a non-nullable; `@fallback("stale")` with no `stale` cache                                      |
-| Error            | `@editor` route not registered, on a `data` field, or more than one on a target                                                                                                                                                                        |
-| Error            | `Ref(T)` where `T` is not `@collection` or plugin-registered                                                                                                                                                                                           |
-| Error            | `@component` with no bound template and no engine default; template naming an unknown type; two templates naming one type                                                                                                                              |
-| Error            | `@context` that is not a record of `data` fields only, has a loader param with no default, repeats a field name within the owner, or is also `@page`, `@collection`, or `@component`                                                                   |
-| Error            | `@cache` on a `@personal` field, or on a `@page` or data type that reads one; inline (non-island) read of a `@personal` field                                                                                                                          |
-| Warning          | `@page` default pattern whose `{param}` names differ from the `@route` param set                                                                                                                                                                       |
-| Error            | `@page` together with `@collection` on one type                                                                                                                                                                                                        |
-| Error            | `..Name` of a non-record, cyclic, `@internal` to another owner, or colliding with a field name; directives on a `..` line                                                                                                                              |
-| Error            | `t(...)` outside a text parameter; key not found in the default locale; key resolves to a group                                                                                                                                                        |
-| Error            | Locale leaf that is not a string; duplicate key path for one language; key group named like an owner                                                                                                                                                   |
-| Error            | Positional record entry; float literal                                                                                                                                                                                                                 |
-| Warning          | Unused `use`; `t(...)` key missing in a non-default locale                                                                                                                                                                                             |
-| Warning          | Field named like a reserved directive; redundant `= null`                                                                                                                                                                                              |
-| Publish-blocking | Required prop or slot left empty (not a compile error)                                                                                                                                                                                                 |
-
----
-
-## 11. Grammar (EBNF)
+EBNF. Tokens (`IDENT`, `TYPENAME`, `STRING`, `INT`, `DECIMAL`, `NEWLINE`): COMMON §3. `expr`, `call` and `qident`: COMMON §4. A directive argument is a literal, `t(...)` or a function name; only `@show` and `check =` take an expression.
 
 ```
-file      = { use } { decl } ;
-use       = "use" IDENT [ "as" IDENT ] NEWLINE ;
+file      = { useline } { decl } ;
+useline   = "use" IDENT [ "as" IDENT ] NEWLINE ;
 
-decl      = TYPENAME "::" ( record | typeexpr { dir } { dirline } )
-          | IDENT "::" ( "fn" | "loader" ) "(" [ param { "," param } ] ")" "->" typeexpr { dir } { dirline }
-          | IDENT "::" "action" "(" [ param { "," param } ] ")" [ "->" typeexpr ] { dir } { dirline }
-          | IDENT "::" "directive" "on" target { "|" target } [ "(" [ param { "," param } ] ")" ]
-          | IDENT "::" "locale" "{" { lentry } "}" ;
-target    = "field" | "data" | "alias" | "type" | "fn" | "loader" | "action" ;
-
-record    = "{" { dirline } { field | spread } "}" ;
-spread    = ".." qname NEWLINE ;
-dirline   = NEWLINE dir { dir } ;
-field     = IDENT ":" [ "slot" | "data" ] typeexpr [ "=" value ] { dir } { dirline } ;
+decl      = TYPENAME "::" ( record | typeexpr dirs )
+          | IDENT "::" ( "fn" | "loader" ) "(" [ params ] ")" "->" typeexpr dirs
+          | IDENT "::" "action" "(" [ params ] ")" [ "->" typeexpr ] dirs
+          | IDENT "::" "directive" "on" target { "|" target } [ "(" [ params ] ")" ]
+          | IDENT "::" "locale" "{" [ lentry { SEP lentry } ] "}" ;
+target    = "field" | "data" | "alias" | "type" | "fn" | "loader" | "action"
+          | "for" | "render" ;
+params    = param { "," param } ;
 param     = IDENT ":" typeexpr [ "=" value ] ;
 
-typeexpr  = elem [ list ] [ "?" ] ;
-elem      = atom | "(" atom { "|" atom } ")" | STRING { "|" STRING } | anyset ;
-anyset    = "any" [ "(" [ "in" scope ] [ "," ] [ "except" qname { "|" qname } ] ")" ] ;   (* only after slot *)
+record    = "{" { dirline } [ field { SEP field } ] "}" ;
+field     = IDENT ":" ( "slot" slottype | [ "data" ] typeexpr ) [ "=" value ] dirs ;
+dirs      = { dir } { dirline } ;
+dirline   = NEWLINE dir { dir } ;
+
+typeexpr  = base [ "?" | list ] ;
+base      = refexpr | qname | STRING "|" STRING { "|" STRING } ;
+refexpr   = "Ref" "(" qname ")" ;
+slottype  = ( qname | "(" qname { "|" qname } ")" | anyset ) list ;
+anyset    = "any" [ "(" "in" scope ")" ] ;
 scope     = IDENT [ "." IDENT ] ;
-atom      = qname [ "(" typeexpr ")" ] | STRING ;
 qname     = [ IDENT "." ] TYPENAME ;
 list      = "[" [ INT ] ".." [ INT ] "]" ;
 
@@ -736,52 +466,85 @@ value     = STRING | INT | DECIMAL | "true" | "false" | "null"
           | qname "{" [ entry { SEP entry } ] "}" ;
 entry     = IDENT "=" value ;
 
-dir       = "@" qident [ "(" [ arg { "," arg } ] ")" ] ;
-qident    = [ IDENT "." ] IDENT ;
-arg       = value | tcall | qident | IDENT "=" ( value | tcall | qident ) | expr ;   (* bare qident: @load(f), check = f; expr only for @show *)
+dir       = "@show" "(" expr ")"
+          | "@" qident [ "(" [ arg { "," arg } ] ")" ] ;
+arg       = "check" "=" call
+          | [ IDENT "=" ] ( value | tcall | qident ) ;
 tcall     = "t" "(" IDENT { "." IDENT } ")" ;
 
-expr      = andexpr { "or" andexpr } ;
-andexpr   = notexpr { "and" notexpr } ;
-notexpr   = [ "not" ] cmp ;
-cmp       = operand [ ( "==" | "!=" | "<" | "<=" | ">" | ">=" ) operand | "in" "[" [ value { "," value } ] "]" ]
-          | "(" expr ")" ;
-operand   = IDENT | STRING | INT | DECIMAL | "true" | "false" | "null" | call ;
-call      = qident "(" [ narg { "," narg } ] ")" ;
-narg      = IDENT "=" expr ;
-
-lentry    = IDENT "=" ( STRING | "{" { lentry } "}" ) ;
+lentry    = IDENT "=" ( STRING | "{" [ lentry { SEP lentry } ] "}" ) ;
 SEP       = "," | NEWLINE ;
 ```
 
----
+- `Text`, `Int`, `Decimal` and `Bool` are `TYPENAME`s resolved as core names. `Ref` is a special form: its argument is a `qname`.
+- `arg` alternatives are tried in order; `check = call` applies only to `@validate`. A bare `qident` argument names a function (`@load(f)`).
 
-## 12. Examples
+## 10. `check` rules
 
-### Project types (`types.vegs`, owner `app`)
+Namespace, `use`, expression and directive-syntax errors: COMMON §1 to §5. Rules for data, routes and caching: VEGS-DATA §10. Template rules: VEGT §10.
+
+| Level   | Rule                                                                              | §    |
+| ------- | --------------------------------------------------------------------------------- | ---- |
+| Error   | `Upper` declaration that is not a type; `lower` that is not a function, directive or locale | §2 |
+| Error   | Bare union of non-strings; `(A \| B)` outside `slot`; nullable list; `Ref(T)` with `T` not a `@collection` | §3 |
+| Error   | Theme declares `fn`, `loader`, `action` or `directive`                            | §4   |
+| Error   | `fn` or `loader` without `->`; function with no implementation                    | §4.4 |
+| Error   | Plugin `fn` called in a template; `loader` or `action` called in an expression    | §4.4 |
+| Error   | Function with no return value used as a value                                     | §4.4 |
+| Error   | Directive declaration with unknown target or duplicate param; template-target directive from a theme or plugin | §4.5 |
+| Error   | Locale leaf that is not a string; duplicate key path for one language             | §4.6 |
+| Error   | Positional record entry                                                           | §4.1 |
+| Error   | Default does not type-check; union default not a member; list default out of bounds; `null` on a non-nullable | §5 |
+| Error   | `slot` without a list of components; nullable slot                                | §5   |
+| Error   | `@component` with no template; template naming an unknown type; two templates for one type | §6.1 |
+| Error   | Template bound to a `@collection` or `@global` record                             | §6.1 |
+| Error   | `@component` together with `@page`, `@collection`, `@not_found` or `@global`      | §6.1 |
+| Error   | Slot member or default that is not a `@component` or not in the set; empty set; unknown namespace or group | §6.2 |
+| Error   | `@group` on a non-component                                                       | §6.2 |
+| Error   | Reference to an `@internal` name from another namespace; `@internal` on a non-type, non-function | §6.4 |
+| Error   | `@show` with unknown name, type mismatch, `data` field read, or a call that is not a `Bool` `fn` | §7.3 |
+| Error   | `@validate` with no rule parameter, both rules, or `message` alone / with a `Text?` check | §7.4 |
+| Error   | `check` that is not one call to a `fn` or `loader`, or returns neither `Bool` nor `Text?`; `value` outside `@validate` | §7.4 |
+| Error   | Invalid `pattern`; `pattern` on a non-`Text` field                                | §7.4 |
+| Error   | `t(...)` outside a text parameter; key missing in the default locale; key resolves to a group; key group named like a namespace | §7.5 |
+| Error   | `@editor` route not registered, served by a plugin, on a `data` field, or more than one on a target | §7.6 |
+| Warning | `= null` on a nullable prop                                                       | §5   |
+| Warning | `t(...)` key missing in a non-default language                                    | §7.5 |
+| Content | Required prop or slot left empty                                                  | §5   |
+
+## 11. Example
+
+A theme's schema (namespace `theme`) with an extension's declarations (`acme`, a plugin) shown as comments.
 
 ```
+// acme declares: slugFree :: loader(value: Text) -> Text?
+//                swatch   :: directive on field | alias (format: "hex" | "rgb" = "hex")
 use std
+use shopify
+use acme
 
-Headline :: Text @max(80) @label("Headline") @hint("Shown as the banner H1")
+Headline :: Text @max(80) @label(t(headline.label))
+Tone     :: "light" | "dark"
+Brand    :: Text @acme.swatch(format = "rgb")
 
 Button :: {
   @component
+  @group(inline)
   label: Text @max(40)
   url:   Text = "/"
 }
 
 Callout :: {
   @component
+  @group(inline)
   text: std.RichText
 }
-```
 
-### A component (`Hero`)
-
-```
-use std
-use shopify
+MaybeLink :: {
+  @component
+  @yields
+  link: std.Link?
+}
 
 Hero :: {
   @component
@@ -790,163 +553,36 @@ Hero :: {
   @hint(t(hero.hint))
 
   heading:  Headline = "Welcome"
-  body:     std.RichText?
-  image:    std.Image = std.Image { src = "/placeholder.jpg", alt = "" }
-  cta:      std.Link? = std.Link { url = "/", label = "Shop now" }
-  tone:     "light" | "dark" = "light"
-  featured: Ref(shopify.Product)?
+  tone:     Tone = "light"
   overlay:  Text? @show(tone == "dark")
-
+  image:    std.Image
+  cta:      std.Link? = std.Link { url = "/", label = "Shop now" }
+  featured: Ref(shopify.Product)?
   content:  slot (Button | Callout)[0..3] = [Button { label = "Shop now" }]
-
-  product:  data shopify.Product @load(shopify.productBy) @route("handle")
 }
-```
-
-### Locale files
-
-```
-// locales/en.vegs
-en :: locale {
-  hero = {
-    label = "Hero banner"
-    hint  = "Full-width banner with heading and CTA"
-  }
-}
-```
-
-```
-// locales/fr.vegs
-fr :: locale {
-  hero = {
-    label = "Bannière principale"
-    hint  = "Bannière pleine largeur avec titre et bouton"
-  }
-}
-```
-
-### Pages and collections (`pages.vegs`)
-
-```
-use std
-use shopify
 
 Seo :: {
   title:       Text @max(60)
   description: Text? @max(160)
-  image:       std.Image?
-}
-
-Post :: {
-  @collection("posts")
-
-  title:  Text @max(120)
-  slug:   Text
-    @validate(pattern = "^[a-z0-9-]+$", message = "Lowercase letters, digits, dashes")
-    @validate(pattern = "^[^-]", message = "Must not start with a dash")
-  author: Ref(Author)
-  body:   std.RichText
 }
 
 MarketingPage :: {
-  @label("Marketing page")
   @page
-
-  seo:    Seo
-  header: Header
-  main:   slot any(in app.sections)[1..]       // every app component tagged sections
-  footer: Footer
+  seo:  Seo
+  main: slot any(in theme.sections)[1..]
 }
 
-LandingPage :: {
-  @page
-  main: slot any(except Button | Callout)[0..]  // everything but small inline pieces
-  shop: slot any(in shopify)[0..4]              // only shopify components
+Contact :: {
+  @component
+  @group(sections)
+  slug: Text
+    @validate(pattern = "^[a-z0-9-]+$", message = t(errors.slug_chars))
+    @validate(check = acme.slugFree(value = value))
 }
 
-BlogPost :: {
-  @label("Blog post")
-  @page("/blog/{slug}")
-
-  post:    data Post @load(postBy) @route("slug")
-  sidebar: slot (Newsletter | Promo)[0..2]
-  seo:     Seo
-}
-
-ProductPage :: {
-  @page("/products/{handle}")
-
-  product: data shopify.Product @load(shopify.productBy) @route("handle")
-  main:    slot (Hero | Reviews | RelatedProducts)[0..]
-  seo:     Seo
+en :: locale {
+  headline = { label = "Headline" }
+  hero     = { label = "Hero banner", hint = "Full-width banner with heading and button" }
+  errors   = { slug_chars = "Lowercase letters, digits, dashes" }
 }
 ```
-
-### Functions and an alias
-
-```
-use shopify
-use intl
-
-Product :: shopify.Product
-
-money     :: fn(m: shopify.Money, locale: Text? = null) -> Text
-postBy    :: loader(slug: Text) -> Post
-addToCart :: action(product: Ref(shopify.Product), qty: Int = 1) -> shopify.Cart
-clearCart :: action()
-```
-
-### A directive and a context
-
-```
-// plugins/shopify/types.vegs (owner shopify)
-swatch :: directive on field | alias (format: "hex" | "rgb" = "hex")
-
-Brand :: Text @swatch(format = "rgb")
-
-// app: ambient data, available in every app template
-Site :: {
-  @context
-  settings: data SiteSettings @load(siteSettings) @cache(ttl = "10m")
-}
-siteSettings :: loader() -> SiteSettings
-```
-
----
-
-## 13. Stored data and schema drift
-
-Stored content is keyed by type identity (`owner.Name`) and field name. When the schema changes (a rename, a delete, a type change), old data no longer matches. The language has no rename syntax. The host detects drift instead and never deletes data on its own.
-
-| Drift             | What the host finds                                                                                    |
-| ----------------- | ------------------------------------------------------------------------------------------------------ |
-| **Unknown field** | A stored field name that the type no longer declares                                                   |
-| **Unknown type**  | A stored document or slot child whose `owner.Name` no longer exists                                    |
-| **Invalid value** | A stored value that fails its type (wrong kind, outside `@min` / `@max` / list bounds, not in a union) |
-
-Where it shows:
-
-- **On the document, in the admin.** An unknown field is still shown, read-only, under an alert: "Unknown field `heading`: not in the schema. Stored value: ...". An unknown slot child appears as a placeholder card ("Unknown component `app.Testimonials`") that holds its raw data. An invalid value is shown in its field with an alert and the stored value.
-- **A hint, not a command.** The alert may list a likely match: an undeclared field of the same type on that record, or a similarly named type. The editor can copy the value across in the form, then delete the orphan. Nothing is moved automatically.
-- **Project report.** `vegs check --data` lists each drift with its document count. The admin shows a project-level banner while any drift exists.
-- **Publish.** Unknown fields and types are ignored when rendering. An invalid value blocks publish like an empty required field.
-- **Cleanup is explicit.** Orphans are removed only by an editor deleting them in the admin, or a host-level cleanup the project runs on purpose.
-
-## 14. Extension policy
-
-Additive, never breaking:
-
-- New directives, core types, declaration kinds, loaders, `@validate` parameters, and function features.
-- Existing meanings never change. An unknown directive is always an error, so semantics are never silently ignored.
-
-## 15. Open items
-
-1. **Date and time types** (`std` or a plugin), and parameterized queries as data sources.
-2. **`t(...)` parameters and plural forms**, and where the default locale is configured.
-3. **Translating content values** (separate from editor labels).
-4. **`@validate` extras:** `min`, `max`, and cross-field `expr` parameters.
-5. **Reading the current user in `@show`:** left to access plugins (§9).
-6. **Multiple groups per component** (`@group(a, b)`), and groups spanning owners.
-7. **Per-slot-instance overrides** in the admin (for example hiding a component from one page).
-8. **Template binding:** header-based (§6.3, current) versus a file-stem rule with an optional `@template("stem")` override. Header-based keeps `.vegs` free of name rules.
-9. **Islands and reverse routing:** `check` rules that depend on the template spec (§6.4, §8) are listed here until that spec is final.

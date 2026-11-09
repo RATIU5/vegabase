@@ -1,98 +1,102 @@
-# VegaBase Template Language (`.vegt`): Spec v0.1 draft
+---
+status: draft
+updated: 2026-11-08
+---
 
-A small, typed template language for a plugin-based, hypermedia-first CMS. A template turns a schema type's data into HTML. A `check` step validates every template against its schema before publish.
+# Vegabase template language (.vegt)
 
-It is a rendering layer. It does not define data, types, caching, or I/O: those live in the schema (`.vegs`) and in Go.
+Edition draft; index in README.md.
 
-**Design rules**
+A small, typed template language. A template turns one schema type's data into HTML. `check` validates every template against its schema before a deployment can activate (COMMON §6).
 
-- The core is tiny: five tags, one output form, one comment form.
-- Structure is words, decoration is directives: tags are keywords in braces, `@` only decorates a tag.
-- A tag's kind (void or block) is fixed by its keyword. Never by a slash.
-- Templates are pure. No I/O, no side effects, no mutable state. Data arrives from the schema; logic lives in Go functions.
-- Undefined is an error. Output is escaped by default.
-- Shares its lexical conventions with the schema language (`use`, `owner.Name`, `=` for values, `@` for directives), but is a separate grammar.
-- Extend by adding names (functions, components, directives), never by changing syntax or meanings.
+A template renders. It does not declare data, types, caching or I/O: those live in the schema (VEGS.md, VEGS-DATA.md) and in the core, vendor libs and plugins. Shared rules (lexical tokens, `use`, expression grammar, directive syntax, `check` levels) are in COMMON.md and are linked, not repeated.
+
+**Design rules** (beyond COMMON)
+
+- Six tags, one output form, one comment form.
+- A tag's kind (void or block) is fixed by its keyword, never by a slash.
+- Rendering is pure: the same data gives the same output. No I/O, no side effects, no mutable state.
+- Output is escaped for its context, and the template must parse as HTML5 (§8).
 
 ---
 
 ## 1. Templates and binding
 
-A template file (`*.vegt`) holds markup plus tags. A file's name and location mean nothing to the language.
+A template file (`*.vegt`) holds markup plus tags. File name and location mean nothing. The first tag after the `use` tags, `{type Name}`, binds the file to one schema type (§4). That type is the template's **subject**.
 
-- The host **binds** each template to exactly one schema type: a component or a page (`@component`, `@page`). The bound type is the template's **subject**.
-- Every prop and `data` field of the subject is in scope by name (§6). Nothing else is.
-- A template cannot see the props of its slot children (§5.4). It renders them opaquely.
-- Rendering is **pure**: the same data gives the same output. Data resolution, caching, and inline-vs-island decisions are made from the schema before the template runs. The template contains no caching vocabulary.
+- The subject's props and `data` fields are in scope by name (§6).
+- A template cannot see the props of its slot children (§5.4); it renders them opaquely.
+- The data layer resolves every `data` field before the template runs (VEGS-DATA §1, §2). A template never fetches.
+- Templates carry no caching vocabulary. Neither `render` nor `slot` decides a component's cache class; the schema derives it (VEGS-DATA §5).
+- A component whose `data` field has no acceptable value renders empty; the page still renders (VEGS-DATA §7).
 
 ---
 
 ## 2. Lexical
 
-| Item           | Rule                                                                |
-| -------------- | ------------------------------------------------------------------- |
-| Output         | `{expr}`                                                            |
-| Tag            | `{keyword ...}`, closed (block tags only) by `{/keyword}`           |
-| Comment        | `{# ... #}`, may span lines, never emitted                          |
-| Strings        | `"..."`, escapes `\" \\ \n \t \uXXXX`                               |
-| Int            | `42`, `-7`                                                          |
-| Decimal        | `19.99d`, `0d`. Must end in `d`                                     |
-| Float          | **Not supported.** `1.5` is a lex error                             |
-| Bool / null    | `true` `false` `null`                                               |
-| `Upper` ident  | `[A-Z][A-Za-z0-9]*`: component and type names                       |
-| `lower` ident  | `[a-z_][A-Za-z0-9_]*`: props, variables, functions, owners          |
-| Qualified name | `owner.Name` or `owner.fn`                                          |
-| Keywords       | `use as if elif else for render slot in and or not true false null` |
+Shared tokens (strings, `Int`, `Decimal`, `Bool`, `null`, identifiers, qualified names): COMMON §3.
 
-- Everything outside `{...}` is literal text and is emitted unchanged. Whitespace is never altered.
-- A `{` followed by whitespace or a newline is literal text. To emit any other literal brace, output a string: `{"{"}`.
-- `{#` always starts a comment.
-- Expressions never span tags, but may span lines inside one pair of braces.
+| Item        | Rule                                                                         |
+| ----------- | ---------------------------------------------------------------------------- |
+| Output      | `{expr}`                                                                     |
+| Tag         | `{keyword ...}`, closed (block tags only) by `{/keyword}`                    |
+| Comment     | `{# ... #}`, may span lines, never emitted                                   |
+| Keywords    | `use type as if elif else for render slot in and or not true false null`     |
 
-### Punctuation
+| Token | Meaning                                       |
+| ----- | --------------------------------------------- |
+| `{ }` | Opens and closes an output or tag             |
+| `{/`  | Opens a block closer                          |
+| `{#`  | Always starts a comment                       |
+| `=`   | Names an argument value                       |
+| `\|`  | Pipe                                          |
+| `??`  | Fallback when a value is `null`               |
+| `.`   | Field access, qualified name                  |
+| `@`   | Directive                                     |
 
-| Token | Meaning                           |
-| ----- | --------------------------------- |
-| `{ }` | Opens and closes an output or tag |
-| `{/`  | Opens a block closer              |
-| `=`   | Names an argument value           |
-| `\|`  | Pipe                              |
-| `??`  | Fallback when a value is `null`   |
-| `.`   | Field access, qualified name      |
-| `@`   | Directive                         |
+- Everything outside `{...}` is literal text, emitted unchanged. Whitespace is never altered, with one exception: a header tag (`use`, `type`) alone on its line emits nothing, line break included. Whitespace control: Q-041.
+- A `{` followed by whitespace or a line break is literal text. To emit any other literal `{`, output a string: `{"{"}`. A `}` outside a tag is literal text.
+- An expression never spans tags but may span lines inside one pair of braces.
 
 ---
 
 ## 3. Tags
 
-Five keywords. Each is either **void** (no closer) or **block** (always closed by `{/name}`).
+Six keywords. Each is **void** (no closer) or **block** (always closed by `{/name}`).
 
-| Tag                    | Kind          | Job                                  |
-| ---------------------- | ------------- | ------------------------------------ |
-| `use`                  | void          | Import an owner (§4)                 |
-| `if` / `elif` / `else` | block         | Conditional (§5.1)                   |
-| `for`                  | block         | Loop (§5.2)                          |
-| `render`               | void or block | Render a component (§5.3)            |
-| `slot`                 | void          | Output a slot or the children (§5.4) |
+| Tag                    | Kind          | Job                                               |
+| ---------------------- | ------------- | ------------------------------------------------- |
+| `type`                 | void          | Bind the template to its subject type (§4)        |
+| `use`                  | void          | Import a namespace (§4, COMMON §2)                |
+| `if` / `elif` / `else` | block         | Conditional (§5.1)                                |
+| `for`                  | block         | Loop (§5.2)                                       |
+| `render`               | void or block | Render a bound type (§5.3)                        |
+| `slot`                 | void          | Output a slot field or the body (§5.4)            |
 
-`elif` and `else` are separators inside an `if` (and `else` inside a `for`), not tags of their own: they have no closer.
+`elif` and `else` are separators inside an `if` (and `else` inside a `for`), not tags: they have no closer. An unclosed block, a stray separator or closer, or a misspelled keyword is an error.
 
 ---
 
-## 4. Imports: `use`
+## 4. Header: `use` and `type`
+
+A template starts with zero or more `use` tags, then exactly one `type` tag. Only comments and whitespace may sit between or before them.
 
 ```
 {use shopify}
 {use shopify as shop}
+{type Hero}
 ```
 
-- `use` imports an **owner**, never individual names. Names stay qualified at each use site (`shopify.money`, `shopify.Stock`).
-- `use` tags come first in the file, before any other tag or output.
-- `use` is non-transitive and affects only its own file.
-- `as` renames the owner inside that file only.
-- A `use` is **required** for every qualified reference to that owner in the file: functions, components, directives.
-- The subject's own owner and the built-in functions (§7.2) need no `use`. `use app` is an error.
-- Unknown owner or duplicate `use` is an error. Unused `use` is a warning.
+**`use`** follows COMMON §2: it imports a namespace; qualified references (`shopify.money`, `shopify.cart`, `t(...)` keys from another namespace) need it; `use theme` is an error; an unused `use` is a warning.
+
+**`type`** names the subject. Binding rules:
+
+- `Name` is a bare `Upper` identifier. It resolves in the file's own namespace only. A theme template cannot bind a `std` or extension type.
+- A template may bind any record type that is not `@collection` or `@global`.
+- A type is **placeable** in a slot only if it is a `@component` (VEGS §6.1). A plain record with a template can be rendered with `{render}` but not placed.
+- A `@component` with no template is an error; the engine has no default template.
+- Two templates for one type is an error. A template naming an unknown type is an error.
+- `@page` and `@not_found` types bind templates the same way (VEGS-DATA §4). A `@page` template must not read `@private` data; move the read into a component (VEGS-DATA §5).
 
 ---
 
@@ -104,14 +108,13 @@ Five keywords. Each is either **void** (no closer) or **block** (always closed b
 {if product.compareAt > product.price}
   <s>{product.compareAt | shopify.money}</s>
 {elif product.featured}
-  <span>Featured</span>
+  <span>{t(badge.featured)}</span>
 {else}
-  <span>Regular price</span>
+  <span>{t(badge.regular)}</span>
 {/if}
 ```
 
-- The condition must be `Bool` or a nullable type `T?`. A nullable is true when non-null, false when `null`. Nothing else is truthy or falsy: `Text`, `Int`, and lists are not conditions. Compare explicitly (`name != ""`, `length(items) > 0`).
-- **Narrowing:** inside the branch, a condition that tests a nullable for non-null (`{if x}`, `x != null`, joined with `and`) narrows `x` from `T?` to `T`. Narrowing does not carry into `elif`/`else`, nor through `or` or `not`.
+- The condition is `Bool` or a nullable `T?`. Truthiness and narrowing: §7.1.
 - There is no `unless`. Use `not`.
 
 ### 5.2 `for`
@@ -119,6 +122,8 @@ Five keywords. Each is either **void** (no closer) or **block** (always closed b
 ```
 {for item in product.images}
   <img src="{item.src}" alt="{item.alt}">
+{else}
+  <p>{t(gallery.empty)}</p>
 {/for}
 
 {for item, i in product.images}
@@ -126,24 +131,15 @@ Five keywords. Each is either **void** (no closer) or **block** (always closed b
 {/for}
 ```
 
-- Iterates a list. The source must be a list type (never null).
-- An optional `{else}` renders when there is nothing to iterate: the list is empty, or `@offset`/`@limit` (§9) leave no items. Without `{else}`, an empty loop renders nothing.
-
-```
-{for item in cart.lines}
-  <li>{item.title}</li>
-{else}
-  <p>Your cart is empty.</p>
-{/for}
-```
-
-- `item` is the element. The optional second name is the zero-based index (`Int`).
-- Loop variables are visible only inside the block and may not shadow anything in scope (§6).
-- There is no default loop or pagination cap. Use `@limit`, `@offset`, `@reverse` (§9) to shape iteration.
+- The source must be a list (lists are never null, VEGS §3). `item` is the element; the optional second name is the zero-based index (`Int`) over the items actually iterated.
+- `{else}` renders when there is nothing to iterate: the list is empty, or `@offset`/`@limit` (§9) leave no items. Without `{else}`, an empty loop renders nothing.
+- Loop variables are visible only inside the block and may not collide with a name in scope (§6).
+- No default cap and no pagination. Shape iteration with `@limit`, `@offset`, `@reverse` (§9).
+- Looping over slot children with a wrapper per child: Q-042.
 
 ### 5.3 `render`
 
-Renders a component. Arguments are **named only** and bind to the component's **props**.
+Renders a type bound to a template. Arguments are named only and bind to the type's **props**.
 
 ```
 {render Gallery(images = product.images)}
@@ -154,24 +150,26 @@ Renders a component. Arguments are **named only** and bind to the component's **
 {/render}
 ```
 
-- **Void or block is decided by the component's schema.** A component that declares a default slot is a block: it is always written `{render X(...)}...{/render}` (an empty body is allowed). A component without one is void and has no closer. `check` reports a mismatch.
-- The body is the component's **children**, rendered inside the component through its default slot (§5.4). The body is evaluated in the caller's scope.
-- Arguments use `name = expr`, the same shape as schema record entries. No positional arguments.
-- `check` verifies: the component exists and is a `@component` (or an allowed type), every argument names a prop, each type matches, every required prop is supplied, no prop is given twice. Slot and `data` fields cannot be passed as arguments.
-- Props that are omitted take their schema default.
-- Whether the component renders **inline** or as an **island** is decided by its schema, not here (§1). The `render` tag reads the same either way.
+- The target is a type with a template: a `@component`, or a plain record with a template. A `@page`, `@not_found`, `@collection` or `@global` type cannot be rendered. A template that renders itself, directly or through other `render` tags, is an error.
+- **Void or block is decided by the target's schema.** Block `{render X(...)}...{/render}` is required iff `X` is `@yields` (VEGS §6.3); an empty body is allowed. Otherwise `render` is void with no closer.
+- The body is evaluated in the caller's scope and reaches the target as its **body** (§5.4).
+- Arguments are `name = expr` (COMMON §4). No positional arguments. An omitted prop takes its schema default.
+- `check` verifies: the target exists and has a template, every argument names a prop, types match, every required prop is supplied, no prop is given twice. Slot and `data` fields cannot be passed.
+- A `render` call does not leak the caller's names into the target. The target sees only its own fields and its namespace's `@global` fields (§6).
+- `render` can add directives (`@name`) after its arguments (§9). It never sets the cache class.
+- If a rendered component's `data` field has no acceptable value, that component instance renders empty (§1).
 
-### 5.4 `slot`
+### 5.4 `slot` and body
 
 ```
-{slot main}     {# a slot field of the subject #}
-{slot}          {# the children passed to this component by render...{/render} #}
+{slot main}     {# the subject's slot field "main" #}
+{slot}          {# the body passed by render...{/render} #}
 ```
 
-- `{slot name}` outputs the subject's slot field `name`: its children, in editor order, each rendered as a component. `name` must be a slot field of the subject, else a `check` error.
-- Bare `{slot}` outputs the children passed by a block `render`. It is valid only in a component that declares a default slot.
-- A slot is rendered **opaquely**: the template cannot read child props or branch on child types. Allowed children, ordering, and min/max are enforced by the schema, not here.
-- Each child decides its own inline/island mode (§1). `slot` takes no directives that change this.
+- `{slot name}` outputs the subject's slot field `name`: its children in editor order, each rendered as its own component. `name` must be a slot field of the subject (VEGS §5).
+- Bare `{slot}` outputs the **body**: the markup the caller wrote inside `{render X(...)}...{/render}`. It is valid only in a template whose subject is `@yields` (VEGS §6.3). The body is not a slot field.
+- A slot is rendered opaquely. The template cannot read child props or branch on child types. Allowed children, count and ordering are enforced by the schema.
+- `slot` takes no directives.
 
 ---
 
@@ -179,174 +177,208 @@ Renders a component. Arguments are **named only** and bind to the component's **
 
 A name in an expression resolves, in order, to:
 
-1. A loop variable (`for`) in an enclosing block.
+1. A loop variable of an enclosing `for`.
 2. A prop or `data` field of the subject.
+3. A field of a `@global` record in the template's own namespace (VEGS-DATA §6).
 
-- Anything else is an error (**undefined is an error**; there is no empty-string fallback).
-- A loop variable cannot reuse a name already in scope. There is no shadowing.
-- A `render` call does not leak its arguments or the subject's names into the component: the component sees only its own fields.
-- Slot fields are not values: they are reachable only through `{slot name}`.
-- A `data` field of non-null type is always present. A `data` field of type `T?` may be `null` and must be narrowed or defaulted before use.
+A `@global` field of another namespace is qualified (`shopify.cart`) and needs `use` (COMMON §2). The qualified form follows COMMON §4: a first part that is a namespace in scope is a qualified reference.
 
----
-
-## 7. Expressions
-
-### 7.1 Grammar summary
-
-| Element      | Forms                                         |
-| ------------ | --------------------------------------------- |
-| Literals     | string, int, decimal, `true`, `false`, `null` |
-| List literal | `["a", "b"]`, only as the right side of `in`  |
-| Names        | `lower` identifiers (§6)                      |
-| Access       | `a.b.c`: record field access                  |
-| Comparison   | `==` `!=` `<` `>` `<=` `>=`                   |
-| Membership   | `x in ["a", "b"]`, `x in list`, `"a" in text` |
-| Fallback     | `x ?? y`                                      |
-| Logic        | `and` `or` `not`, parentheses                 |
-| Call         | `fn(name = expr, ...)`, `owner.fn(...)`       |
-| Pipe         | `expr \| fn`, `expr \| fn(name = expr, ...)`  |
-
-**Precedence**, tightest to loosest: access and call, pipe, `??`, comparison and `in`, `not`, `and`, `or`.
-
-- **`x ?? y`**: the left side must be nullable (`T?`). The right side is `T` or `T?`. The result is `T` if the right side is `T`, else `T?`. The right side is not evaluated unless the left is `null`. Chains read left to right (`a ?? b ?? ""`). A non-nullable left side is an error.
-- **`in`**: `x in list` is true when `x` equals an item (`x` must match the item type). `"a" in text` is true when `a` is a substring (both `Text`). A list literal (`["a", "b"]`) is allowed only as the right side of `in`. A nullable right side must be narrowed first.
-
-- No arithmetic and no assignment. Computing belongs in Go functions.
-- `<` `>` `<=` `>=` apply to `Int` and `Decimal` of the same type. `==` `!=` apply to any two values of the same type.
-- Accessing a field of a nullable `T?` without narrowing is an error. There is no `?.`.
-- Type mismatches and unknown names or fields are `check` errors.
-
-### 7.2 Calls and pipes
-
-A call has the same shape as `render`: **named arguments only**.
-
-```
-{shopify.money(m = product.price, locale = "fr")}
-```
-
-The **pipe** is sugar: the left value binds to the function's **first parameter**, whatever its name.
-
-```
-{product.price | shopify.money}
-{product.price | shopify.money(locale = "fr")}
-{product.title | truncate(max = 60) | upper}
-```
-
-- `x | f(a = 1)` is exactly `f(<first param> = x, a = 1)`. One meaning, two spellings.
-- Piping into a function with no parameters, or giving the first parameter again by name, is an error.
-- A function used in a template must be declared in the schema (`fn`, with a Go body) and be **template-safe**: pure, no I/O, fast. Loaders and actions are not callable from templates.
-- `check` verifies the function exists, has a body, is template-safe, and that argument types match.
-
-**Built-in functions** (core, no `use`, names reserved):
-
-| Function          | Shape (illustrative)                          | Job                       |
-| ----------------- | --------------------------------------------- | ------------------------- |
-| `upper` / `lower` | `(value: Text) -> Text`                       | Case                      |
-| `truncate`        | `(value: Text, max: Int) -> Text`             | Shorten                   |
-| `length`          | `(value: Text \| list) -> Int`                | Size                      |
-| `first`           | `(value: T[..]) -> T?`                        | First item or `null`      |
-| `join`            | `(value: Text[..], sep: Text = ", ") -> Text` | Join items                |
-| `raw`             | `(value: Text) -> Text`                       | Mark as trusted HTML (§8) |
-
-Domain functions (`money`, `date`, image helpers) are not core. They come from `std` or a plugin and are used qualified (`std.money`, `shopify.money`), with a `use`.
+- Anything else is an error. There is no empty-string fallback.
+- A **collision is an error**, not shadowing: a loop variable named like a name already in scope; a subject field named like an own-namespace `@global` field; a name equal to a namespace in scope.
+- Slot fields are not values. They are reachable only through `{slot name}`.
+- A `data` field of non-null type is always present: when its value is unacceptable the component renders empty instead of running the template (VEGS-DATA §7). A `data` field of type `T?` may be `null` and must be narrowed or defaulted before use (§7.1).
+- A rendered component sees its own scope only (§5.3).
 
 ---
 
-## 8. Output and escaping
+## 7. Template expressions
+
+The grammar, calls, pipes, `??`, `in` and ordering rules are COMMON §4. Templates use the whole grammar, with these additions.
+
+### 7.1 Truthiness and narrowing
+
+- A condition (`if`, `elif`) must be `Bool` or `T?`. A nullable is true when non-null, false when `null`. `Text`, `Int`, `Decimal` and lists are never conditions: compare explicitly (`name != ""`, `length(items) > 0`).
+- **Narrowing.** Inside a branch, a condition that tests a nullable for non-null (`{if x}`, `x != null`, joined with `and`) narrows `x` from `T?` to `T`. Narrowing does not carry into `elif` or `else`, nor through `or` or `not`.
+- Field access on a nullable `T?` that is not narrowed is an error. `{x ?? ""}` gives a nullable `Text` a fallback.
+
+### 7.2 `Ref(T)` traversal
+
+`featured.title` reads a field of the entity a `Ref(T)` points to (VEGS §3).
+
+- Each traversal adds to the fetch plan. The core caps traversal depth (DESIGN §5); `check` reports a template beyond the cap.
+- A nullable `Ref(T)?` must be narrowed before traversal (§7.1).
+- A dangling reference counts as no acceptable value: the `@fallback` rule of the field applies (VEGS-DATA §7).
+
+### 7.3 Functions and built-ins
+
+A function callable from a template is a `fn` (VEGS §4.4) implemented by the core or a vendor lib. A `fn` implemented by a plugin is an error in a template; it may be used in `@show` and `@validate` only. Loaders and actions are not callable from templates.
+
+`check` verifies that the function exists, that a core or vendor lib implements it, that argument types match, and that a function with no parameters is not piped into.
+
+**Built-in functions** (core, no `use`, names reserved). Shapes use built-in-only notation (`T[..]`, `Text | list`) that VEGS cannot declare; they are illustrative signatures, not declarations.
+
+| Function          | Shape                                         | Job                                                          |
+| ----------------- | --------------------------------------------- | ------------------------------------------------------------ |
+| `upper` / `lower` | `(value: Text) -> Text`                       | Case                                                         |
+| `truncate`        | `(value: Text, max: Int) -> Text`             | Shorten                                                      |
+| `length`          | `(value: Text \| list) -> Int`                | Size                                                         |
+| `first`           | `(value: T[..]) -> T?`                        | First item or `null`                                         |
+| `join`            | `(value: Text[..], sep: Text = ", ") -> Text` | Join items                                                   |
+| `t`               | `t(key.path) -> Text` (special form)          | Translate (§7.4)                                             |
+| `url`             | `(page: PageType, ...) -> Text`               | Path of an entity page's canonical route (§7.5)              |
+
+Domain functions (`money`, `date`, image helpers) are not built in. They come from `std` or a vendor lib and are used qualified with a `use` (`shopify.money`). Their set and shapes: Q-043.
+
+### 7.4 `t(path)`
+
+```
+<p>{t(cart.empty)}</p>
+```
+
+- The argument is a dotted key path, not an expression, written as in the schema (`t(hero.label)`). It names a leaf of a locale table (VEGS §4.6). A key from another namespace starts with that namespace and needs `use`. Key rules are VEGS §7.5.
+- It resolves for the request's language, then the default locale. In VEGS, `t()` resolves for the editor's admin language instead.
+- An unknown key, or a key that ends at a group, is an error. Placeholders and plural forms: Q-036.
+- Piping into `t` is an error.
+
+### 7.5 `url(page = PageType, param = expr, ...)`
+
+```
+<a href="{url(page = ProductPage, handle = featured.handle)}">...</a>
+```
+
+- Returns the path, with market and language prefix, of the canonical route of an entity page type (VEGS-DATA §4). The path is a `Text` that goes through the URL-attribute check (§8).
+- `page` is a page type name (qualified if from another namespace). The other arguments are exactly the page's `@route` params (VEGS-DATA §3), each of the param's type.
+- A fixed page, a `@not_found` type or a non-page type as `page` is an error. Links to fixed pages come from `std.Link` props.
+- If several routes map to the type, editors mark one canonical (VEGS-DATA §4). With none, `url` renders the not-found path and the core alerts.
+- Piping into `url` is an error.
+
+---
+
+## 8. Output, escaping and HTML structure
+
+This section is canonical for escaping. The mechanism (parser, sanitizer) is DESIGN §4.
 
 `{expr}` outputs the value of `expr`.
 
-- **HTML-escaped by default**, including inside attributes.
-- Output is allowed for `Text`, `Int`, and `Decimal`. Any other type (a record, `Image`, `RichText`, a list) must be converted by a function or rendered through a component.
-- A nullable value cannot be output directly. Narrow it (`{if x}`) or give it a fallback (`{x ?? ""}`).
-- `raw` marks a `Text` as already-safe HTML and skips escaping. It is the only escape hatch, and `check` warns on every use.
-- Values inside attributes are escaped for attribute context. A value placed in a URL or script context must come from a typed function (for example one returning a `Link`), not be built by hand.
+**Allowed output types.** `Text`, `Int`, `Decimal`, and `std.RichText` in element content only. Any other type (a record, `std.Image`, a list) must be converted by a function or rendered through a component. A nullable value is narrowed (`{if x}`) or given a fallback (`{x ?? ""}`) before output.
+
+**`std.RichText`** is sanitized by the core and wrapped in `data-ignore`. It is allowed only in element content, never in an attribute, tag or script. No function or syntax outputs unescaped `Text`.
+
+**Contextual escaping.** The context is where the output sits in the HTML:
+
+| Context                                             | Rule                                                                 |
+| --------------------------------------------------- | -------------------------------------------------------------------- |
+| Element content                                     | HTML-escaped                                                         |
+| Quoted attribute value                              | Attribute-escaped                                                    |
+| URL attribute (`href`, `src`, `action`, `formaction`, others the core lists) | Attribute-escaped, then the final value is checked against the core scheme allowlist. A failing value emits an empty attribute value |
+
+**Errors.** Output inside any of these is a `check` error:
+
+- a tag name, an attribute name, or an unquoted attribute value
+- an `on*` attribute
+- `<script>` or `<style>`, or a `style` attribute
+- a Datastar expression attribute (a `data-*` attribute Datastar evaluates)
+
+Values enter Datastar signals through `data-signals`: Q-048.
+
+**URL attributes.** The URL-attribute check applies to every value placed in a URL attribute, whatever its source. `<a href="{link.url}">` with `link: std.Link` is valid: `link.url` is `Text` in a URL attribute, so the core allowlist runs on the final value at render, and a `javascript:` value emits `href=""`. A static prefix (`href="/p/{slug}"`) is allowed and the check runs on the joined value. Prefer `url(...)` (§7.5) for entity pages.
+
+**HTML5 structure.**
+
+- The template must parse as HTML5. A structure a browser would re-parent (a `<div>` inside a `<p>`, a `<tr>` outside a table) is an error.
+- Each block tag's body must contain balanced elements: every element opened inside an `if`, `elif`, `else`, `for` or `render` body closes inside the same body.
 
 ---
 
 ## 9. Directives
 
-```
-@name
-@name(value)
-@name(key = value, key = value)
-```
+Syntax and rules: COMMON §5. A directive decorates a tag. It never produces a value.
 
-One concept, the same as in the schema language: a named instruction starting with `@` that **decorates** a tag. A directive changes how a tag behaves. It never produces a value and is not a second way to call a function.
+- **Placement.** Trailing on a tag, after its arguments, before the closing `}`: `{for item in list @limit(4)}`.
+- **Targets.** A template directive is declared with `directive ... on for | render` (VEGS §4.5). Only the core and vendor libs may declare one; a theme or plugin declaration is an error.
+- Arguments are expressions in the tag's scope, so `@limit(pageSize)` is valid.
+- An unknown directive, a directive on a tag it does not list, or a bad argument is an error.
 
-- Placement: trailing on a tag, after its arguments, before the closing `}`.
-- Every directive has a fixed signature: its allowed tags and its argument types.
-- **An unknown directive is an error.** A directive on the wrong tag is an error.
-- Plugin directives are namespaced (`@shopify.name`) and need `use shopify`.
-- Directive arguments are **expressions** evaluated in the tag's scope, so `@limit(n = pageSize)` is valid.
-- Plugins and later versions add directives without touching the grammar.
+**Core directives** (all target `for`)
 
-### Core directives
+| Directive          | Meaning                                                                        |
+| ------------------ | ------------------------------------------------------------------------------ |
+| `@limit(n: Int)`   | Iterate at most `n` items. `n` below 0 is an error; 0 renders nothing          |
+| `@offset(n: Int)`  | Skip the first `n` items                                                       |
+| `@reverse`         | Iterate in reverse order                                                       |
 
-All target `for`.
-
-| Directive         | Meaning                                                                      |
-| ----------------- | ---------------------------------------------------------------------------- |
-| `@limit(n: Int)`  | Iterate at most `n` items. `n` below 0 is a `check` error; 0 renders nothing |
-| `@offset(n: Int)` | Skip the first `n` items                                                     |
-| `@reverse`        | Iterate in reverse order                                                     |
-
-- Applied in this fixed order regardless of how they are written: `@reverse`, then `@offset`, then `@limit`.
-- The loop index (`i`) counts from 0 over the items actually iterated.
-- There is no `@sort` or filter: ordering and selection belong in Go functions or the schema.
+- Applied in a fixed order, however written: `@reverse`, then `@offset`, then `@limit`.
+- There is no `@sort` or filter. Ordering and selection belong in the schema or a `fn`.
 
 ```
-{for item in product.images @offset(n = 1) @limit(n = 4)}
+{for item in product.images @offset(1) @limit(4)}
   <img src="{item.src}" alt="{item.alt}">
 {/for}
 ```
 
 ---
 
-## 10. Plugins
+## 10. `check` rules
 
-A plugin is an owner. It adds names; it never changes the language.
+Levels: COMMON §6. All template rules are Error or Warning; none is Content. Each row: phrase and the section that states it.
 
-| A plugin can add                                              | Used in a template as                      |
-| ------------------------------------------------------------- | ------------------------------------------ |
-| Functions (`fn` in its `.vegs`, Go body)                      | `shopify.money(...)`, `x \| shopify.money` |
-| Components (`@component` + a template)                        | `{render shopify.Stock(...)}`              |
-| Directives (registered in Go with targets and argument types) | `@shopify.name(...)`                       |
+**Error**
 
-A plugin cannot add tags, keywords, operators, or syntax, nor redefine the built-in functions.
+| Rule                                                                                   | §              |
+| -------------------------------------------------------------------------------------- | -------------- |
+| `use` after other content; `type` before a `use`; missing or second `type`            | §4             |
+| `use theme`; unknown or duplicate `use`; qualified reference with no `use`            | COMMON §2      |
+| Unknown type; two templates for one type                                               | §4             |
+| Subject is `@collection` or `@global`                                                  | §4             |
+| `@component` with no template                                                          | §4             |
+| `@page` template reads `@private` data                                                 | §4             |
+| Unclosed block; stray `elif`, `else` or closer; misspelled keyword                    | §3             |
+| Unresolved name or field                                                               | §6             |
+| Name collision (loop variable, subject field vs `@global` field, namespace name)       | §6             |
+| `if` condition not `Bool` or `T?`                                                      | §7.1           |
+| Field access on an un-narrowed nullable; `Ref(T)?` traversal without narrowing        | §7.1, §7.2     |
+| `Ref` traversal beyond the core depth cap                                              | §7.2           |
+| Type mismatch; ordering on non-numbers; float literal; `??`, `in` misuse              | COMMON §3, §4  |
+| Loop source not a list                                                                 | §5.2           |
+| `render` target unknown, without a template, a page, `@not_found`, `@collection` or `@global` | §5.3    |
+| `render` argument unknown, duplicated, positional or mistyped; required prop missing; slot or `data` field passed | §5.3 |
+| `render` cycle                                                                         | §5.3           |
+| Block `render` of a type that is not `@yields`; void `render` of one that is          | §5.3           |
+| `{slot name}` where `name` is not a slot field of the subject                         | §5.4           |
+| Bare `{slot}` in a template whose subject is not `@yields`                            | §5.4           |
+| Call to a plugin `fn`; unknown function; wrong arguments; pipe into a zero-parameter function, `t` or `url` | §7.3 |
+| `t(...)` with an unknown key or a key that ends at a group                                   | §7.4           |
+| `url(...)` with a non-entity-page `page`, or arguments not equal to its route params  | §7.5           |
+| Output of a nullable or of a type other than `Text`, `Int`, `Decimal`, `std.RichText` | §8             |
+| `std.RichText` outside element content                                                 | §8             |
+| Output in a tag name, attribute name, unquoted attribute, `on*`, `<script>`, `<style>`, `style` or Datastar expression attribute | §8 |
+| Template does not parse as HTML5; re-parented structure; unbalanced block body        | §8             |
+| Unknown directive; directive on the wrong tag; bad directive argument; template directive declared outside the core or a vendor lib | §9 |
 
-**All I/O goes through the schema.** A template reads data only through the subject's `data` fields, which the server resolves and caches before rendering. This is what keeps templates pure, checkable, and cacheable.
+**Warning**
+
+| Rule         | §         |
+| ------------ | --------- |
+| Unused `use` | COMMON §2 |
+
+**Check output** (reported, never fails the check)
+
+| Output                                                                                                              |
+| ------------------------------------------------------------------------------------------------------------------- |
+| Resolved slot sets: each slot's component set with identity and source file (`check --expand`, COMMON §6)           |
+| Cache class per component, as derived from the schema (VEGS-DATA §5)                                                |
+| Fixture renders: fixtures generated from the subject's schema (defaults, empty, null, min, max) are rendered; any error or panic fails the check |
 
 ---
 
-## 11. `check` rules
+## 11. Grammar
 
-| Level        | Rule                                                                                                                                                                                           |
-| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Error        | Unresolved name or field; unknown owner; qualified reference with no `use`; `use` after other content; duplicate `use`; `use app`                                                              |
-| Error        | Type mismatch in a comparison, argument, or condition; `<` `>` `<=` `>=` on non-numbers; float literal                                                                                         |
-| Error        | `if` condition that is not `Bool` or `T?`                                                                                                                                                      |
-| Error        | Field access on a nullable that is not narrowed; output of a nullable; output of a type other than `Text`, `Int`, `Decimal`                                                                    |
-| Error        | `??` with a non-nullable left side or a right side of the wrong type; `in` with mismatched item types, a non-list non-`Text` right side, or a list literal anywhere but the right side of `in` |
-| Error        | Loop source that is not a list; loop variable that shadows a name in scope                                                                                                                     |
-| Error        | `render` of an unknown or non-component type; argument that is unknown, duplicated, positional, or of the wrong type; required prop missing; slot or `data` field passed as an argument        |
-| Error        | Block `render` of a component with no default slot, or void `render` of one that has a default slot; missing or mismatched closer                                                              |
-| Error        | `{slot name}` where `name` is not a slot field of the subject; bare `{slot}` outside a component with a default slot                                                                           |
-| Error        | Function with no Go body, not template-safe, or whose arguments do not match; pipe into a zero-parameter function                                                                              |
-| Error        | Unknown directive, or a directive on the wrong tag; bad directive arguments                                                                                                                    |
-| Error        | Unclosed block, stray `elif` / `else` / closer, tag keyword misspelled                                                                                                                         |
-| Warning      | Unused `use`; any use of `raw`                                                                                                                                                                 |
-| Check output | Resolved slot sets, which components render as islands, and each template's resulting freshness (from the schema)                                                                              |
-| Check output | Fixtures generated from the subject's schema (defaults, empty, null, min, max) are rendered; any error or panic fails the check                                                                |
-
----
-
-## 12. Grammar (EBNF)
+EBNF. `expr`, `narg`, `qident`, `literal`: COMMON §4. `TYPENAME` is an `Upper` identifier, `IDENT` a `lower` identifier.
 
 ```
-template  = { use } { node } ;
+template  = { use } type { node } ;
 use       = "{" "use" IDENT [ "as" IDENT ] "}" ;
+type      = "{" "type" TYPENAME "}" ;
 
 node      = TEXT | output | comment | if | for | render | slot ;
 output    = "{" expr "}" ;
@@ -359,66 +391,43 @@ if        = "{" "if" expr "}" { node }
 for       = "{" "for" IDENT [ "," IDENT ] "in" expr { dir } "}" { node }
             [ "{" "else" "}" { node } ]
             "{/for}" ;
-render    = "{" "render" qname "(" [ arg { "," arg } ] ")" { dir } "}"
-            [ { node } "{/render}" ] ;        (* body iff the component declares a default slot *)
-slot      = "{" "slot" [ IDENT ] "}" ;
+render    = "{" "render" qname "(" [ narg { "," narg } ] ")" { dir } "}"
+            [ { node } "{/render}" ] ;   (* body iff the target is @yields *)
+slot      = "{" "slot" [ IDENT ] "}" ;   (* bare form outputs the body *)
 
-arg       = IDENT "=" expr ;
 dir       = "@" qident [ "(" [ darg { "," darg } ] ")" ] ;
 darg      = expr | IDENT "=" expr ;
-qident    = [ IDENT "." ] IDENT ;
 qname     = [ IDENT "." ] TYPENAME ;
-
-expr      = orexpr ;
-orexpr    = andexpr { "or" andexpr } ;
-andexpr   = notexpr { "and" notexpr } ;
-notexpr   = [ "not" ] cmp ;
-cmp       = coalesce [ ( "==" | "!=" | "<" | ">" | "<=" | ">=" ) coalesce
-                 | "in" ( listlit | coalesce ) ] ;
-coalesce  = pipe { "??" pipe } ;
-listlit   = "[" [ value { "," value } ] "]" ;
-pipe      = postfix { "|" qident [ "(" [ arg { "," arg } ] ")" ] } ;
-postfix   = primary { "." IDENT } ;
-primary   = value | IDENT | call | "(" expr ")" ;
-call      = qident "(" [ arg { "," arg } ] ")" ;
-value     = STRING | INT | DECIMAL | "true" | "false" | "null" ;
 ```
+
+Template additions to COMMON §4: `primary` also accepts `tcall = "t" "(" IDENT { "." IDENT } ")"` (a key path, §7.4) and `urlcall = "url" "(" "page" "=" qname { "," narg } ")"`, because `page` takes a type name, not an expression (§7.5).
 
 ---
 
-## 13. Examples
+## 12. Example
 
-### A page template (`ProductPage`)
+Schema context, in prose: `SiteHeader` has props `logo: std.Image` and `links: std.Link[..]`; the theme declares `@global` `Site` with `siteName: Text`; `shopify` declares `@global` `cart` with `quantity: Int`. `MaybeLink` is `@yields` with `link: std.Link?`. `FeaturedProduct` has `featured: Ref(shopify.Product)?`. `ProductPage` is an entity page with `@route` param `handle`. `BlogPost` has `title: Text`, `body: std.RichText`, `cta: std.Link?` and a slot `main`.
 
 ```
+{# SiteHeader.vegt #}
 {use shopify}
-
-<main class="pdp">
-  {render Gallery(images = product.images)}
-
-  {render MaybeLink(link = product.vendorLink)}
-    <h2>{product.vendor}</h2>
-  {/render}
-
-  <h1>{product.title}</h1>
-
-  {if product.compareAt > product.price}
-    <s>{product.compareAt | shopify.money}</s>
-  {/if}
-  {product.price | shopify.money}
-
-  {render shopify.Stock(product = product)}
-  {render shopify.AddToCart(product = product)}
-
-  {slot main}
-</main>
+{type SiteHeader}
+<header>
+  <img src="{logo.src}" alt="{siteName}">
+  <nav>
+    {for link, i in links @limit(6)}
+      <a class="n{i}" href="{link.url}">{link.label}</a>
+    {/for}
+  </nav>
+  <span>{t(header.cart)}: {shopify.cart.quantity}</span>
+</header>
 ```
 
-Whether `Stock` and `AddToCart` are inline or islands is decided by their schemas (their `data` cache policy). The template reads the same either way.
-
-### A component with children (`MaybeLink`)
+`siteName` is an own-namespace `@global` field (§6). `shopify.cart` is qualified and needs `use shopify`. `link.url` is `Text` in a URL attribute: the core allowlist checks it at render (§8).
 
 ```
+{# MaybeLink.vegt #}
+{type MaybeLink}
 {if link}
   <a href="{link.url}">{slot}</a>
 {else}
@@ -426,34 +435,32 @@ Whether `Stock` and `AddToCart` are inline or islands is decided by their schema
 {/if}
 ```
 
-`link` is a prop of type `std.Link?`. `{if link}` narrows it, so `link.url` is valid. `MaybeLink` declares a default slot, so callers write it as a block.
-
-### Loops and nullable handling
+`{if link}` narrows `link` from `std.Link?` to `std.Link`. Bare `{slot}` outputs the body; callers write a block `render`.
 
 ```
-<ul class="gallery">
-  {for img, i in images}
-    <li class="n{i}"><img src="{img.src}" alt="{img.alt}"></li>
-  {/for}
-</ul>
-
-<p>{subtitle ?? ""}</p>
+{# FeaturedProduct.vegt #}
+{type FeaturedProduct}
+{if featured}
+  <article>
+    <h2>{featured.title | truncate(max = 60)}</h2>
+    <a href="{url(page = ProductPage, handle = featured.handle)}">{t(product.view)}</a>
+  </article>
+{/if}
 ```
 
----
+`featured.title` traverses a `Ref(T)` and adds to the fetch plan (§7.2).
 
-## 14. Extension policy
+```
+{# BlogPost.vegt #}
+{type BlogPost}
+<article>
+  <h1>{title}</h1>
+  {body}
+  {render MaybeLink(link = cta)}
+    <strong>{t(blog.cta)}</strong>
+  {/render}
+  {slot main}
+</article>
+```
 
-Additive, never breaking:
-
-- New functions, components, directives, and built-ins.
-- New tags or keywords only if a real template cannot be written without them. Existing meanings never change.
-- An unknown directive or function is always an error, so semantics are never silently ignored.
-
-## 15. Open items
-
-1. **Local variables** (`let name = expr`): deferred. Today, compute in Go or repeat the expression.
-2. **Whitespace control** (a trim marker for tag lines).
-3. **Passing values into a component that declares a `data` field**, and the exact schema syntax that declares a default slot or marks a function template-safe (both owned by the schema spec).
-4. **Looping over slot children** with a wrapper per child (`{for child in main}`), limited to untyped, opaque children.
-5. **Domain built-ins** (`money`, `date`, image helpers) in `std`: their exact set and shapes.
+`{body}` is `std.RichText` in element content: sanitized by the core (§8). The `render` is a block because `MaybeLink` is `@yields`.

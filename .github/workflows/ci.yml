@@ -19,7 +19,7 @@ env:
 
 jobs:
   pr-title:
-    if: github.event_name == 'pull_request' && github.head_ref != 'release'
+    if: github.event_name == 'pull_request' && (github.head_ref != 'release' || github.event.pull_request.head.repo.full_name != github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -29,13 +29,15 @@ jobs:
         with:
           persist-credentials: false
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c
+        with:
+          install_args: cocogitto
       - run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
       - run: mise run lint:title -- "$TITLE"
 
   changeset:
-    if: github.event_name == 'pull_request'
+    if: github.event_name == 'pull_request' && (github.head_ref != 'release' || github.event.pull_request.head.repo.full_name != github.repository)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
@@ -47,6 +49,8 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
       - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c
+        with:
+          install: false
       - run: mise run lint:changeset -- "$BASE"
 
   check:

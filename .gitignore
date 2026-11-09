@@ -14,7 +14,6 @@
 !/SECURITY.md
 !/CHANGELOG.md
 !/.changeset/*.md
-!/.changeset/config.json
 !/.github/**
 !/docs/**
 !/scripts/**

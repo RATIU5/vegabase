@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       prerelease:
-        description: Pre-release label, none for a stable release
+        description: Pre-release label; stage uses RELEASE_STAGE, none for a stable release
         type: choice
-        options: [none, alpha, beta, rc]
-        default: none
+        options: [stage, alpha, beta, rc, none]
+        default: stage
 
 concurrency:
   group: release
@@ -19,6 +19,7 @@ permissions: {}
 
 env:
   MISE_LOCKED: "1"
+  RELEASE_STAGE: alpha
 
 jobs:
   prepare:
@@ -43,4 +44,4 @@ jobs:
         run: mise run release:prepare -- ${PRERELEASE:+--prerelease-label "$PRERELEASE"}
         env:
           GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
-          PRERELEASE: ${{ inputs.prerelease == 'none' && '' || inputs.prerelease }}
+          PRERELEASE: ${{ (github.event_name != 'workflow_dispatch' || inputs.prerelease == 'stage') && env.RELEASE_STAGE || contains(fromJSON('["alpha","beta","rc"]'), inputs.prerelease) && inputs.prerelease || '' }}

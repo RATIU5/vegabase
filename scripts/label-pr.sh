@@ -1,10 +1,11 @@
 #!/bin/sh
 set -eu
 type=$(printf '%s' "$TITLE" | sed -nE 's/^([a-z]+)(\([^)]*\))?!?: .*/\1/p')
-if [ -z "$type" ]; then
-  exit 0
-fi
-gh label create "$type" --force > /dev/null
+case $type in
+  feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert) ;;
+  *) exit 0 ;;
+esac
+gh label create "$type" > /dev/null 2>&1 || true
 for old in $(gh pr view "$PR" --json labels --jq '.labels[].name'); do
   case $old in
     feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)

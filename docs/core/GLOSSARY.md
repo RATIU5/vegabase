@@ -15,13 +15,13 @@ updated: 2026-11-08
 
 **Admin**: A person who uses the admin app to approve plugins and manage users and domains; a separate role from editor. _Avoid:_ owner, superuser.
 
-**Cache class**: How a component's output is served: **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
+**Cache class**: How a component's output is served, derived from its schema (VEGS-DATA §5): **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
 
 **CDN**: The third-party cache in front of origin that serves public shells, cached fragments and assets. Never a security boundary. "Edge cache" means the same thing. _Avoid:_ public cache.
 
-**Component**: A theme's unit of rendering: a template plus a schema with one kind, named by its schema rather than its path. _Avoid:_ snippet, partial.
+**Component**: A record type marked `@component` plus the one template that names it; placeable in slots, identified by its namespace and name, never its path (VEGS §6). _Avoid:_ snippet, partial.
 
-**Component replacement**: A theme's explicit declaration that its component takes the place of a plugin component with the same kind, schema and data needs. _Avoid:_ override, theme override.
+**Component replacement**: A theme's explicit declaration that its component takes the place of a plugin component with the same schema and data fields (syntax: Q-045). _Avoid:_ override, theme override.
 
 **Composition**: An editor-saved arrangement of components in slots, with setting values, served on a route. _Avoid:_ page, page config, JSON template.
 
@@ -37,7 +37,7 @@ updated: 2026-11-08
 
 **Customer**: A visitor logged in to a store's customer account. _Avoid:_ buyer, user, account.
 
-**Data need**: A named field selection in a component schema, bound to one source role. _Avoid:_ query, data binding.
+**Data need**: A `data` field in a schema: a typed value the data layer resolves through a declared loader, bound to one source role (VEGS-DATA §1). _Avoid:_ query, data binding.
 
 **Deployment**: An immutable, versioned snapshot of a tenant's theme and its compiled plans, validated before it can be activated. _Avoid:_ build, release, theme version.
 
@@ -49,17 +49,15 @@ updated: 2026-11-08
 
 **Engine release**: A versioned build of the core binary (`1.0.0-alpha.N` until 1.0.0). Independent of editions and deployments; each release declares the editions it supports (D-023). _Avoid:_ version (alone), build.
 
-**Entity**: Shared, durable data with a type and a canonical ID, such as a product or blog post. _Avoid:_ record, object, resource, document.
+**Entity**: Shared, durable data with a type and a canonical ID, such as a product or blog post. Its type is a `@collection` in schemas. _Avoid:_ record, object, resource, document.
 
 **Extension**: A vendor lib or plugin. The core is not an extension. _Avoid:_ app, add-on, integration, module.
 
-**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state, or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
+**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state (`@fallback`, VEGS-DATA §7), or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
 
 **Fencing**: Rejecting a write whose generation is older than the tenant's current one, so only the owning worker writes (D-018). _Avoid:_ locking.
 
 **Fetch plan**: The merged fields, per entity type and context, that a deployment's components and compositions need, computed at deploy or save. _Avoid:_ query plan, data plan.
-
-**Fixed page**: The page kind served at one editor-set URL; its kind identifier is `page`. _Avoid:_ static page.
 
 **Fragment**: The HTML of one component instance, re-rendered on its own through a signed endpoint and morphed into place by instance ID. _Avoid:_ partial, island, widget.
 
@@ -69,7 +67,7 @@ updated: 2026-11-08
 
 **Gate**: An override or access policy that keeps visitors from a page. Gates fail closed. _Avoid:_ readiness gate.
 
-**Kind**: A component's role: `layout`, `section`, `block`, or a page kind. _Avoid:_ component type.
+**Group**: An optional `@group` tag on a component that slot sets select by; replaces the old section and block kinds (VEGS §6.2). _Avoid:_ kind, component type.
 
 **Language toolchain**: The template and schema compiler front-end, type checker, LSP and plugin SDK; built separately from core and distributable as signed binaries (D-012). _Avoid:_ compiler (alone), CLI.
 
@@ -79,13 +77,15 @@ updated: 2026-11-08
 
 **Origin budget**: The maximum origin requests per second one owning worker may take for a tenant. A deployment above it fails its readiness check. _Avoid:_ capacity.
 
+**Namespace**: The name a schema or template declaration lives under: `theme`, `std` (core) or an extension's name; part of a type's identity, as in `theme.Hero` (COMMON §1). _Avoid:_ owner, package, module.
+
 **Override**: A tenant-wide rule that serves a page kind and status on given routes, optionally between a start and end time. _Avoid:_ route override, component override.
 
 **Owning worker**: The one worker that, under a lease and generation, holds a tenant's database, caches, read index and open streams. _Avoid:_ owner, home worker, shard, host.
 
 **Page**: The HTML a visitor receives for a URL: a shell plus fragments. _Avoid:_ "page" for a composition or a fixed page.
 
-**Page kind**: The role of a page-level component: fixed page, `entity`, `not-found`, or a plugin page kind served only through gates. _Avoid:_ page type, template type.
+**Page kind**: The role of a page type (a `@page` record): **fixed page** (no route params, served at editor-set URLs), **entity** (route params bind its subject), **not-found** (`@not_found`), or a plugin page kind served only through gates (Q-046). See VEGS-DATA §4. _Avoid:_ template type, static page.
 
 **PII class**: A field's or storage entry's personal-data class, which drives scope approval, filtering and erasure. _Avoid:_ sensitivity.
 
@@ -99,21 +99,23 @@ updated: 2026-11-08
 
 **Readiness check**: The rule that a deployment activates only after its required fields are in the read index and it fits the origin budget. _Avoid:_ readiness gate.
 
-**Route**: An editor-managed URL or URL pattern that maps to a page kind and a composition. _Avoid:_ template, path (a path is one URL).
+**Route**: An editor-managed URL or URL pattern that maps to a page type and a composition (VEGS-DATA §4). _Avoid:_ template, path (a path is one URL).
 
-**Shell**: The cacheable, non-personalized HTML frame of a page, into which fragments are placed. _Avoid:_ layout (a kind), skeleton.
+**Shell**: The cacheable, non-personalized HTML frame of a page, into which fragments are placed. _Avoid:_ layout, skeleton.
 
-**Slot**: A named place in a component for child components, limited by allowed kinds, depth and count. _Avoid:_ region, zone, container.
+**Slot**: A field marked `slot` where editors place child components, limited by its component set and count; depth is capped by the core (VEGS §5). _Avoid:_ region, zone, container.
 
-**Source role**: Where a data need's subject comes from: route subject, tenant globals, request, or entity-reference setting. _Avoid:_ data source, binding.
+**Source role**: Where a data need's input comes from: route subject (`@route`), tenant globals or request (`@global`), or entity-reference setting (`Ref(T)` prop). _Avoid:_ data source, binding.
 
-**Storage class**: A field's sharing class: **shared** (may enter read index, shared cache and CDN) or **private** (per customer or authorization, never shared). _Avoid:_ visibility.
+**Storage class**: A field's sharing class: **shared** (may enter read index, shared cache and CDN) or **private** (per customer or authorization, never shared; `@private` in schemas). _Avoid:_ visibility.
 
 **Store**: A tenant that sells through a commerce vendor lib (Shopify; Medusa later). _Avoid:_ shop, storefront; never "store" for a database.
 
 **Tenant**: One hosted site with its own domains, data, theme and deployments: a store or a non-commerce site. _Avoid:_ site, client, account, instance.
 
-**Theme**: A tenant's typed component library, with locales and assets, and no routes or data wiring. _Avoid:_ template, skin.
+**Theme**: A tenant's typed component library, with locales and assets. It declares data needs and default route patterns, but no functions, entity types or routes (D-029). _Avoid:_ template, skin.
+
+**Transform**: A template-callable `fn`, implemented by the core or a vendor lib, never a plugin (VEGS §4.4). _Avoid:_ filter, helper.
 
 **Type owner**: The one extension that provides an entity type's schema, batch resolver, change feed and reconciliation. _Avoid:_ owner, provider, source.
 
@@ -136,7 +138,7 @@ updated: 2026-11-08
 
 ## Ambiguous words
 
-- **owner**: owning worker or type owner. Never bare.
+- **owner**: owning worker or type owner. Never bare. A schema's `theme`/`std`/extension name is a namespace.
 - **live**: the cache class. Say "supported edition" or "activate" for the other senses.
 - **override**: the gate rule. Say "component replacement" for the theme sense.
 - **page**: the HTML. Not a composition or the fixed page kind.

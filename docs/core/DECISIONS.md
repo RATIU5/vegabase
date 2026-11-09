@@ -25,7 +25,7 @@ updated: 2026-11-08
 
 **D-008 Declared reads**: Draft (rebuilt). Every reader (component, plugin, vendor lib) declares its fields; the core plans, batches and caches them. Why: fetch once (P3); it makes G3 measurable.
 
-**D-009 Typed themes, admin-managed routes**: Draft (rebuilt). Static types end to end; editors manage routes and redirects in the admin app and the core writes them (D-017); themes are component libraries with no routes or data wiring. Why: errors at deploy or save (P4, I-001).
+**D-009 Typed themes, admin-managed routes**: Draft (rebuilt). Static types end to end; editors manage routes and redirects in the admin app and the core writes them (D-017); themes are component libraries with no routes or data wiring. Why: errors at deploy or save (P4, I-001). Amended by D-029.
 
 **D-010 Editions**: Draft (rebuilt). The spec is the API. Two supported editions at a time, with migrations and retirement deadlines. Retiring an edition carries features forward and never drops them (D-014).
 
@@ -60,6 +60,18 @@ updated: 2026-11-08
 **D-025 Manual theme port**: Accepted 2026-11-08. Shopify themes move to Vegabase by hand, with a porting guide. No Liquid converter in 1.0.
 
 **D-026 Plugin approval**: Accepted 2026-11-08. The platform team reviews and signs a plugin bundle once; a tenant admin then approves its scopes for that tenant.
+
+**D-027 Language specs**: Accepted 2026-11-08. `docs/specs/` is the single source of truth for `.vegs`/`.vegt` syntax and semantics, ranked below DECISIONS and above GLOSSARY. Accepted D- entries bind the specs.
+
+**D-028 Namespaces and implementation tiers**: Accepted 2026-11-08. Schema names live in namespaces: `theme`, `std` (core) or an extension. A theme declares no functions or directives. Template-callable `fn`s and template directives come from the core or vendor libs; plugin `fn`s serve `@show` and `@validate` only; plugin loaders are batched resolvers, never called per render. `@editor` routes come from the core or vendor libs. Why: no WASM on the render path; plugins never render HTML.
+
+**D-029 Theme data needs**: Accepted 2026-11-08. Amends D-009: a theme declares data fields (loaders of the core or extensions) and default route patterns; editors still own routes. Entity types (`@collection`) come only from `std` or extensions (D-020).
+
+**D-030 Template binding and page kinds**: Accepted 2026-11-08. A template names its type with `{type Name}`; paths carry no meaning. Section and block kinds become `@component` plus `@group`. `@page` without route params is a fixed page, with them an entity page; `@not_found` marks the not-found page.
+
+**D-031 Rendering safety in the language**: Accepted 2026-11-08. `@fallback` modes are stale, null and unavailable (default); no error mode (D-018). `@cache` sits on loaders, data fields and pages; fields and pages only tighten. Cache class is derived, `@private` data makes an on-demand fragment, and `@fragment` only tightens. No `raw`; escaping is contextual (VEGT §8).
+
+**D-032 Language simplifications**: Accepted 2026-11-08. One expression grammar (COMMON §4); ordering only on Int and Decimal; explicit `@validate` call arguments; no spread or `except`; `@personal` and `@context` renamed `@private` and `@global`; `pattern` uses the Odin `core:text/regex` dialect; templates gain `t(...)`, `url(...)` and `Ref` traversal.
 
 ## Open questions
 
@@ -99,6 +111,21 @@ updated: 2026-11-08
 | Q-032 | Which object store holds media bytes (D-020)? | CDN object storage (R2) · own store · tenant database |
 | Q-033 | What is the local theme development loop? | Local fixture runtime · remote preview tenant · both |
 | Q-034 | Glossary proposals: rename `entity` to entity page; save (editors) vs deploy (developers); global region; shared plugin | Accept or reject each · project lead |
+| Q-035 | Date and time types; parameterized queries as data sources? | `std` · extension |
+| Q-036 | `t(...)` parameters, plural forms, and where the default locale is configured? | Before themes ship visitor strings |
+| Q-037 | `@validate` extras: `min`, `max`, cross-field expressions? | Add additively · never |
+| Q-038 | Several groups per component; groups across namespaces? | Allow · keep one |
+| Q-039 | Per-slot-instance overrides in the admin app? | Allow · never |
+| Q-040 | Template local variables (`let`)? | Add · compute in functions |
+| Q-041 | Template whitespace control? | Trim marker · none |
+| Q-042 | Looping over slot children with a wrapper per child? | Opaque loop · never |
+| Q-043 | Which domain built-ins (money, date, image) does `std` ship, with what shapes? | · with Q-035 |
+| Q-044 | Theme manifest syntax (edition, name, vendor libs, global settings)? | Declaration · config file |
+| Q-045 | Component replacement syntax and namespace collision rules? | · before plugin components ship |
+| Q-046 | How do plugins declare page kinds served through gates? | · with access policies |
+| Q-047 | Custom markup for a component's unavailable state? | Template block · empty output only |
+| Q-048 | How do values enter Datastar `data-signals`, and how are pull triggers declared? | Built-in function · directive |
+| Q-049 | Field shapes of the `std` content types page, post, media (D-020)? | · before the admin app |
 
 ## Risks
 

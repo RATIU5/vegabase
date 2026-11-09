@@ -5,7 +5,7 @@ updated: 2026-11-08
 
 # Vegabase: Architecture
 
-> A deploy pipeline rejects broken themes and compositions before activation. A data layer fetches shared data once into each tenant's read index, so renders read only local data. One owning worker per tenant hosts its request pipeline, data layer and extensions; the edge and the control plane route requests to it. Stable shape only; mechanisms are in DESIGN.
+> A deploy pipeline rejects broken themes and compositions before activation. A data layer fetches shared data once into each tenant's read index, so renders read only local data. One owning worker per tenant hosts its request pipeline, data layer and extensions; the edge and the control plane route requests to it. Stable shape only; mechanisms are in DESIGN and OPERATIONS.
 
 ## Context
 
@@ -31,10 +31,10 @@ updated: 2026-11-08
 | Part              | Responsibility                                                      | Owns                                                                                              | Status           |
 | ----------------- | ------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ---------------- |
 | Edge              | Caches public output; routes requests to the owning worker          | Host normalization, forwarded-header trust, tenant → worker mapping cache                         | draft (D-001)    |
-| Control plane     | Holds platform-wide state; propagates versioned changes             | Tenants, domains, leases, activation pointer, gates, enablement, approvals, event delivery, sagas | draft (D-001)    |
+| Control plane     | Holds platform-wide state; propagates versioned changes             | Tenants, domains and certificates, leases, activation pointer, gates, enablement, approvals, event delivery, sagas | draft (D-001)    |
 | Deploy pipeline   | Validates and compiles themes and compositions into deployments     | Type checking (via the language toolchain), fetch plans, deployments, readiness check             | draft (D-001)    |
 | Request pipeline  | Turns a request into a page, fragment or SSE patch                  | Gate → redirect → route → render; fragment endpoints; open streams                                | draft (D-001)    |
-| Data layer        | Serves declared reads locally; the only path to core-owned data     | Entities, read index, caches, ingestion, published and computed fields, actions, outbox, routes and redirects | draft (D-001)    |
+| Data layer        | Serves declared reads locally; the only path to core-owned data     | Core content types, entities, read index, caches, ingestion, published and computed fields, actions, outbox, routes and redirects | draft (D-001)    |
 | Extension host    | Loads vendor libs, sandboxes plugins, enforces capabilities         | Vendor lib registration, plugin invocations, contracts, plugin private storage                    | draft (D-001)    |
 | Shopify vendor lib | The only home of Shopify commerce concepts (D-015)                  | Shopify entity types, cart, customer login, B2B context                                           | draft (D-001)    |
 | Admin app         | Lets editors compose and approve without code or data wiring        | Composer, side-effect-free preview, approval screens                                              | proposed (Q-012) |
@@ -65,6 +65,8 @@ updated: 2026-11-08
 - Always: extensions share only through published fields, owned entity types and events. Broken if: one reads another's storage or calls it.
 - Always: only the core writes core-owned data; extensions write only through core-mediated paths (D-017). Broken if: an extension changes routes, redirects, compositions, deployments or ownership directly.
 - Always: one request reads one deployment version end to end.
+- Always: the origin answers every request with a page, fragment or fallback view, never a 5xx page (D-018). Broken if: a control-plane or upstream outage produces an error page.
+- Always: a write older than the stored source version or generation is rejected (D-018, D-019).
 - Absent by design: everything in the CHARTER non-goals.
 - Absent by design: plugins rendering HTML or acting as middleware; only the core renders.
 
@@ -82,4 +84,4 @@ updated: 2026-11-08
 
 ## Open questions
 
-Q-005, Q-009 to Q-012 in DECISIONS.
+Q-005, Q-009 to Q-012, Q-020 to Q-024 in DECISIONS.

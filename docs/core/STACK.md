@@ -86,6 +86,7 @@ Derived (Speculation: 5 page views per visitor, 60% of peak in the busiest 4 hou
 - The origin response timeout is 125 s by default (Enterprise up to 6,000 s). SSE: heartbeat every 25 s and send `Cache-Control: no-store`.
 - Cloudflare for SaaS: 100 custom hostnames included on Free, Pro and Business, then $0.10 each. Pro costs $20 a month billed annually, or $25 monthly.
 - Video and large files are served through the CDN when hosted on Cloudflare Stream, Images or R2.
+- Cloudflare for SaaS custom certificates (our own, per D-021): plan, price and limits to confirm in S-6.
 - Keep purge behind one adapter: `purge_tags(tags[])`, `set_origin_auth()`.
 
 ## 7. Acceptance spikes
@@ -97,7 +98,7 @@ Derived (Speculation: 5 page views per visitor, 60% of peak in the busiest 4 hou
 | S-3 | Odin links the wasmtime C API and runs a `freestanding_wasm32` module importing only the plugin ABI | The call returns; a forbidden import fails at load                  |
 | S-4 | h2o from Odin, multi-threaded, shell plus SSE, on L2                                       | 10 min of SSE with heartbeats, stable memory; yields the origin budget |
 | S-5 | StardustDB from Odin with the token file; confirm each §3 assumption                       | Write, restart, read back; each assumption marked true or false     |
-| S-6 | CDN: tag purge, multi-tag response, SSE past the timeout, authenticated origin pull limits, origin rejects direct hits | Purge is visible within seconds                                     |
+| S-6 | CDN: tag purge, multi-tag response, SSE past the timeout, authenticated origin pull limits, origin rejects direct hits, uploading our ACME certificates for tenant hostnames (D-021) | Purge is visible within seconds                                     |
 | S-7 | Datastar CSP mode on a cached shell                                                        | Runs without `unsafe-eval`, from cache                              |
 | S-8 | Fetching C deps on a clean machine                                                         | Every commit and hash matches                                       |
 | S-9 | Shopify bulk query with `contextualPricing` per market and translations on a dev store     | Both return complete data                                           |

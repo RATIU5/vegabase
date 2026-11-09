@@ -5,7 +5,7 @@ updated: 2026-11-08
 
 # Vegabase: Design
 
-> Mechanism detail. CHARTER, GLOSSARY, ARCHITECTURE and DECISIONS outrank this doc. Template and schema syntax and concrete extension APIs are designed separately. Versions, limits and prices are in STACK.
+> Mechanism detail. CHARTER, GLOSSARY, ARCHITECTURE and DECISIONS outrank this doc; operations are in OPERATIONS. Template and schema syntax and concrete extension APIs are designed separately. Versions, limits and prices are in STACK.
 
 ## 1. Runtime
 
@@ -18,13 +18,9 @@ CDN (client TLS, HTTP/3, caching) ─ authenticated origin pull / mTLS
      └─ thread pool: libpq, libcurl, StardustDB, wasmtime, heavy renders
 ```
 
-- **Ownership**: lease plus generation. A worker whose lease lapses stops serving and closes its databases; stale-generation requests and writes are rejected. Control-plane changes reach routers and workers by Postgres `LISTEN/NOTIFY` with a polling fallback.
 - **Front routers** are stateless: verify domain ownership, normalize hosts, trust forwarded headers only from the CDN, pass the visitor IP, proxy SSE with long timeouts and no buffering.
 - **Workers**: shared (default) or dedicated. Worker config may allowlist vendor libs and set limits; each worker loads only its tenants' vendor libs.
-- **Tenant move**: stop writes, drain, close, copy a consistent snapshot, verify, bump the generation, open on the new worker, warm, reroute. CDN hits continue meanwhile; moves have a tested time budget.
-- **Upgrades** (D-013): from 1.0, rolling: move tenants to a warm sibling worker before restarting; SSE clients reconnect with staggered backoff; both binaries must support the tenant's pinned editions.
-- **Failure**: the supervisor restarts the worker (tested reopen budget). On host loss, restore from backup elsewhere under a new generation.
-- **Scale** (D-016): the CDN absorbs public traffic; each owning worker has an origin budget. One tenant beyond one worker is Q-009.
+- Ownership, fencing, moves, upgrades, failure and scale: OPERATIONS §1–3.
 
 ## 2. Request handling, memory, threads
 
@@ -55,7 +51,7 @@ CDN (client TLS, HTTP/3, caching) ─ authenticated origin pull / mTLS
 
 ## 5. Data layer
 
-- Entities: sessions and signals are not entities. Alternate keys (SKU, handle, external IDs) map to canonical IDs with declared scope and uniqueness; changed or reused keys are tombstoned. Fields declare the context dimensions they vary by.
+- Entities: the core owns the content types page, post and media (D-020). Sessions and signals are not entities. Writes carry the type owner's monotonic source version; older writes are rejected and tombstones beat older updates (D-019). Alternate keys (SKU, handle, external IDs) map to canonical IDs with declared scope and uniqueness; changed or reused keys are tombstoned. Fields declare the context dimensions they vary by.
 - Fetch plans carry relationship traversals with depth, pagination and cost limits. They are recomputed on changes to theme, composition, type owners, contracts, editions or relevant settings, and drive what the read index holds.
 - Loading: frontier loading (resolve roots, read locally, batch missing keys per type owner, repeat within limits). Order: read index → shared cache → session cache. Gap-fetch only missing or stale fields. Singleflight keyed by entity, context, field set and freshness. Outcomes: fresh, acceptable stale, unavailable, unauthorized; a field with no acceptable value renders its component's typed `unavailable` state. The readiness check keeps required index-backed fields present, so this applies only to request-time types (Q-010; never-stale fields: Q-005).
 - Read index: shared entities, projections and shared published fields. Ingestion comes from change feeds plus periodic reconciliation and bulk backfill, queued per type owner. After each commit the worker emits an in-process hint with the transaction ID; SSE consumers resync from their last transaction ID. Data classes: authoritative (backed up), derived (recomputed), external (re-ingested), with rebuildability tested per type.
@@ -96,5 +92,4 @@ CDN (client TLS, HTTP/3, caching) ─ authenticated origin pull / mTLS
 - **Postgres** (control plane): tenants, domains, users, roles, enablement, editions, ownership, plugin registry, approvals, deployment pins and the activation pointer, gates and schedules, outbox, inboxes, sagas, signing keys, usage.
 - **StardustDB** (one database per tenant): content, compositions, routes and redirects (with history for preview and rollback), theme settings, audit trail, read index, its own outbox facts, plugin private storage. Narrow `ContentStore` and index proc tables keep it swappable. Authoritative data has tested export and import; external and derived data is rebuilt by re-ingest.
 - **Activation**: stage in both databases, validate, then flip the Postgres activation pointer. Workers acknowledge before CDN purge. The previous deployment is kept for rollback. A crash before the flip leaves the old deployment active.
-- **Erasure** is a platform workflow across StardustDB history, Postgres, caches, CDN, logs, PII-classed plugin storage, published fields and backups, with an audit record.
-- **Signing**: platform keys (HSM or equivalent) sign the core, vendor libs, language toolchain and approved plugin bundles. Workers trust a control-plane key set plus a revocation list.
+- Erasure and signing: OPERATIONS §6.

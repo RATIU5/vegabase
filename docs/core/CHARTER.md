@@ -38,6 +38,7 @@ Data is fetched once and shared by every page and extension. Extensions add data
 - The Shopify vendor lib: catalog and pricing ingestion, webhooks, cart, customer login, B2B context
 - Vendor libs and sandboxed, admin-approved WASM plugins (D-011)
 - Gates, SEO basics, and two supported editions with migrations
+- Core content types (page, post, media), per-tenant logs and metrics, and a theme porting guide (D-020, D-024, D-025)
 
 ## Non-goals
 
@@ -45,6 +46,7 @@ Data is fetched once and shared by every page and extension. Extensions add data
 - Client frameworks, SPA routing, optimistic UI: hypermedia only.
 - Distributing core or vendor lib source or binaries: hosted only by us (the language toolchain is separate, D-012).
 - A public plugin marketplace: plugins are admin-approved per tenant.
+- A Liquid theme converter: themes are ported by hand (D-025).
 - Failover beyond supervisor restarts and restore from backup.
 
 ## Audience

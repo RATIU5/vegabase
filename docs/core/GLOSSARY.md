@@ -47,9 +47,15 @@ updated: 2026-11-08
 
 **Editor**: A person who uses the admin app to manage routes, compositions and content, and never writes code or wires data. _Avoid:_ merchant user, content author.
 
+**Engine release**: A versioned build of the core binary (`1.0.0-alpha.N` until 1.0.0). Independent of editions and deployments; each release declares the editions it supports (D-023). _Avoid:_ version (alone), build.
+
 **Entity**: Shared, durable data with a type and a canonical ID, such as a product or blog post. _Avoid:_ record, object, resource, document.
 
 **Extension**: A vendor lib or plugin. The core is not an extension. _Avoid:_ app, add-on, integration, module.
+
+**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state, or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
+
+**Fencing**: Rejecting a write whose generation is older than the tenant's current one, so only the owning worker writes (D-018). _Avoid:_ locking.
 
 **Fetch plan**: The merged fields, per entity type and context, that a deployment's components and compositions need, computed at deploy or save. _Avoid:_ query plan, data plan.
 
@@ -136,14 +142,7 @@ updated: 2026-11-08
 - **page**: the HTML. Not a composition or the fixed page kind.
 - **store**: a selling tenant. Say "database" (StardustDB database, Postgres) for storage.
 - **instance**: a component instance only. Say "shared/dedicated worker" for processes.
-- **version**: always qualify (edition, deployment, entity, policy, Shopify API version).
+- **version**: always qualify (engine release, edition, deployment, entity source version, policy, Shopify API version).
 - **app / admin**: a Shopify app, or our "admin app". Say "extension" for ours and "Shopify Admin API" in full.
 - **template**: a component's template file. Shopify's JSON template maps to route + composition.
 - **publish**: an extension writing a published field or event. Say "activate" for deployments.
-
-## Proposed terms
-
-- **Entity page**: rename the `entity` page kind to pair with fixed page.
-- **Save / deploy**: editors save compositions; developers deploy themes.
-- **Global region**: a shared, localized composition placed across pages (like Shopify section groups).
-- **Shared plugin**: a platform-reviewed plugin with one signed hash, used by several tenants.

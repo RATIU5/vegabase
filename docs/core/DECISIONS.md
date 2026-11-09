@@ -43,29 +43,62 @@ updated: 2026-11-08
 
 **D-017 Core-owned data and extension write paths**: Accepted 2026-11-08. Only the core writes routes, redirects, compositions, deployments and ownership. Extensions write their private storage, tenant-owned databases through vendor lib connectors, and published fields, owned entities, events and gates through host functions. Routes and redirects live in the tenant's StardustDB database, versioned and activated with compositions; Postgres keeps gates, ownership and platform state.
 
+**D-018 The origin never stops**: Accepted 2026-11-08. Workers never stop serving or return an error page. If the control plane is unreachable, they keep serving with frozen ownership, gates and activation; moves and activations wait. Anything that can't be rendered gets a fallback view; gated pages still fail closed, with the gate page as the fallback. Consequence: every write path checks the generation (fencing), so no second owner appears during an outage (Q-023). See OPERATIONS.
+
+**D-019 Source-version writes**: Accepted 2026-11-08. Each type owner supplies a monotonic version per entity; the data layer rejects writes older than the stored version, and tombstones beat older updates. Webhooks, reconciliation and bulk backfill may then arrive in any order.
+
+**D-020 Core content types**: Accepted 2026-11-08. The core is type owner of a fixed set of content types: page, post, media. A non-commerce tenant needs no extension (P1). Media bytes live in an object store (Q-032).
+
+**D-021 Own certificates for custom domains**: Accepted 2026-11-08. We verify tenant domains with a DNS TXT challenge, re-check them periodically, detach dangling ones, and issue certificates ourselves over ACME. The CDN terminates visitor TLS, so certificates are uploaded to it (S-6).
+
+**D-022 Purge coalescing**: Accepted 2026-11-08. Purges coalesce in a short window; past a threshold they fall back to coarser tags (entity type, then tenant). Gate and policy purges go first.
+
+**D-023 Version axes**: Accepted 2026-11-08. Engine release, edition and deployment version are independent. Each engine release declares the editions it supports, always both supported editions.
+
+**D-024 Observability floor for 1.0**: Accepted 2026-11-08. Structured logs plus per-tenant metrics (renders, origin load, external calls, JS weight, errors) and cost attribution.
+
+**D-025 Manual theme port**: Accepted 2026-11-08. Shopify themes move to Vegabase by hand, with a porting guide. No Liquid converter in 1.0.
+
+**D-026 Plugin approval**: Accepted 2026-11-08. The platform team reviews and signs a plugin bundle once; a tenant admin then approves its scopes for that tenant.
+
 ## Open questions
 
-| ID    | Question                                                                    | Options · settled by                                                                              |
-| ----- | --------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Q-001 | What % cut in LCP and shipped JS weight is G1's pass line?                  | Measure the current themes on the same pages (needs Q-002) · project lead                         |
-| Q-002 | Which stores are "our own", and how many must run in production for 1.0?              | · project lead                                                                                    |
-| Q-003 | Is there a time or effort bound (appetite) for 1.0?                         | None · fixed, with scope cut by goal · project lead                                               |
-| Q-004 | Is a non-commerce tenant a 1.0 deliverable?                                 | Production tenant · CI test tenant · design property only · project lead                                |
-| Q-005 | May any field be never-stale (B2B prices, balances), and may it block a page? | None · closed list rendering "unavailable" · closed list that may block · D- entry amending P2    |
-| Q-006 | Should the domain-agnostic core become a hard line?                         | Keep as P1 · promote · D- entry                                                                   |
-| Q-007 | How are third-party browser scripts admitted, and who owns the allowlist?   | Plugin theme components only · platform-owned script model · D- entry                             |
-| Q-008 | Must the charter say P2 outranks P4 (and so G2)?                            | Note on G2 · re-rank · leave · project lead                                                       |
-| Q-009 | How does one tenant scale beyond one owning worker? (urgent, D-016)         | Read-only index replicas · another database · dedicated sizing only · load test of the largest store |
-| Q-010 | Which types and contexts are index-backed vs request-time, with what staleness limits? | Workload model per type against memory and bulk-operation limits                                  |
-| Q-011 | Does the deploy pipeline run in the owning worker or a separate process?    | In worker · separate process handing plans over · architecture decision                           |
-| Q-012 | Is the admin app a part, or a client of the deploy pipeline and data layer? | Keep · demote · architecture decision                                                             |
-| Q-013 | Theme file extensions?                                                      | Keep `.vegt`/`.vegs` · rename · before editor tooling starts                                      |
-| Q-014 | Plugins as signed binary bundles or source with a server-side build?        | Binaries (lint is advisory) · source · plugin pipeline decision                                   |
-| Q-015 | May vetted partners author vendor libs?                                     | Platform team only · partners with platform review, build and signing · project lead              |
-| Q-016 | Is linux_arm64 a production target?                                         | amd64 only for 1.0 · both · hosting cost comparison                                               |
-| Q-017 | Do Stellar CSS terms allow hosted use by agencies and tenants?              | License Stellar · own token sheet · written terms (no Stellar licence text found; Datastar says Stellar works without Pro) |
-| Q-018 | How do we bound StardustDB history while keeping backups, rollback and erasure? | Confirm capabilities (S-5) · retention decision                                                   |
-| Q-019 | What are StardustDB's terms for hosted multi-tenancy and licence activation? | Vendor's terms in writing; 30-day tokens are confirmed                                            |
+| ID | Question | Options · settled by |
+| --- | --- | --- |
+| Q-001 | What % cut in LCP and shipped JS weight is G1's pass line? | Measure the current themes on the same pages (needs Q-002) · project lead |
+| Q-002 | Which stores are "our own", and how many must run in production for 1.0? | · project lead |
+| Q-003 | Is there a time or effort bound (appetite) for 1.0? | None · fixed, with scope cut by goal · project lead |
+| Q-004 | Is a non-commerce tenant a 1.0 deliverable? | Production tenant · CI test tenant · design property only · project lead |
+| Q-005 | May any field be never-stale (B2B prices, balances), and may it block a page? | None · closed list rendering "unavailable" · closed list that may block · D- entry amending P2 |
+| Q-006 | Should the domain-agnostic core become a hard line? | Keep as P1 · promote · D- entry |
+| Q-007 | How are third-party browser scripts admitted, and who owns the allowlist? | Plugin theme components only · platform-owned script model · D- entry |
+| Q-008 | Must the charter say P2 outranks P4 (and so G2)? | Note on G2 · re-rank · leave · project lead |
+| Q-009 | How does one tenant scale beyond one owning worker? (urgent, D-016) | Read-only index replicas · another database · dedicated sizing only · load test of the largest store |
+| Q-010 | Which types and contexts are index-backed vs request-time, with what staleness limits? | Workload model per type against memory and bulk-operation limits |
+| Q-011 | Does the deploy pipeline run in the owning worker or a separate process? | In worker · separate process handing plans over · architecture decision |
+| Q-012 | Is the admin app a part, or a client of the deploy pipeline and data layer? | Keep · demote · architecture decision |
+| Q-013 | Theme file extensions? | Keep `.vegt`/`.vegs` · rename · before editor tooling starts |
+| Q-014 | Plugins as signed binary bundles or source with a server-side build? | Binaries (lint is advisory) · source · plugin pipeline decision |
+| Q-015 | May vetted partners author vendor libs? | Platform team only · partners with platform review, build and signing · project lead |
+| Q-016 | Is linux_arm64 a production target? | amd64 only for 1.0 · both · hosting cost comparison |
+| Q-017 | Do Stellar CSS terms allow hosted use by agencies and tenants? | License Stellar · own token sheet · written terms (no Stellar licence text found; Datastar says Stellar works without Pro) |
+| Q-018 | How do we bound StardustDB history while keeping backups, rollback and erasure? | Confirm capabilities (S-5) · retention decision |
+| Q-019 | What are StardustDB's terms for hosted multi-tenancy and licence activation? | Vendor's terms in writing; 30-day tokens are confirmed |
+| Q-020 | Who owns search, filtering, facets and sorting? | Core per-tenant index · Shopify Storefront API · extension · decide as the project grows |
+| Q-021 | What RPO, RTO, backup cadence and restore drill do tenant databases need? A restore must re-apply erasures | After S-5 |
+| Q-022 | After an activation flip, what happens when a worker never acknowledges? | Fence the worker · roll back · retry; scope query raised by the project lead |
+| Q-023 | Lease TTL, renewal cadence and clock source, and where the generation check sits on each write path (D-018) | Design before S-5 |
+| Q-024 | What survives a tenant move or restart: SSE resync, action idempotency keys, saga steps, sessions and carts? | Persist in the tenant database · rebuild · accept loss per item |
+| Q-025 | Session cookie scope per custom domain; fragment signing key scope, rotation and host/context binding; the CDN cache key | Host-only cookies, per-tenant keys · platform-wide |
+| Q-026 | How large can contexts grow (market × language × currency × B2B location) against index memory and the 16 KB Cache-Tag limit? | Workload model per tenant (with Q-010) |
+| Q-027 | Plugin trap or fuel exhaustion mid-saga; repeated traps; computed-field budget exhaustion | Retry · compensate · poison; circuit breaker; serve stale or unavailable |
+| Q-028 | Is a declared storage or PII class trusted, and does a computed field inherit its strictest input class? | Trust and audit · inherit strictest · verify by sampling |
+| Q-029 | Where do tenant Shopify tokens live and rotate; admin authentication, MFA, roles and audit scope? | Secrets store design · project lead |
+| Q-030 | Tenant data export and deletion for 1.0? | Self-serve · operator-run · after 1.0 |
+| Q-031 | How do editors preview draft entities, and how is merchant content localized against the read index? | Draft as a context dimension · separate preview index |
+| Q-032 | Which object store holds media bytes (D-020)? | CDN object storage (R2) · own store · tenant database |
+| Q-033 | What is the local theme development loop? | Local fixture runtime · remote preview tenant · both |
+| Q-034 | Glossary proposals: rename `entity` to entity page; save (editors) vs deploy (developers); global region; shared plugin | Accept or reject each · project lead |
 
 ## Risks
 
@@ -76,11 +109,11 @@ updated: 2026-11-08
 
 ## Influences
 
-| ID    | Influence                                         | Stance   | What and why                                                        |
-| ----- | ------------------------------------------------- | -------- | ------------------------------------------------------------------- |
-| I-001 | Shopify theme system (sections, blocks, JSON templates) | Adapted  | Keep the structure developers know; replace untyped Liquid (G2, P4) |
-| I-002 | Shopify app model                                 | Rejected | Per-app scripts and fetches are the problem (G3, G4, P3)            |
-| I-003 | SPA frameworks, client routing, optimistic UI     | Rejected | Hypermedia only; the UI confirms committed results                  |
-| I-004 | Datastar / Delaney Gillilan                       | Borrowed | Server state, SSE plus morphing, tiny stable core (P7)              |
-| I-005 | gingerBill / Odin philosophy                      | Borrowed | Specific problem first, explicit, errors as values, arenas (P7)     |
-| I-006 | Public app marketplace                            | Rejected | Admin-approved plugins only (P6)                                    |
+| ID | Influence | Stance | What and why |
+| --- | --- | --- | --- |
+| I-001 | Shopify theme system (sections, blocks, JSON templates) | Adapted | Keep the structure developers know; replace untyped Liquid (G2, P4) |
+| I-002 | Shopify app model | Rejected | Per-app scripts and fetches are the problem (G3, G4, P3) |
+| I-003 | SPA frameworks, client routing, optimistic UI | Rejected | Hypermedia only; the UI confirms committed results |
+| I-004 | Datastar / Delaney Gillilan | Borrowed | Server state, SSE plus morphing, tiny stable core (P7) |
+| I-005 | gingerBill / Odin philosophy | Borrowed | Specific problem first, explicit, errors as values, arenas (P7) |
+| I-006 | Public app marketplace | Rejected | Admin-approved plugins only (P6) |

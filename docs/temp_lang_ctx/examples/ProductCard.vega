@@ -1,0 +1,19 @@
+{{
+  use std
+  use shopify
+
+  ProductCard :: component {
+    props {
+      product: shopify.Product
+    }
+  }
+
+  template ProductCard
+}}
+<a class="card" href="{{product.url}}">
+  {{if product.featuredImage != null}}
+    <img src="{{product.featuredImage | std.imageUrl(400)}}" alt="{{product.featuredImage.alt}}">
+  {{/if}}
+  <h3>{{product.title}}</h3>
+  <p>{{product.price | shopify.money}}</p>
+</a>

@@ -1,0 +1,23 @@
+{{
+  Sections  :: Hero | ProductInfo
+  Blocks    :: BuyButton
+  HeadParts :: ProductMeta
+
+  Headline :: Text { max = 80 } @{ label = t("headline.label") }
+  Tone     :: "light" | "dark"
+
+  en :: locale {
+    headline = { label = "Headline" }
+    hero = {
+      label = "Hero banner"
+      hint = "Full-width banner with a heading"
+      button = "Shop now"
+    }
+    product = {
+      option = "Option"
+      sold_out = "Sold out"
+      add_to_cart = "Add to cart"
+      no_images = "No images yet"
+    }
+  }
+}}

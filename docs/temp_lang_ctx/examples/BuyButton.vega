@@ -1,0 +1,33 @@
+{{
+  use shopify
+
+  BuyButton :: component {
+    fields {
+      text: Text { max = 30 }? @{ label = "Button text" }
+    }
+    props {
+      product: shopify.Product
+    }
+  }
+
+  template BuyButton
+}}
+<form class="buy" method="post" action="/cart/add">
+  <label>
+    {{t("product.option")}}
+    <select name="variant">
+      {{for variant in product.variants}}
+        <option value="{{variant.id}}" {{if not variant.available}}disabled{{/if}}>
+          {{variant.title}} ({{variant.price | shopify.money}})
+        </option>
+      {{/for}}
+    </select>
+  </label>
+  <button type="submit" {{if not product.available}}disabled{{/if}}>
+    {{if product.available}}
+      {{text ?? t("product.add_to_cart")}}
+    {{else}}
+      {{t("product.sold_out")}}
+    {{/if}}
+  </button>
+</form>

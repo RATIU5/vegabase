@@ -1,0 +1,48 @@
+{{
+  use std
+  use shopify
+
+  ProductInfo :: component {
+    @{ label = "Product information" }
+
+    fields {
+      galleryLimit: Int { min = 1, max = 20 } = 8
+      blocks:       slot Blocks { min = 1, max = 12 } = [
+        BuyButton {}
+      ]
+    }
+    props {
+      product:   shopify.Product = $shopify.product
+      sizeGuide: shopify.Page? = shopify.pageBy("size-guide")
+      similar:   List { of = shopify.Product } = shopify.recommendations(product)
+    }
+  }
+
+  template ProductInfo
+}}
+<section class="product-info">
+  <h1>{{product.title}}</h1>
+  {{# description is a std.RichText, so it is output as HTML }}
+  <div class="description">{{product.description}}</div>
+  <div class="gallery">
+    {{if std.empty(product.images)}}
+      <p>{{t("product.no_images")}}</p>
+    {{else}}
+      {{for image in product.images | std.take(galleryLimit)}}
+        <img src="{{image | std.imageUrl(800)}}" alt="{{image.alt}}">
+      {{/for}}
+    {{/if}}
+  </div>
+  <div class="blocks">{{slot blocks { product = product } }}</div>
+  {{if sizeGuide != null}}
+    <a href="{{sizeGuide.url}}">{{sizeGuide.title}}</a>
+  {{/if}}
+  {{if not std.empty(product.tags)}}
+    <p class="tags">{{product.tags | std.join(", ")}}</p>
+  {{/if}}
+  <div class="similar">
+    {{for item in similar}}
+      {{render ProductCard { product = item } }}
+    {{/for}}
+  </div>
+</section>

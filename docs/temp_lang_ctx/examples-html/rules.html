@@ -79,7 +79,8 @@
 <h2>Brackets</h2><ul>
 <li>A lowercase name with <code>( )</code> is a function call and takes values by position: <code>std.take(8)</code>. <span class=ref>D-43, D-47</span></li>
 <li>A capitalised name with <code>{ }</code> is a type being filled in and takes <code>name = value</code>: <code>Text { max = 80 }</code>, <code>BuyButton {}</code>. <span class=ref>D-44, D-47</span></li>
-<li>The words <code>component</code>, <code>fields</code>, <code>props</code> and <code>locale</code> also take a <code>{ }</code> block. <code>fields</code> and <code>props</code> hold <code>name: Type</code> lines, not <code>name = value</code>. <span class=ref>D-59</span></li>
+<li>The words <code>component</code>, <code>fields</code>, <code>props</code> and <code>locale</code> also take a <code>{ }</code> block. <code>fields</code> and <code>props</code> hold <code>name: Type</code> lines, not <code>name = value</code>. <span class=ref>D-36, D-59</span></li>
+<li>A <code>{ }</code> with no name groups keys in a <code>locale</code> table, and <code>@{ }</code> holds admin settings. Both take <code>name = value</code>. <span class=ref>D-46, D-47</span></li>
 <li><code>[ ]</code> holds a list of values. Entries on one line need a comma; entries on separate lines do not. <span class=ref>D-45</span></li>
 <li>Types start with a capital letter. Every other name starts lowercase. <span class=ref>D-47</span></li>
 </ul>
@@ -94,6 +95,7 @@
 <li><code>template Hero</code> says that the HTML in this file is the template of <code>Hero</code>. Every file with HTML needs the line, and the component may be defined in the same file or in another. A file with no HTML, such as <code>shared.vega</code>, has none. <code>SiteMeta</code> shows the split form: defined in <code>shared.vega</code>, template in <code>SiteMeta.vega</code>. <span class=ref>D-16, D-61</span></li>
 <li>The template reads both by bare name: <code>&#123;&#123;heading&#125;&#125;</code>, <code>&#123;&#123;product.title&#125;&#125;</code>. A field and a prop with the same name is an error. <span class=ref>D-59</span></li>
 <li>The admin offers a component only if a union used by a slot lists it. A component in no union, such as <code>ProductCard</code>, is code-only. <span class=ref>D-59</span></li>
+<li>The shell is the exception. No union lists <code>Shell</code>, yet the host renders it as the root of a page and stores its slots. Which component is the shell is still open. <span class=ref>D-31, Q-40</span></li>
 <li><code>&#123;&#123;render ProductCard { product = item } &#125;&#125;</code> renders a component from code and sets its values in braces. <span class=ref>D-49</span></li>
 </ul>
 <h2>Fields: what an editor fills in</h2><ul>
@@ -107,7 +109,7 @@
 <li><code>product: shopify.Product</code>: a parent must pass it, in braces on its <code>slot</code> or <code>render</code> line. Forgetting is an error before rendering. <span class=ref>D-49, E-5c</span></li>
 <li><code>product: shopify.Product = $shopify.product</code>: a parent may pass it. If none does, the page supplies it. <code>$</code> marks a page value, and a plugin declares which kind of page supplies it. <span class=ref>D-52</span></li>
 <li><code>site: std.SiteSettings = std.siteSettings()</code>: the engine loads it. Equal calls run once per render. A loader may read another prop or a field. <span class=ref>D-42, D-53</span></li>
-<li>A value passed to a slot flows down to every block inside it, and the nearest one wins. The checker proves every placement an editor can make. <span class=ref>D-54</span></li>
+<li>A value passed to a slot flows down to every block inside it, and the nearest one wins. The checker proves that every placement an editor can make passes each prop that must be passed. Whether a page supplies a <code>$</code> value is checked by the host when the component is placed. <span class=ref>D-52, D-54</span></li>
 </ul>
 <h2>Output and safety</h2><ul>
 <li>Every value is escaped for its position: text, attribute or URL. Only a <code>std.RichText</code> value is output as HTML, and only between tags. There is no <code>raw</code>. <span class=ref>D-37</span></li>

@@ -15,6 +15,7 @@
       overlay:    Int { min = 0, max = 90 } = 40 @{ show = tone == "dark" }
       image:      std.Image
       link:       std.Url? @{ label = "Button link" }
+      points:     List { of = Text, max = 3 } @{ label = "Selling points" }
     }
   }
 
@@ -25,6 +26,13 @@
   <h1>{{heading}}</h1>
   {{if subheading != null}}
     <p>{{subheading}}</p>
+  {{/if}}
+  {{if not std.empty(points)}}
+    <ul>
+      {{for point in points}}
+        <li>{{point}}</li>
+      {{/for}}
+    </ul>
   {{/if}}
   {{if link != null}}
     <a class="button" href="{{link}}">{{t("hero.button")}}</a>

@@ -2,13 +2,15 @@
 
 Updated: 2026-11-16. Nothing here has been parsed or run. E-1 to E-3 were sketches in the old two-file syntax; their files are deleted.
 
-## E-4 The seven-file set
+## E-4 The eight-file set
 
 - Purpose: show the whole syntax in the smallest set of files.
-- Files: `examples/shared.vega`, `Hero.vega`, `ProductInfo.vega`, `BuyButton.vega`, `ProductCard.vega`, `Shell.vega`, `ProductMeta.vega`.
+- Files: `examples/shared.vega`, `Hero.vega`, `ProductInfo.vega`, `BuyButton.vega`, `ProductCard.vega`, `Shell.vega`, `ProductMeta.vega`, `SiteMeta.vega`.
 - Status: sketch. Decisions it follows: D-13 to D-61 in `decisions.md`.
 - It shows, once each: a comment in a block and inline (D-39), a `std.Url` field (D-41), a `std.RichText` value output as HTML (D-37), a loader that may find nothing (D-38), the three prop forms (D-51), `fields { }` and `props { }` blocks (D-59), and a code-only component called with `render`.
-- Library names it invents: `shopify.pageBy`, `shopify.Page`, `product.description`, `$shopify.product`, `shopify.recommendations`, `product.url`, `product.price`.
+- Added 2026-11-17: the split form, with `SiteMeta` defined in `shared.vega` and its template in `SiteMeta.vega` (D-16, D-61); default content for the `head` slot (D-31); a `List` field (D-50); `Bool`, `elif` and `for item, i in list`, which have no decision entry yet.
+- Not decided, so the examples do not depend on it: whether `i` starts at 0 or 1.
+- Library names it invents: `shopify.pageBy`, `shopify.Page`, `product.description`, `$shopify.product`, `shopify.recommendations`, `product.url`, `product.price`, `product.compareAtPrice`, `site.name`, `site.shareImage`.
 
 ## E-5 Three mistakes and the error for each
 
@@ -45,7 +47,7 @@ Change `examples/ProductInfo.vega` line 36 from `{{slot blocks { product = produ
 error: slot `blocks` does not pass `product`
   ProductInfo.vega:36:23  {{slot blocks}}
   needed by: the prop `product` of BuyButton, declared `shopify.Product` at BuyButton.vega:9
-  `BuyButton` is allowed in this slot through `Blocks` (shared.vega:3)
+  `BuyButton` is allowed in this slot through `Blocks` (shared.vega:5)
   fix: `{{slot blocks { product = ... } }}`
 ```
 
@@ -111,7 +113,7 @@ error: slot `blocks` does not pass `product`
 <form class="buy" method="post" action="/cart/add">
   <label>
     {{t("product.option")}}
-    <select name="variant">
+    <select name="id">
       {{for variant in product.variants}}
         <option value="{{variant.id}}" {{if not variant.available}}disabled{{/if}}>
           {{variant.title}} ({{variant.price | shopify.money}})

@@ -66,7 +66,7 @@
 <body>
 <div class="blobs"><i></i><i></i><i></i><i></i></div>
 <figure>
-<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 8</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
+<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 9</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
 <div class="rules">
 <p class="lead">Read this before the example files. The examples show the syntax; these are the rules behind it.</p>
 <h2>Files</h2><ul>
@@ -78,26 +78,27 @@
 </ul>
 <h2>Brackets</h2><ul>
 <li>A lowercase name with <code>( )</code> is a function call and takes values by position: <code>std.take(8)</code>. <span class=ref>D-43, D-47</span></li>
-<li>A capitalised name with <code>{ }</code> is a type being filled in and takes <code>name = value</code>: <code>Text { max = 80 }</code>. <span class=ref>D-44, D-47</span></li>
+<li>A capitalised name with <code>{ }</code> is a type being filled in and takes <code>name = value</code>: <code>Text { max = 80 }</code>, <code>BuyButton {}</code>. <span class=ref>D-44, D-47</span></li>
+<li>The words <code>component</code>, <code>fields</code>, <code>props</code> and <code>locale</code> also take a <code>{ }</code> block. <code>fields</code> and <code>props</code> hold <code>name: Type</code> lines, not <code>name = value</code>. <span class=ref>D-59</span></li>
 <li><code>[ ]</code> holds a list of values. Entries on one line need a comma; entries on separate lines do not. <span class=ref>D-45</span></li>
 <li>Types start with a capital letter. Every other name starts lowercase. <span class=ref>D-47</span></li>
 </ul>
 <h2>Types</h2><ul>
 <li>Limits go in braces after the type: <code>Int { min = 0, max = 90 }</code>, <code>slot Blocks { max = 12 }</code>, <code>List { of = Text, max = 4 }</code>. <span class=ref>D-44, D-48, D-50</span></li>
-<li><code>Type?</code> can be null. The template must handle it with <code>if x != null</code> or <code>??</code>, or the file fails the check. There is no truthiness. <span class=ref>E-5a</span></li>
+<li><code>Type?</code> can be null. The template must handle it with <code>if x != null</code> or <code>??</code>, or the file fails the check. There is no truthiness. <span class=ref>D-15, E-5a</span></li>
 <li><code>A | B</code> in a type is a union. A slot accepts the components its union names. <span class=ref>D-26, D-29</span></li>
 <li>A loader that finds nothing: with <code>Type</code>, the host answers 404 and renders the site's not-found page. With <code>Type?</code>, the value is null. <span class=ref>D-38</span></li>
 </ul>
 <h2>Components</h2><ul>
 <li><code>Name :: component { }</code> defines a component. Inside it, <code>fields { }</code> holds what an editor fills in, and <code>props { }</code> holds what code passes or loads. Both are optional. <span class=ref>D-59</span></li>
-<li><code>template Hero</code> says that the HTML in this file is the template of <code>Hero</code>. Every file with HTML needs the line, and the component may be defined in the same file or in another. A file with no HTML, such as <code>shared.vega</code>, has none. <span class=ref>D-61</span></li>
+<li><code>template Hero</code> says that the HTML in this file is the template of <code>Hero</code>. Every file with HTML needs the line, and the component may be defined in the same file or in another. A file with no HTML, such as <code>shared.vega</code>, has none. <code>SiteMeta</code> shows the split form: defined in <code>shared.vega</code>, template in <code>SiteMeta.vega</code>. <span class=ref>D-16, D-61</span></li>
 <li>The template reads both by bare name: <code>&#123;&#123;heading&#125;&#125;</code>, <code>&#123;&#123;product.title&#125;&#125;</code>. A field and a prop with the same name is an error. <span class=ref>D-59</span></li>
 <li>The admin offers a component only if a union used by a slot lists it. A component in no union, such as <code>ProductCard</code>, is code-only. <span class=ref>D-59</span></li>
 <li><code>&#123;&#123;render ProductCard { product = item } &#125;&#125;</code> renders a component from code and sets its values in braces. <span class=ref>D-49</span></li>
 </ul>
 <h2>Fields: what an editor fills in</h2><ul>
-<li>The host stores fields and the admin shows them. A slot is a field. <span class=ref>D-51</span></li>
-<li>A field with a library type, such as <code>image: std.Image</code> or <code>product: shopify.Product</code>, is a picker in the admin. <span class=ref>D-55</span></li>
+<li>The host stores fields and the admin shows them. A slot is a field, and may have default content: <code>= [ SiteMeta {} ]</code>. <span class=ref>D-31, D-51</span></li>
+<li>A field whose library type names a stored thing, such as <code>image: std.Image</code> or <code>product: shopify.Product</code>, is a picker in the admin. <code>std.Url</code> is a plain input that is checked on save, not a picker. <span class=ref>D-41, D-55</span></li>
 <li>Admin settings sit in one <code>@{ }</code> block after the type: <code>@{ label = "Subheading" }</code>. A component's own block sits at the root of <code>component { }</code>, outside <code>fields</code>. <span class=ref>D-46, D-60</span></li>
 <li>Everything that starts with <code>@</code> is for the admin only. Deleting every block changes no stored data and no output. <span class=ref>D-46</span></li>
 </ul>
@@ -105,24 +106,26 @@
 <li>The admin never sees a prop. <span class=ref>D-51</span></li>
 <li><code>product: shopify.Product</code>: a parent must pass it, in braces on its <code>slot</code> or <code>render</code> line. Forgetting is an error before rendering. <span class=ref>D-49, E-5c</span></li>
 <li><code>product: shopify.Product = $shopify.product</code>: a parent may pass it. If none does, the page supplies it. <code>$</code> marks a page value, and a plugin declares which kind of page supplies it. <span class=ref>D-52</span></li>
-<li><code>site: std.SiteSettings = std.siteSettings()</code>: the engine loads it. Equal calls run once per render. A loader may read another prop. <span class=ref>D-42, D-53</span></li>
+<li><code>site: std.SiteSettings = std.siteSettings()</code>: the engine loads it. Equal calls run once per render. A loader may read another prop or a field. <span class=ref>D-42, D-53</span></li>
 <li>A value passed to a slot flows down to every block inside it, and the nearest one wins. The checker proves every placement an editor can make. <span class=ref>D-54</span></li>
 </ul>
 <h2>Output and safety</h2><ul>
-<li>Every value is escaped for its position: text, attribute or URL. Only a <code>std.RichText</code> value is output as HTML. There is no <code>raw</code>. <span class=ref>D-37</span></li>
+<li>Every value is escaped for its position: text, attribute or URL. Only a <code>std.RichText</code> value is output as HTML, and only between tags. There is no <code>raw</code>. <span class=ref>D-37</span></li>
 <li><code>std.Url</code> allows <code>http</code>, <code>https</code>, <code>mailto</code>, <code>tel</code> and relative paths. <code>std.asset</code> takes a literal path, and the file must exist. <span class=ref>D-41</span></li>
 <li>A template has no functions of its own, no assignment and no IO. A loop runs only over data. A template never sets a status and never redirects. <span class=ref>brief, D-38</span></li>
 <li>A pipe mixed with another operator needs parentheses: <code>(a ?? b) | std.imageUrl(1200)</code>. That is the rule, not a gap. <span class=ref>D-33</span></li>
+<li><code>&#123;&#123;if&#125;&#125;</code> may sit inside a start tag to add an attribute: <code>&#123;&#123;if not product.available&#125;&#125;disabled&#123;&#123;/if&#125;&#125;</code>. It never wraps a field or a <code>use</code>. <span class=ref>D-27</span></li>
+<li>A translation key is a string, <code>t("hero.label")</code>, looked up in a <code>locale</code> table. A missing key is an error before rendering. <span class=ref>D-34, D-36</span></li>
 <li>A line that holds only a tag or a comment leaves nothing behind. Other whitespace is kept. There is no trim syntax. <span class=ref>D-40</span></li>
 </ul>
-<h2>In the language, not in these files</h2><ul>
-<li><code>&#123;&#123;elif ...&#125;&#125;</code> between <code>&#123;&#123;if&#125;&#125;</code> and <code>&#123;&#123;else&#125;&#125;</code>.</li>
-<li><code>&#123;&#123;for item, i in list&#125;&#125;</code> gives the position as <code>i</code>.</li>
-<li><code>Bool</code> is built in, beside <code>Text</code> and <code>Int</code>.</li>
+<h2>Shown in these files, with no decision entry yet</h2><ul>
+<li><code>&#123;&#123;elif ...&#125;&#125;</code> between <code>&#123;&#123;if&#125;&#125;</code> and <code>&#123;&#123;else&#125;&#125;</code>. <span class=ref>ProductCard.vega</span></li>
+<li><code>&#123;&#123;for item, i in list&#125;&#125;</code> gives the position as <code>i</code>. Whether it starts at 0 or 1 is not decided. <span class=ref>ProductInfo.vega</span></li>
+<li><code>Bool</code> is built in, beside <code>Text</code> and <code>Int</code>. <span class=ref>ProductMeta.vega</span></li>
 </ul>
 <h2>Status</h2><ul>
 <li>This is a sketch. Nothing here has been parsed or run, and no grammar exists yet.</li>
-<li>Still open: slots that code fills, plurals in translations, per-visitor data such as a cart, values in CSS and JSON-LD, form targets.</li>
+<li>Still open: slots that code fills, plurals in translations, per-visitor data such as a cart, values in CSS and JSON-LD, form targets, query-string values such as a page number, local names in a template, how a plugin declares a kind of page, which component the host renders as the shell, and a comment that holds <code>&#125;&#125;</code>. <span class=ref>Q-52, Q-33, Q-41, Q-29, Q-31, Q-26, Q-10, D-52, Q-40, D-39</span></li>
 </ul>
 </div>
 </figure>

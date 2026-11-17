@@ -28,8 +28,8 @@
     {{if std.empty(product.images)}}
       <p>{{t("product.no_images")}}</p>
     {{else}}
-      {{for image in product.images | std.take(galleryLimit)}}
-        <img src="{{image | std.imageUrl(800)}}" alt="{{image.alt}}">
+      {{for image, i in product.images | std.take(galleryLimit)}}
+        <img src="{{image | std.imageUrl(800)}}" alt="{{image.alt}}" data-index="{{i}}">
       {{/for}}
     {{/if}}
   </div>

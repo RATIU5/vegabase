@@ -3,7 +3,9 @@
 
   Shell :: component {
     fields {
-      head: slot HeadParts { max = 1 }
+      head: slot HeadParts { max = 1 } = [
+        SiteMeta {}
+      ]
       body: slot Sections { min = 1 }
     }
     props {

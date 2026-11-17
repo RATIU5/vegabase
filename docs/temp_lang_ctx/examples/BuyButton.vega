@@ -15,7 +15,7 @@
 <form class="buy" method="post" action="/cart/add">
   <label>
     {{t("product.option")}}
-    <select name="variant">
+    <select name="id">
       {{for variant in product.variants}}
         <option value="{{variant.id}}" {{if not variant.available}}disabled{{/if}}>
           {{variant.title}} ({{variant.price | shopify.money}})

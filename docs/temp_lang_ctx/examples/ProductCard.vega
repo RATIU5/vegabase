@@ -15,5 +15,10 @@
     <img src="{{product.featuredImage | std.imageUrl(400)}}" alt="{{product.featuredImage.alt}}">
   {{/if}}
   <h3>{{product.title}}</h3>
+  {{if not product.available}}
+    <p class="badge">{{t("product.sold_out")}}</p>
+  {{elif product.compareAtPrice != null}}
+    <p class="badge">{{t("product.sale")}}</p>
+  {{/if}}
   <p>{{product.price | shopify.money}}</p>
 </a>

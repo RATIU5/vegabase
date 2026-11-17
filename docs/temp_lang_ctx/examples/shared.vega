@@ -1,10 +1,21 @@
 {{
+  use std
+
   Sections  :: Hero | ProductInfo
   Blocks    :: BuyButton
-  HeadParts :: ProductMeta
+  HeadParts :: ProductMeta | SiteMeta
 
   Headline :: Text { max = 80 } @{ label = t("headline.label") }
   Tone     :: "light" | "dark"
+
+  # SiteMeta is defined here; its template is in SiteMeta.vega
+  SiteMeta :: component {
+    @{ label = "Site metadata" }
+
+    props {
+      site: std.SiteSettings = std.siteSettings()
+    }
+  }
 
   en :: locale {
     headline = { label = "Headline" }
@@ -16,6 +27,7 @@
     product = {
       option = "Option"
       sold_out = "Sold out"
+      sale = "Sale"
       add_to_cart = "Add to cart"
       no_images = "No images yet"
     }

@@ -7,7 +7,7 @@ updated: 2026-11-18
 
 What the HTML part of a `.vega` file may hold: tags, slots, expressions and output. Declarations are in VEGA.md. Index and term map: README.md.
 
-Citations and status marks follow VEGA.md: `lang D-59` is an entry of DECISIONS.md in this folder; *no entry* is shown in the examples with no decision; *open* is not decided.
+Citations and status marks follow VEGA.md: `lang D-59` is an entry of DECISIONS.md in this folder; *no entry* is shown in the examples with no decision; *reading* is the assistant's reading of an entry, not confirmed by the lead; *open* is not decided.
 
 **Design rules**
 
@@ -52,7 +52,7 @@ Inside `{{ }}`, a statement is a declaration, a tag or a value (lang D-21).
 ```
 
 - `if` never wraps a field, a `use` or any declaration (lang D-27).
-- There is no truthiness. A condition is a `Bool`, a comparison, or a null test: `{{if subheading != null}}` (lang D-15).
+- There is no truthiness (lang D-15). What a condition may be, a `Bool`, a comparison or a null test such as `{{if subheading != null}}`, is a *reading*; the note behind it sits unconfirmed in lang Q-35.
 
 *Open:* which expressions narrow a nullable value, and whether narrowing reaches `else`, `elif` and `and`; `if` inside an attribute value.
 
@@ -118,13 +118,13 @@ Limits (lang D-62):
 - A pipe passes the value on its left as the first value of the call on its right. A call with no other values needs no parentheses: `price | shopify.money` (examples; *no entry*).
 - A pipe mixed with another operator needs parentheses: `(a ?? b ?? c) | std.imageUrl(1200)`. `x | std.length > 0` is an error (lang D-33).
 - A translation key is a string, so it cannot be mistaken for a field (lang D-34).
-- Functions come from the core (`std`) and from plugins (lang D-64). A template defines none.
+- Functions come from the core (`std`) and from first-party plugins (lang D-67). A template defines none.
 
 *Open:* the full operator list, including `and`, `or` and arithmetic; local names in a template (lang Q-10).
 
 ## 6. `$` values
 
-- `$` marks a value the host supplies (lang D-52, D-65).
+- `$` marks a page value (lang D-52). `$id` belongs to a placed component, not to the page (lang D-65). Taking `$` to mean any value the host supplies is a *reading* of D-65.
 - A page value is the default of a prop: `product: shopify.Product = $shopify.product` (lang D-52, VEGA §7).
 - `$id` is read in the template (§4.3).
 

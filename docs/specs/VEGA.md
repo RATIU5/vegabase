@@ -9,7 +9,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 
 **Citations.** `D-` and `Q-` numbers in this file are the entries of DECISIONS.md in this folder, written `lang D-59`. Core entries are written `core D-031`.
 
-**Status of every rule.** A rule with a `lang D-` number is decided. A rule marked *no entry* is shown in the examples but has no decision yet. A point marked *open* is not decided and must not be assumed.
+**Status of every rule.** A rule with a `lang D-` number is decided. A rule marked *no entry* is shown in the examples but has no decision yet. A rule marked *reading* is the assistant's reading of an entry, which the lead has not confirmed. A point marked *open* is not decided and must not be assumed.
 
 **Design rules**
 
@@ -28,7 +28,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 - Folders and file names carry no meaning (lang D-13). Declaration order and file order never matter (lang D-25).
 - Pages are defined only in the admin, never in code (lang D-13).
 - `#` starts a comment. It runs to the end of the line or to `}}`, whichever comes first, and outputs nothing (lang D-39). *Open:* a comment that holds `}}`.
-- The parser counts braces inside a block, so `}}}` closes a `{ }` and then the block (lang D-17, D-49).
+- The parser counts braces inside a block, so `}}}` closes a `{ }` and then the block (lang D-49).
 
 ## 2. Names
 
@@ -38,8 +38,9 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | A type starts with a capital letter. Every other name starts lowercase. The checker enforces it | lang D-47 |
 | A name the theme declares is written bare and is visible from every file of the theme | lang D-24 |
 | A prefix always names a library: the core's `std`, or a plugin | lang D-18, D-24 |
-| `use name` in the first block names a library. Every file that reads a value typed by a library has `use` for it, however the value arrived | lang D-9 |
-| Declaring the same name twice is an error naming both places | lang D-24 |
+| `use name` in the first block names a library. Every file that needs data from a library has `use` for it | lang D-9 |
+| A file that only receives a value typed by a library, from a parent, also needs `use` for it | lang D-9, *reading*; lang Q-32 still asks whether `use std` is needed |
+| Declaring the same name twice is an error naming both places | lang D-24, *reading* |
 
 **Cycles** (lang D-25). Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component.
 
@@ -121,7 +122,7 @@ template Hero
 - A field and a prop with the same name is an error (lang D-59).
 - The template reads fields and props by bare name (lang D-59).
 - The component may be defined in the same file as its template or in another (lang D-16, D-61).
-- The admin offers a component only if a union used by a slot lists it. A component in no union is code-only and is output with `render` (lang D-59).
+- The admin offers a component only if a union used by a slot lists it. A component in no union is code-only and is output with `render`. A component with no fields that a union lists is still offered (lang D-59).
 - The root of a page is a shell component with `head` and `body` slots (lang D-31). *Open:* how the host knows which component is the shell (lang Q-40).
 
 **`template` errors** (lang D-61): HTML in a file with no `template` line; two `template` lines in one file; two files that supply a template for one component; a `template` line in a file with no HTML.
@@ -129,7 +130,7 @@ template Hero
 ## 6. Fields
 
 - Every field is always stored. A condition never changes the stored shape, so `if` never wraps a field (lang D-27).
-- A field whose type names a stored thing is a picker: `std.Image`, a plugin type such as `shopify.Product`, or a content type (§8). The host stores a reference and supplies the full value at render (lang D-55, D-63). *Open:* what a picker field without `?` holds after its entry is deleted.
+- A field whose type names a stored thing is a picker: `std.Image`, a plugin type such as `shopify.Product`, or a content type (§8). The host stores a reference and supplies the full value at render (lang D-55, D-63). `std.Url` is a plain input checked on save, not a picker (lang D-41, D-55). *Open:* what a picker field without `?` holds after its entry is deleted.
 - A list of picks: `List { of = shopify.Product, max = 4 }` (lang D-55).
 
 ### 6.1 Slots
@@ -161,7 +162,7 @@ Three forms (lang D-51):
 | `product: shopify.Product = $shopify.product` | a parent may pass it; if none does, the page supplies it | lang D-52 |
 | `site: std.SiteSettings = std.siteSettings()` | the engine loads it | lang D-51 |
 
-- `$` marks a value the host supplies. A plugin declares which kind of page supplies a page value (lang D-52, D-65).
+- `$` marks a page value, and a plugin declares which kind of page supplies it (lang D-52). `$id` is the one `$` value that belongs to a placed component, not to the page (lang D-65). Taking `$` to mean any value the host supplies is a *reading* of D-65.
 - A loader may read a prop or a field. The engine orders the fetches. A loop between loaders is an error (lang D-53).
 - Equal loader calls run once per render, in one component or in several (lang D-42).
 - A loader that finds nothing: with `Type`, the host stops and renders the site's not-found page with status 404. With `Type?`, the value is null (lang D-38).
@@ -216,10 +217,10 @@ use maps
 Sections :: Hero | maps.Map
 ```
 
-- Only a plugin can define loaders, kinds of page and form actions (lang D-64). Functions a template calls come only from the core and from first-party plugins (lang D-67).
+- A plugin can define loaders, kinds of page and form actions (lang D-64). The core defines loaders too, such as `std.siteSettings()` (lang D-35); a theme defines none. Functions a template calls come only from the core and from first-party plugins (lang D-67).
 - A vendor lib is a plugin that the core team maintains as first-party. The contract is the same for both; the host runs a first-party plugin as native code and every other plugin in WASM (lang D-66, D-67).
 - A theme cannot replace a plugin component in this edition. It writes its own component and lists that one in its union (lang D-64).
-- A plugin may `use` a first-party plugin: `use shopify`, then `product: shopify.Product`. No plugin depends on a plugin that is not first-party (lang D-67).
+- A plugin may `use` a first-party plugin: `use shopify`, then `product: shopify.Product`. No plugin depends on a plugin that is not first-party, and the admin refuses to enable a plugin unless the first-party plugin it uses is enabled (lang D-67, *reading*).
 - That dependency covers types and data only. The core hands a plugin the fields it declared it reads; a plugin's code never calls another plugin (lang D-67; CHARTER, hard lines).
 - A plugin's shape carries a name, a type and a one-line description for everything it offers, so an editor can list what `shopify.` and `$shopify.` offer (lang D-56).
 
@@ -231,7 +232,7 @@ Every row is an error before rendering.
 
 | Error | Section |
 | --- | --- |
-| A name declared twice, or an unknown name | §2 |
+| A name declared twice (*reading*), or an unknown name | §2 |
 | A type that does not start with a capital letter, or another name that does | §2 |
 | A value typed by a library in a file with no `use` for it | §2 |
 | An alias cycle, a directly self-containing type, a `render` cycle | §2 |

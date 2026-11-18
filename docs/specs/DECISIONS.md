@@ -39,6 +39,8 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-24 A name the theme declares is written bare and is visible from every file.** There is no `theme.` prefix and no `use theme`. A prefix always names a library. Declaring the same name twice is an error naming both places. *Open:* whether declaring a built-in name is an error.
 
+**D-68 Nineteen words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid.
+
 **D-25 Cycles.** Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component, because stored content is finite. Declaration order and file order never matter.
 
 **D-39 A comment starts with `#` inside `{{ }}`.** It runs to the end of the line or to `}}`, whichever comes first, and outputs nothing. A literal `{{` in the output is written as a string, `{{"{{"}}`. *Open:* a comment that holds `}}`.

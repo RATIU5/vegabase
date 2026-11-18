@@ -60,22 +60,23 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 | `INT` | digits |
 | `HOST_VALUE` | `$`, then names joined by `.` |
 
+Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `true`, `false`, `null`.
+
 Spaces and tabs are ignored. A line break separates entries inside `{ }` and `[ ]`, and is ignored inside `( )`.
 
 ## 5. What the grammar had to choose
 
-The spec leaves each of these open. A grammar cannot, so `vega.lark` picks one answer. None is decided; each needs a ruling.
+The spec leaves each of these open. A grammar cannot, so `vega.lark` picks one answer. None of the seven is decided; each needs a ruling.
 
 | # | Choice in the grammar | Open point |
 | --- | --- | --- |
-| 1 | Nineteen words are reserved: `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word is allowed after a `.`, so `site.locale` parses | VEGA §2 |
-| 2 | Inside a `{ }` block, only the `of` entry takes a type. Every other entry takes a value. Without this, `label = "Hero"` reads as a value or as a string-literal type | lang D-50 |
-| 3 | The operators are `not`, `==`, `!=`, `??` and the pipe. An expression uses one kind; any mix needs parentheses. There is no `and`, `or`, `<`, `>` or arithmetic | lang Q-35 |
-| 4 | A field line and an expression cannot continue on the next line. Only a `{ }`, `[ ]` or `( )` may span lines | lang D-45 |
-| 5 | A union may be written directly on a field: `tone: "light" \| "dark"` | lang Q-35 |
-| 6 | A string has no escape, so it cannot hold `"`. A number is whole and has no sign | none yet |
-| 7 | A locale name is a `NAME`, so `pt-BR` cannot be written | VEGA §9 |
-| 8 | `{{}}` and a block that holds only a comment are valid and output nothing | lang D-39 |
+| 1 | Inside a `{ }` block, only the `of` entry takes a type. Every other entry takes a value. Without this, `label = "Hero"` reads as a value or as a string-literal type | lang D-50 |
+| 2 | The operators are `not`, `==`, `!=`, `??` and the pipe. An expression uses one kind; any mix needs parentheses. There is no `and`, `or`, `<`, `>` or arithmetic | lang Q-35 |
+| 3 | A field line and an expression cannot continue on the next line. Only a `{ }`, `[ ]` or `( )` may span lines | lang D-45 |
+| 4 | A union may be written directly on a field: `tone: "light" \| "dark"` | lang Q-35 |
+| 5 | A string has no escape, so it cannot hold `"`. A number is whole and has no sign | none yet |
+| 6 | A locale name is a `NAME`, so `pt-BR` cannot be written | VEGA §9 |
+| 7 | `{{}}` and a block that holds only a comment are valid and output nothing | lang D-39 |
 
 Rules the grammar accepts but a check must reject:
 

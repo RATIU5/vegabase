@@ -2,14 +2,15 @@
 
 Updated: 2026-11-16. Nothing here has been parsed or run. E-1 to E-3 were sketches in the old two-file syntax; their files are deleted.
 
-## E-4 The eleven-file set
+## E-4 The thirteen-file set
 
 - Purpose: show the whole syntax in the smallest set of files.
-- Files: `examples/shared.vega`, `Hero.vega`, `ProductInfo.vega`, `BuyButton.vega`, `ProductCard.vega`, `Shell.vega`, `ProductMeta.vega`, `SiteMeta.vega`, `Tabs.vega`, `TabPanel.vega`, `Grid.vega`.
+- Files: `examples/shared.vega`, `Hero.vega`, `ProductInfo.vega`, `BuyButton.vega`, `ProductCard.vega`, `Shell.vega`, `ProductMeta.vega`, `SiteMeta.vega`, `Tabs.vega`, `TabPanel.vega`, `Grid.vega`, `Recipe.vega`, `RecipeCard.vega`.
 - Status: sketch. Decisions it follows: D-13 to D-65 in `decisions.md`.
 - It shows, once each: a comment in a block and inline (D-39), a `std.Url` field (D-41), a `std.RichText` value output as HTML (D-37), a loader that may find nothing (D-38), the three prop forms (D-51), `fields { }` and `props { }` blocks (D-59), and a code-only component called with `render`.
 - Added 2026-11-17: the split form, with `SiteMeta` defined in `shared.vega` and its template in `SiteMeta.vega` (D-16, D-61); default content for the `head` slot (D-31); a `List` field (D-50); `Bool`, `elif` and `for item, i in list`, which have no decision entry yet.
 - Added 2026-11-18: a parent that loops over a slot's children (D-62). `Tabs.vega` reads a child's field and outputs each child in a wrapper; `Grid.vega` counts the children and hides its wrapper when the slot is empty. Both use `$id` (D-65); `Tabs.vega` builds each wrapper's id from `$id` and the position.
+- Added 2026-11-18: a content type, `Recipe` (D-63), and `RecipeCard.vega`, a code-only component that takes a `Recipe` as a prop. Nothing renders `RecipeCard` yet, because how a component loads a recipe is not decided.
 - Not decided, so the examples do not depend on it: whether `i` starts at 0 or 1.
 - Library names it invents: `shopify.pageBy`, `shopify.Page`, `product.description`, `$shopify.product`, `shopify.recommendations`, `product.url`, `product.price`, `product.compareAtPrice`, `site.name`, `site.shareImage`.
 

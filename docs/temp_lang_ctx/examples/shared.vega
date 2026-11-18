@@ -33,5 +33,6 @@
       add_to_cart = "Add to cart"
       no_images = "No images yet"
     }
+    recipe = { minutes = "minutes" }
   }
 }}

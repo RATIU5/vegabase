@@ -102,7 +102,7 @@
 <li><code>&#123;&#123;slot blocks&#125;&#125;</code> outputs every child of the slot, in order, with no wrapper. <span class=ref>D-49</span></li>
 <li>A parent may loop over the children: <code>&#123;&#123;for panel in panels&#125;&#125;</code>, then <code>&#123;&#123;slot panel&#125;&#125;</code> to output one child. <span class=ref>D-62</span></li>
 <li>A slot allows only <code>for</code>, <code>std.empty</code> and <code>std.length</code>. Code cannot sort, cut or filter what an editor placed. <span class=ref>D-62</span></li>
-<li>Every child is output. The template uses the short form, or at least one loop over the slot holds <code>&#123;&#123;slot child&#125;&#125;</code> with no <code>if</code> between the <code>for</code> and it. <span class=ref>D-62</span></li>
+<li>Every child is output exactly once. The template uses the short form once, or exactly one loop over the slot holds one <code>&#123;&#123;slot child&#125;&#125;</code> with no <code>if</code> between the <code>for</code> and it. Another loop over the same slot may read fields but not output. <span class=ref>D-62, D-65</span></li>
 <li>A parent reads a child's fields, never its props: <code>panel.title</code>. Only a field that every component in the slot's union has, with the same type, can be read. <span class=ref>D-62</span></li>
 <li>A template cannot ask which component a child is. <span class=ref>D-62</span></li>
 <li><code>$id</code> is the id of this placed component, unique on the page: <code>id="&#123;&#123;$id&#125;&#125;"</code>. A template reads only its own. A parent builds the id of a wrapper from its own id and the position: <code>id="&#123;&#123;$id&#125;&#125;-&#123;&#123;i&#125;&#125;"</code>. <span class=ref>D-65</span></li>

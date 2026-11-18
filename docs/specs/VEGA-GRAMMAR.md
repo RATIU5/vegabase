@@ -12,9 +12,10 @@ The grammar is a test of the spec, not the product's parser. It says which text 
 ## 1. Running it
 
 ```
-python3 -m pip install lark
-python3 docs/specs/grammar/check.py
+mise run test:grammar
 ```
+
+`mise run test` runs it first, so CI runs it on every pull request. mise pins `uv`, and the task pins Lark.
 
 `check.py` parses every file in `examples/`, which must all pass, and every file in `grammar/bad/`, which must all fail. It exits 0 only when both hold. Today: fifteen examples pass, thirteen bad files fail, and no example can be read two ways.
 

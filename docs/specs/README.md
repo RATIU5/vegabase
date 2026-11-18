@@ -52,11 +52,9 @@ These specs outrank the lines below. Each line needs a fix in its own doc.
 
 | Core line | Says | Specs say |
 | --- | --- | --- |
-| ARCHITECTURE: seams, code map | "data fields"; separate `source/template/` and `source/schema/` | props filled by loaders (VEGA §7); one language (lang D-16) |
-| DESIGN §6 | a plugin's WASM imports from vendor lib namespaces and uses vendor lib connectors | a plugin's code never calls another plugin (lang D-67) |
-| OPERATIONS | a component's `unavailable` state | a loader that finds nothing gives the not-found page or null (lang D-38) |
 | core D-028 to D-032 | the `theme` namespace, `{type Name}`, `@fallback`, `@cache`, COMMON §4 | each needs a pass against VEGA.md and VEGA-TEMPLATE.md |
 | core Q-036 to Q-042 | open questions on `t(...)`, whitespace, slot loops, template locals | lang D-34, D-40 and D-62 answer three; lang Q-10 and Q-33 hold the rest |
+| core Q-044, Q-045 | "global settings" in the manifest; "namespace collision rules" | there is no `global` (lang D-35); the term is prefix (VEGA §2) |
 
 ## Open language questions
 

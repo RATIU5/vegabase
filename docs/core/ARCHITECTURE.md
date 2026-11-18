@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-18
 ---
 
 # Vegabase: Architecture
@@ -43,8 +43,8 @@ updated: 2026-11-08
 
 - **Control plane → Edge, workers**: versioned changes to ownership, activation, gates and enablement. Requires: receivers acknowledge each version. Guarantees: versions only increase; polling covers missed notifications.
 - **Edge → Request pipeline**: a request with verified tenant, normalized host, visitor IP and generation. Guarantees: stale generations are rejected; private responses are never publicly cached.
-- **Admin app, developers → Deploy pipeline**: compositions, routes, redirects and themes. Requires: schemas and templates that pass `check` (components, slots, data fields; `docs/specs/`). Guarantees: invalid input is rejected with source locations; nothing activates before its readiness check.
-- **Request pipeline → Data layer**: a fetch plan plus context. Requires: declared reads only. Guarantees: every field returns a typed state (fresh, acceptable stale, unavailable, unauthorized), never `nil`.
+- **Admin app, developers → Deploy pipeline**: compositions, routes, redirects and themes. Requires: `.vega` files that pass `check` (components, slots, fields, props; VEGA §11). Guarantees: invalid input is rejected with source locations; nothing activates before its readiness check.
+- **Request pipeline → Data layer**: a fetch plan plus context. Requires: declared reads only. Guarantees: every field returns a typed state (fresh, acceptable stale, unavailable, unauthorized), never `nil`; stale windows are open (lang Q-11). A loader that finds nothing gives the not-found page or null (lang D-38).
 - **Data layer ↔ Extension host**: batch resolver calls, change feeds, published fields, events. Requires: edition-pinned contracts. Guarantees: extensions see only declared fields, filtered by storage class and PII class.
 - **Extension host ↔ vendor libs**: host API table in, descriptor table out. Requires: matching edition and build ID. Guarantees: registered only for tenants that enable it.
 
@@ -75,8 +75,8 @@ updated: 2026-11-08
 | Directory          | Part                                                                      |
 | ------------------ | ------------------------------------------------------------------------- |
 | `source/http/`     | Edge front router and request pipeline                                    |
-| `source/template/` | Template language (language toolchain, shared with the deploy pipeline)   |
-| `source/schema/`   | Schema language and type checker (language toolchain)                     |
+| `source/template/` | `.vega` templates (language toolchain, shared with the deploy pipeline)   |
+| `source/schema/`   | `.vega` declarations and type checker (language toolchain)                |
 | `source/store/`    | Data layer (name clashes with the glossary "store"; consider `data/`)     |
 | `source/plugin/`   | Extension host: WASM sandbox, capabilities, host functions                |
 | `source/bind/`     | One hand-written binding package per C library (DESIGN §7)                |

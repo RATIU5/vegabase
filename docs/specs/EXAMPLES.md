@@ -1,24 +1,34 @@
+---
+status: draft
+updated: 2026-11-18
+---
+
 # Examples
 
-Updated: 2026-11-16. Nothing here has been parsed or run. E-1 to E-3 were sketches in the old two-file syntax; their files are deleted.
+Nothing here has been parsed or run. Message wording and layout are proposed, not decided.
 
-## E-4 The fifteen-file set
+## E-4 The example set
 
-- Purpose: show the whole syntax in the smallest set of files.
-- Files: `examples/shared.vega`, `Hero.vega`, `ProductInfo.vega`, `BuyButton.vega`, `ProductCard.vega`, `Shell.vega`, `ProductMeta.vega`, `SiteMeta.vega`, `Tabs.vega`, `TabPanel.vega`, `Grid.vega`, `Recipe.vega`, `RecipeCard.vega`, `FeaturedRecipe.vega`, `Map.vega`.
-- Status: sketch. Decisions it follows: D-13 to D-65 in DECISIONS.md.
-- It shows, once each: a comment in a block and inline (D-39), a `std.Url` field (D-41), a `std.RichText` value output as HTML (D-37), a loader that may find nothing (D-38), the three prop forms (D-51), `fields { }` and `props { }` blocks (D-59), and a code-only component called with `render`.
-- Added 2026-11-17: the split form, with `SiteMeta` defined in `shared.vega` and its template in `SiteMeta.vega` (D-16, D-61); default content for the `head` slot (D-31); a `List` field (D-50); `Bool`, `elif` and `for item, i in list`, which have no decision entry yet.
-- Added 2026-11-18: a parent that loops over a slot's children (D-62). `Tabs.vega` reads a child's field and outputs each child in a wrapper; `Grid.vega` counts the children and hides its wrapper when the slot is empty. Both use `$id` (D-65); `Tabs.vega` builds each wrapper's id from `$id` and the position.
-- Added 2026-11-18: a content type, `Recipe` (D-63), and `RecipeCard.vega`, a code-only component that takes a `Recipe` as a prop. `FeaturedRecipe.vega` has a `Recipe` picker field and renders `RecipeCard` with the pick. How a component loads a list of recipes is not decided, so no example does.
-- Added 2026-11-18: a component that a plugin ships, `Map.vega`, and the theme union that lists it as `maps.Map` (D-64). How a file is tied to its plugin is not decided; a comment in the file says where it lives.
-- Not decided, so the examples do not depend on it: whether `i` starts at 0 or 1.
-- Library names it invents: `shopify.pageBy`, `shopify.Page`, `product.description`, `$shopify.product`, `shopify.recommendations`, `product.url`, `product.price`, `product.compareAtPrice`, `site.name`, `site.shareImage`.
+Fifteen files in `examples/`, the smallest set that shows the whole syntax.
+
+| File | Shows |
+| --- | --- |
+| `shared.vega` | Unions, an alias, a union of string literals, a component defined apart from its template, a `locale` table, a plugin component listed in a union |
+| `Hero.vega` | Fields with limits, defaults and admin blocks; `show`; a `std.Url` field; a `List` field |
+| `ProductInfo.vega` | The three prop forms; a slot with default content; a loader that may find nothing; a `std.RichText` value; `for item, i`; `render` |
+| `BuyButton.vega` | A prop a parent must pass; `if` inside a start tag; `??` |
+| `ProductCard.vega` | A code-only component; `elif` |
+| `Shell.vega` | The shell with `head` and `body` slots; `std.asset` |
+| `ProductMeta.vega`, `SiteMeta.vega` | Page metadata; nullable overrides; a `Bool` field; a template in its own file |
+| `Tabs.vega`, `TabPanel.vega`, `Grid.vega` | A parent that loops over a slot's children; `$id` |
+| `Recipe.vega`, `RecipeCard.vega`, `FeaturedRecipe.vega` | A content type, as a prop and as a picker field |
+| `Map.vega` | A component that a plugin ships |
+
+Names the examples invent: `shopify.pageBy`, `shopify.Page`, `shopify.recommendations`, `shopify.money`, `$shopify.product`, `std.siteSettings`, `std.take`, `std.join`, `std.length`, `std.empty`, `std.imageUrl`, and the fields of `shopify.Product`, `shopify.Variant` and `std.SiteSettings`.
 
 ## E-5 Three mistakes and the error for each
 
 - Purpose: PoC criterion 2, "a type error shows the correct file, line and field".
-- Status: sketch. The wording and layout of the messages are proposed, not decided.
 
 ### E-5a A value that can be null is output without a fallback
 
@@ -57,7 +67,7 @@ error: slot `blocks` does not pass `product`
 ## E-6 The buy button in Liquid and in `.vega`
 
 - Purpose: the PoC question, "is this meaningfully better than Liquid?".
-- Status: sketch. The Liquid is written from memory of Shopify theme conventions and has not been run on a store.
+- The Liquid is written from memory of Shopify theme conventions and has not been run on a store.
 
 ### Liquid: block markup inside the section file, schema at the bottom of that file
 

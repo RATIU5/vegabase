@@ -15,7 +15,7 @@ updated: 2026-11-18
 
 **Admin**: A person who uses the admin app to approve plugins and manage users and domains; a separate role from editor. _Avoid:_ owner, superuser.
 
-**Cache class**: How a component's output is served, derived from its schema (earlier draft; not in the pass 1 specs): **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
+**Cache class**: How a component's output is served, derived from its schema (not specified in `docs/specs/`): **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
 
 **CDN**: The third-party cache in front of origin that serves public shells, cached fragments and assets. Never a security boundary. "Edge cache" means the same thing. _Avoid:_ public cache.
 
@@ -53,7 +53,7 @@ updated: 2026-11-18
 
 **Extension**: A vendor lib or plugin. The core is not an extension. _Avoid:_ app, add-on, integration, module.
 
-**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state (`@fallback`; earlier draft; not in the pass 1 specs), or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
+**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state (`@fallback`; not specified in `docs/specs/`), or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
 
 **Fencing**: Rejecting a write whose generation is older than the tenant's current one, so only the owning worker writes (D-018). _Avoid:_ locking.
 
@@ -85,7 +85,7 @@ updated: 2026-11-18
 
 **Page**: The HTML a visitor receives for a URL: a shell plus fragments. _Avoid:_ "page" for a composition or a fixed page.
 
-**Page kind**: The role of a page type (a `@page` record): **fixed page** (no route params, served at editor-set URLs), **entity** (route params bind its subject), **not-found** (`@not_found`), or a plugin page kind served only through gates (Q-046). From the earlier draft; not in the pass 1 specs (lang D-13, D-52). _Avoid:_ template type, static page.
+**Page kind**: The role of a page type (a `@page` record): **fixed page** (no route params, served at editor-set URLs), **entity** (route params bind its subject), **not-found** (`@not_found`), or a plugin page kind served only through gates (Q-046). Not specified in `docs/specs/` (lang D-13, D-52). _Avoid:_ template type, static page.
 
 **PII class**: A field's or storage entry's personal-data class, which drives scope approval, filtering and erasure. _Avoid:_ sensitivity.
 
@@ -99,7 +99,7 @@ updated: 2026-11-18
 
 **Readiness check**: The rule that a deployment activates only after its required fields are in the read index and it fits the origin budget. _Avoid:_ readiness gate.
 
-**Route**: An editor-managed URL or URL pattern that maps to a page type and a composition (earlier draft; not in the pass 1 specs). _Avoid:_ template, path (a path is one URL).
+**Route**: An editor-managed URL or URL pattern that maps to a page type and a composition (not specified in `docs/specs/`). _Avoid:_ template, path (a path is one URL).
 
 **Shell**: The cacheable, non-personalized HTML frame of a page, into which fragments are placed. _Avoid:_ layout, skeleton.
 

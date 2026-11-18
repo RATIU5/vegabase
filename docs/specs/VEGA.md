@@ -244,8 +244,8 @@ Every row is an error before rendering.
 
 *Open:* the wording and layout of error messages (examples E-5 is a sketch).
 
-## 12. Not in this edition
+## 12. Not in the language
 
-Removed from the earlier draft and not replaced: pages, routes and query declarations in code (lang D-13); `global` (lang D-35); `data` and `given` (lang D-51); `declare` and the naming line (lang D-59); `raw` (lang D-37); directives other than the admin block (lang D-46).
+The language has no pages, routes or query declarations in code (lang D-13); no `global` (lang D-35); no `raw` (lang D-37); no output keyword (lang D-21); no `group` construct (lang D-29); and no `@` directive other than the admin block (lang D-46).
 
-*Open:* whether cache windows, timeouts, fallbacks, routes and actions from the earlier draft return (lang Q-11).
+*Open:* whether cache windows, timeouts, fallbacks, routes and actions enter the first edition (lang Q-11).

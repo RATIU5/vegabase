@@ -1,6 +1,11 @@
+---
+status: draft
+updated: 2026-11-18
+---
+
 # Brief
 
-Updated: 2026-11-18. Source: the project lead's starting context. Kept current; changes need a D- entry in DECISIONS.md. Moved here from `docs/temp_lang_ctx/brief.md` on 2026-11-18. D- and Q- numbers in this file are the entries of DECISIONS.md in this folder.
+The project lead's starting context for the language. A change here needs a D- entry in DECISIONS.md. `D-` and `Q-` numbers are entries of that file.
 
 ## What this is
 
@@ -67,4 +72,4 @@ Also:
 
 ## Open questions
 
-Tracked in DECISIONS.md (Q-1 onward).
+Tracked in DECISIONS.md, section "Open questions".

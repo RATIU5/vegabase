@@ -9,7 +9,7 @@ The `.vega` language is one file type for schema code and templates (lang D-16).
 
 **Precedence**: CHARTER > DECISIONS > these specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK. An Accepted D- entry binds the specs; a spec rule binds the glossary and every lower doc.
 
-Edition: **draft** (no edition shipped yet). This is pass 1: it states only what is decided, and marks every other point *no entry* or *open*.
+Edition: **draft** (no edition shipped yet). The spec files state only what is decided, and mark every other point *no entry*, *reading* or *open*.
 
 **Citations.** `lang D-59` and `lang Q-10` are entries of `docs/specs/DECISIONS.md`. `core D-031` is an entry of `core/DECISIONS.md`.
 
@@ -46,19 +46,22 @@ Worked examples: `examples/` (fifteen `.vega` files) and EXAMPLES.md. Nothing ha
 
 Banned in the specs: Go, island, document, partial, region, default slot, template-safe, publish (for content), bare owner.
 
-## Where these specs disagree with the core docs
+## Where the core docs disagree with these specs
 
-Pass 1 follows the language decisions. These lower or older lines now disagree and need a ruling or a fix:
+These specs outrank the lines below. Each line needs a fix in its own doc.
 
 | Core line | Says | Specs say |
 | --- | --- | --- |
-| GLOSSARY: Type owner | the one extension that provides an entity type | open: who owns the entries of a theme's content type (VEGA §8) |
-| GLOSSARY: Component replacement; core Q-045 | a theme component may take the place of a plugin component | not in this edition (lang D-64, ruled 2026-11-18) |
-| GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
-| GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66); the wording needs one pass, the rules agree (lang D-67) |
-| DESIGN §6: load-time checks, storage | a plugin's WASM may import from enabled vendor lib namespaces, and reaches tenant databases through vendor lib connectors | a plugin's code never calls another plugin; types and data only (lang D-67; CHARTER hard line) |
-| core D-028, D-030, D-031, D-032 | describe the earlier draft: `theme` namespace, `{type Name}`, `@fallback`, `@cache`, COMMON §4 | not amended yet; each needs a pass against VEGA.md and VEGA-TEMPLATE.md |
+| GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66) |
+| GLOSSARY: Type owner | the one extension that provides an entity type | a theme may declare a content type; its owner is open (VEGA §8) |
+| GLOSSARY: Entity, Namespace, Source role, Edition, Language toolchain, Theme | `@collection`, `theme.Hero`, `@route`, `@global`, `Ref(T)`, "template and schema languages", "default route patterns" | none of these exist in the language (VEGA §2, §12) |
+| GLOSSARY: Page kind, Storage class, Fallback view, Cache class, Route | `@page`, `@private`, `@fallback`, `@cache` | not specified; open under lang Q-11 and Q-41 |
+| ARCHITECTURE: seams, code map | "data fields"; separate `source/template/` and `source/schema/` | props filled by loaders (VEGA §7); one language (lang D-16) |
+| DESIGN §6 | a plugin's WASM imports from vendor lib namespaces and uses vendor lib connectors | a plugin's code never calls another plugin (lang D-67) |
+| OPERATIONS | a component's `unavailable` state | a loader that finds nothing gives the not-found page or null (lang D-38) |
+| core D-028 to D-032 | the `theme` namespace, `{type Name}`, `@fallback`, `@cache`, COMMON §4 | each needs a pass against VEGA.md and VEGA-TEMPLATE.md |
+| core Q-036 to Q-042 | open questions on `t(...)`, whitespace, slot loops, template locals | lang D-34, D-40 and D-62 answer three; lang Q-10 and Q-33 hold the rest |
 
 ## Open language questions
 
-DECISIONS.md, section "Open questions", and each *Open* line in the two spec files. Q-035 to Q-049 in `core/DECISIONS.md` predate this rewrite and have not been checked against it.
+DECISIONS.md, section "Open questions", the *Open* points inside its entries, and each *Open* line in the two spec files.

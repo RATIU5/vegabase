@@ -1,0 +1,22 @@
+{{
+  Tabs :: component {
+    @{ label = "Tabs" }
+
+    fields {
+      panels: slot Panels { min = 1, max = 6 }
+    }
+  }
+
+  template Tabs
+}}
+<div class="tabs" id="{{$id}}">
+  <ul class="tab-bar">
+    {{# a parent reads a child's fields, never its props }}
+    {{for panel, i in panels}}
+      <li><a href="#{{$id}}-{{i}}">{{panel.title}}</a></li>
+    {{/for}}
+  </ul>
+  {{for panel, i in panels}}
+    <section class="tab" id="{{$id}}-{{i}}">{{slot panel}}</section>
+  {{/for}}
+</div>

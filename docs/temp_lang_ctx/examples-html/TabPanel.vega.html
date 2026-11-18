@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TabPanel.vega</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0b0c10; --card: rgba(22, 24, 30, 0.78); --line: rgba(255, 255, 255, 0.09); --fg: #dcdad3; --mute: #5f636c;
+    --dl: #6d7079; --kw: #e08ac6; --ty: #7cc4dd; --ns: #cdb872; --fn: #8fcf9a; --fld: #f1efe8;
+    --mem: #b9b6ae; --var: #dcdad3; --arg: #e0b070; --str: #e9a07c; --num: #e0b070; --dir: #b39cf0;
+    --const: #ff8a80; --op: #8d9099; --pn: #8d9099; --tag: #8fb0e0; --at: #b5c77a; --av: #e9a07c;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; min-height: 100vh; padding: 56px 16px; color: var(--fg); position: relative; overflow-x: hidden;
+         font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  .blobs { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+  .blobs i { position: absolute; border-radius: 50%; filter: blur(70px); opacity: 0.75; }
+  .blobs i:nth-child(1) { width: 520px; height: 520px; left: calc(50% - 620px); top: -80px;
+                          background: radial-gradient(circle at 35% 35%, #7b5cff, #3b1fa8 70%); }
+  .blobs i:nth-child(2) { width: 460px; height: 460px; left: calc(50% + 160px); top: 60px;
+                          background: radial-gradient(circle at 60% 40%, #ff5fa2, #a11d5c 70%); }
+  .blobs i:nth-child(3) { width: 560px; height: 560px; left: calc(50% - 220px); top: 420px;
+                          background: radial-gradient(circle at 50% 50%, #19c2c9, #0b5d7a 70%); opacity: 0.6; }
+  .blobs i:nth-child(4) { width: 320px; height: 320px; left: calc(50% + 320px); top: 560px;
+                          background: radial-gradient(circle at 50% 50%, #ffb347, #b3541e 70%); opacity: 0.5; }
+  figure { position: relative; max-width: 1040px; margin: 0 auto; background: var(--card);
+           border: 1px solid var(--line); border-radius: 14px; overflow: hidden;
+           -webkit-backdrop-filter: blur(28px) saturate(140%); backdrop-filter: blur(28px) saturate(140%);
+           box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.06); }
+  figcaption { display: flex; align-items: center; gap: 8px; padding: 12px 16px; border-bottom: 1px solid var(--line);
+               color: #9a9da6; font: 13px/1.4 ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  figcaption::before { content: ""; width: 44px; height: 10px; flex: none;
+                       background: radial-gradient(circle 5px at 5px 5px, #ff5f57 98%, transparent) ,
+                                   radial-gradient(circle 5px at 22px 5px, #febc2e 98%, transparent),
+                                   radial-gradient(circle 5px at 39px 5px, #28c840 98%, transparent); }
+  pre { margin: 0; padding: 16px 0; overflow-x: auto; counter-reset: ln;
+        font: 13.5px/1.65 ui-monospace, "SF Mono", Menlo, Consolas, monospace; tab-size: 2; }
+  .ln { display: block; padding: 0 20px 0 0; white-space: pre; }
+  .ln::before { counter-increment: ln; content: counter(ln); display: inline-block; width: 3.2em;
+                margin-right: 1.2em; text-align: right; color: var(--mute); user-select: none; }
+  .dl { color: var(--dl); } .kw { color: var(--kw); } .ty { color: var(--ty); } .ns { color: var(--ns); }
+  .fn { color: var(--fn); } .fld { color: var(--fld); font-weight: 600; } .mem { color: var(--mem); }
+  .var { color: var(--var); } .arg { color: var(--arg); } .str { color: var(--str); } .num { color: var(--num); }
+  .dir { color: var(--dir); } .const { color: var(--const); } .op { color: var(--op); } .pn { color: var(--pn); }
+  .tag { color: var(--tag); } .at { color: var(--at); } .av { color: var(--av); } .com { color: var(--mute); font-style: italic; }
+  figcaption .name { flex: 1; }
+  figcaption nav { display: flex; gap: 6px; align-items: center; }
+  figcaption nav a, figcaption nav span { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 26px;
+        padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; color: #c9c7c0; text-decoration: none; font-size: 13px; }
+  figcaption nav a:hover { background: rgba(255, 255, 255, 0.09); color: #fff; }
+  figcaption nav span { opacity: 0.3; }
+  figcaption nav .count { border: 0; opacity: 1; color: #7d808a; min-width: 0; padding: 0 4px; }
+</style>
+</head>
+<body>
+<div class="blobs"><i></i><i></i><i></i><i></i></div>
+<figure>
+<figcaption><span class="name">TabPanel.vega</span><nav><a href="Tabs.vega.html" title="Previous: Tabs.vega" aria-label="Previous file">&larr;</a><span class="count">11 / 12</span><a href="Grid.vega.html" title="Next: Grid.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
+<pre><code><span class="ln"><span class="dl">{{</span></span><span class="ln">  <span class="kw">use</span> <span class="var">std</span></span><span class="ln"></span><span class="ln">  <span class="ty">TabPanel</span> <span class="op">::</span> <span class="kw">component</span> <span class="pn">{</span></span><span class="ln">    <span class="dir">@</span><span class="pn">{</span> <span class="arg">label</span> <span class="op">=</span> <span class="str">"Tab"</span> <span class="pn">}</span></span><span class="ln"></span><span class="ln">    <span class="kw">fields</span> <span class="pn">{</span></span><span class="ln">      <span class="fld">title</span><span class="op">:</span> <span class="ty">Text</span> <span class="pn">{</span> <span class="arg">max</span> <span class="op">=</span> <span class="num">40</span> <span class="pn">}</span></span><span class="ln">      <span class="fld">body</span><span class="op">:</span>  <span class="ns">std</span><span class="pn">.</span><span class="ty">RichText</span></span><span class="ln">    <span class="pn">}</span></span><span class="ln">  <span class="pn">}</span></span><span class="ln"></span><span class="ln">  <span class="kw">template</span> <span class="ty">TabPanel</span></span><span class="ln"><span class="dl">}}</span></span><span class="ln"><span class="pn">&lt;</span><span class="tag">div</span> <span class="at">class</span><span class="pn">=</span><span class="av">"tab-body"</span><span class="pn">&gt;</span><span class="dl">{{</span><span class="var">body</span><span class="dl">}}</span><span class="pn">&lt;/</span><span class="tag">div</span><span class="pn">&gt;</span></span></code></pre>
+</figure>
+</body>
+</html>

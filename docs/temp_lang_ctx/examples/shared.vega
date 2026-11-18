@@ -1,9 +1,11 @@
 {{
   use std
 
-  Sections  :: Hero | ProductInfo
+  Sections  :: Hero | ProductInfo | Tabs | Grid
   Blocks    :: BuyButton
   HeadParts :: ProductMeta | SiteMeta
+  Panels    :: TabPanel
+  Tiles     :: Hero | Tabs
 
   Headline :: Text { max = 80 } @{ label = t("headline.label") }
   Tone     :: "light" | "dark"

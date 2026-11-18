@@ -1,0 +1,15 @@
+{{
+  use std
+
+  TabPanel :: component {
+    @{ label = "Tab" }
+
+    fields {
+      title: Text { max = 40 }
+      body:  std.RichText
+    }
+  }
+
+  template TabPanel
+}}
+<div class="tab-body">{{body}}</div>

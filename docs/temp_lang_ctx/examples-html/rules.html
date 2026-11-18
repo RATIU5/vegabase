@@ -66,7 +66,7 @@
 <body>
 <div class="blobs"><i></i><i></i><i></i><i></i></div>
 <figure>
-<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 9</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
+<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 12</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
 <div class="rules">
 <p class="lead">Read this before the example files. The examples show the syntax; these are the rules behind it.</p>
 <h2>Files</h2><ul>
@@ -97,6 +97,15 @@
 <li>The admin offers a component only if a union used by a slot lists it. A component in no union, such as <code>ProductCard</code>, is code-only. <span class=ref>D-59</span></li>
 <li>The shell is the exception. No union lists <code>Shell</code>, yet the host renders it as the root of a page and stores its slots. Which component is the shell is still open. <span class=ref>D-31, Q-40</span></li>
 <li><code>&#123;&#123;render ProductCard { product = item } &#125;&#125;</code> renders a component from code and sets its values in braces. <span class=ref>D-49</span></li>
+</ul>
+<h2>Slots in a template</h2><ul>
+<li><code>&#123;&#123;slot blocks&#125;&#125;</code> outputs every child of the slot, in order, with no wrapper. <span class=ref>D-49</span></li>
+<li>A parent may loop over the children: <code>&#123;&#123;for panel in panels&#125;&#125;</code>, then <code>&#123;&#123;slot panel&#125;&#125;</code> to output one child. <span class=ref>D-62</span></li>
+<li>A slot allows only <code>for</code>, <code>std.empty</code> and <code>std.length</code>. Code cannot sort, cut or filter what an editor placed. <span class=ref>D-62</span></li>
+<li>Every child is output. The template uses the short form, or at least one loop over the slot holds <code>&#123;&#123;slot child&#125;&#125;</code> with no <code>if</code> between the <code>for</code> and it. <span class=ref>D-62</span></li>
+<li>A parent reads a child's fields, never its props: <code>panel.title</code>. Only a field that every component in the slot's union has, with the same type, can be read. <span class=ref>D-62</span></li>
+<li>A template cannot ask which component a child is. <span class=ref>D-62</span></li>
+<li><code>$id</code> is the id of this placed component, unique on the page: <code>id="&#123;&#123;$id&#125;&#125;"</code>. A template reads only its own. A parent builds the id of a wrapper from its own id and the position: <code>id="&#123;&#123;$id&#125;&#125;-&#123;&#123;i&#125;&#125;"</code>. <span class=ref>D-65</span></li>
 </ul>
 <h2>Fields: what an editor fills in</h2><ul>
 <li>The host stores fields and the admin shows them. A slot is a field, and may have default content: <code>= [ SiteMeta {} ]</code>. <span class=ref>D-31, D-51</span></li>

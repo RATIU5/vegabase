@@ -1,10 +1,10 @@
 # Brief
 
-Updated: 2026-11-18. Source: the project lead's starting context. Kept current; changes need a D- entry in `docs/specs/DECISIONS.md`.
+Updated: 2026-11-18. Source: the project lead's starting context. Kept current; changes need a D- entry in DECISIONS.md. Moved here from `docs/temp_lang_ctx/brief.md` on 2026-11-18. D- and Q- numbers in this file are the entries of DECISIONS.md in this folder.
 
 ## What this is
 
-Two small languages for a typed, SSR-first CMS: a template language and a schema language. Spec-only planning phase. Implementation comes later.
+One small language for a typed, SSR-first CMS, in one file type, `.vega`: declarations and templates (D-16). Spec-only planning phase. Implementation comes later.
 
 **The PoC question:** is this meaningfully better than Liquid? Nothing else.
 
@@ -18,11 +18,11 @@ Two small languages for a typed, SSR-first CMS: a template language and a schema
 - Templates are declarative and pure: same data in, same HTML out, no side effects.
 - No user-defined functions. Variables are immutable. Loops iterate only over data.
 - No IO in templates. Data needs are declared; the runtime fetches and caches them.
-- Complex logic lives outside the core language. Plugins (Odin to WASM) define data sources and transform data to and from the template; a plugin may also ship anything a `.vega` file can hold (D-64).
+- Complex logic lives outside the core language. Plugins define data sources and transform data to and from the template; a plugin may also ship anything a `.vega` file can hold (D-64). A first-party plugin runs as native code and every other plugin in WASM (D-67).
 - One unit of composition: the component, with or without a slot (D-7).
 - The language never names the CMS, only a host that supplies field values, loaders and page constants (D-28).
 - Output is escaped by default, with an explicit opt-out: the type `std.RichText` (D-37). There is no `raw`.
-- The schema language describes shape and validation only; no logic beyond simple constraints.
+- Declarations describe shape and validation only; no logic beyond simple constraints.
 - A feature that can't be statically checked doesn't go in core.
 - Schema code and templates share one file type, `.vega`; a component is one file or split (D-16). All code sits inside `{{ }}` (D-17).
 
@@ -67,4 +67,4 @@ Also:
 
 ## Open questions
 
-Tracked in `docs/specs/DECISIONS.md` (Q-1 onward).
+Tracked in DECISIONS.md (Q-1 onward).

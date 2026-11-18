@@ -18,6 +18,7 @@ Edition: **draft** (no edition shipped yet). This is pass 1: it states only what
 | File             | Owns                                                                                                             | Read when                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | VEGA.md          | Files and blocks, names and `use`, brackets, types, components, fields, props, content types, locale tables, plugins | Declaring a type, a component or a content type |
+| BRIEF.md         | The PoC question and its five criteria, the power budget, the ranked language principles, non-goals, process rules | Judging whether a construct belongs in the language |
 | DECISIONS.md     | The language decisions (`lang D-`), open questions (`lang Q-`) and prior art                                     | Before treating a language rule as settled   |
 | EXAMPLES.md      | The example set, three check errors with their messages, the buy button in Liquid and in `.vega`                 | Showing the syntax or an error message       |
 | VEGA-TEMPLATE.md | Binding, tags, slots in a template, `$id`, expressions, output and escaping, whitespace                          | Writing or checking a template               |

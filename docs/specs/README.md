@@ -22,6 +22,7 @@ Edition: **draft** (no edition shipped yet). The spec files state only what is d
 | DECISIONS.md     | The language decisions (`lang D-`), open questions (`lang Q-`) and prior art                                     | Before treating a language rule as settled   |
 | EXAMPLES.md      | The example set, three check errors with their messages, the buy button in Liquid and in `.vega`                 | Showing the syntax or an error message       |
 | VEGA-TEMPLATE.md | Binding, tags, slots in a template, `$id`, expressions, output and escaping, whitespace                          | Writing or checking a template               |
+| VEGA-GRAMMAR.md  | The grammar of the code inside `{{ }}`, how to run it over the examples, and the choices it had to make             | Checking that a construct is well-formed     |
 
 Each fact lives in one file. Other files link to it by file and section (`VEGA §6.1`).
 

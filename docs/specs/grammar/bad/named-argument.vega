@@ -1,0 +1,10 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+<p>{{title | std.take(count = 3)}}</p>

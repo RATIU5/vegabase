@@ -1,0 +1,11 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+{{if title | std.length == 0}}
+{{/if}}

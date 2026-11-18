@@ -2,4 +2,4 @@
 vegabase: docs
 ---
 
-# Rewrite the schema and template language specs as the single source of truth
+# Rewrite the language specs for the single `.vega` file type

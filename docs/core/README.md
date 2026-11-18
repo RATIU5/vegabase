@@ -1,6 +1,6 @@
 ---
 status: stable
-updated: 2026-11-08
+updated: 2026-11-18
 ---
 
 # Vegabase: Start here
@@ -18,7 +18,7 @@ Vegabase is a hosted, multi-tenant storefront and CMS engine in Odin that render
 | OPERATIONS.md   | Ownership and fencing, never-stop serving, moves, upgrades, purges, domains, security ops, observability | Anything about uptime, recovery, domains, secrets or metrics    |
 | STACK.md        | Pins, libraries, verified external facts, environment, workload, spikes                                  | Choosing a library or version, any Shopify, CDN or hosting fact |
 | DECISIONS.md    | Decisions, open questions, risks, influences                                                             | Before treating anything as settled; logging a ruling           |
-| ../specs/       | Schema (`.vegs`) and template (`.vegt`) language syntax and semantics; start at `specs/README.md`        | Reading or writing schemas or templates, any language rule      |
+| ../specs/       | The `.vega` language: syntax and semantics of declarations and templates; start at `specs/README.md`        | Reading or writing schemas or templates, any language rule      |
 
 **Precedence**: CHARTER > DECISIONS > specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK > this file's State section. When docs conflict, the higher one wins; flag the lower line that needs fixing. Each fact lives in one doc; cite it by doc and section or by ID: G, P in CHARTER; D, Q, R, I in DECISIONS; S in STACK.
 

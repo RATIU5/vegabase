@@ -30,7 +30,7 @@ Worked examples: `docs/temp_lang_ctx/examples/` (fifteen `.vega` files) and `doc
 | ------------------------------------ | -------------------------------- | ----------------------------------------------------------- |
 | bare name                            | Theme                            | A name the theme declares (VEGA §2)                         |
 | `std` prefix                         | Core                             | Types and functions the core ships                          |
-| plugin prefix (`shopify`, `maps`)    | Extension (vendor lib or plugin) | VEGA §10                                                    |
+| plugin prefix (`shopify`, `maps`)    | Extension (vendor lib or plugin) | A vendor lib is a first-party plugin (lang D-66, VEGA §10)  |
 | `component` plus its template        | Component                        | VEGA §5                                                     |
 | named union of components            | (replaces `@group`)              | VEGA §4.3                                                   |
 | slot field                           | Slot                             | VEGA §6.1                                                   |
@@ -52,11 +52,12 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 | GLOSSARY: Component | a record marked `@component` | `Name :: component { }` (VEGA §5) |
 | GLOSSARY: Data need | a `data` field in a schema | a prop filled by a loader (VEGA §7) |
 | GLOSSARY: Entity type | declared only by `std` or an extension | a theme may declare a `content` type (VEGA §8) |
-| GLOSSARY: Transform | never implemented by a plugin | a plugin may define pure functions (VEGA §10) |
+| GLOSSARY: Transform; core D-028 | template functions come only from the core or vendor libs, never a plugin | any plugin may define pure functions (lang D-64); whether one that is not first-party may run while a page renders is open (lang D-66) |
 | GLOSSARY: Theme | declares no entity types | a theme may declare a `content` type (VEGA §8) |
 | GLOSSARY: Component replacement | a theme component may take the place of a plugin component | open; lang D-64 holds an unconfirmed proposal against it |
 | GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
-| core D-015 | Shopify is a vendor lib, a tier apart from plugins | the Shopify library is a plugin like any other (lang D-64) |
+| DESIGN: Locales | a missing translation falls back to the default locale | a key missing from a locale table is a check error (lang D-34, VEGA §9) |
+| GLOSSARY: Plugin; core D-007 | a plugin is untrusted and runs in WASM; a vendor lib is a separate native tier | a vendor lib is a plugin that the core team maintains (lang D-66); whether it still runs native is open |
 | core D-027 | the specs cover `.vegs` and `.vegt` | one file type, `.vega` (lang D-16) |
 | core Q-013 | file extensions are open | `.vega` (lang D-16) |
 

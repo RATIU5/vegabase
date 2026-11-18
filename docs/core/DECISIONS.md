@@ -69,7 +69,7 @@ updated: 2026-11-08
 
 **D-030 Template binding and page kinds**: Accepted 2026-11-08. A template names its type with `{type Name}`; paths carry no meaning. Section and block kinds become `@component` plus `@group`. `@page` without route params is a fixed page, with them an entity page; `@not_found` marks the not-found page.
 
-**D-031 Rendering safety in the language**: Accepted 2026-11-08. `@fallback` modes are stale, null and unavailable (default); no error mode (D-018). `@cache` sits on loaders, data fields and pages; fields and pages only tighten. Cache class is derived, `@private` data makes an on-demand fragment, and `@fragment` only tightens. No `raw`; escaping is contextual (VEGT §8).
+**D-031 Rendering safety in the language**: Accepted 2026-11-08. `@fallback` modes are stale, null and unavailable (default); no error mode (D-018). `@cache` sits on loaders, data fields and pages; fields and pages only tighten. Cache class is derived, `@private` data makes an on-demand fragment, and `@fragment` only tightens. No `raw`; escaping is contextual (VEGA-TEMPLATE §7).
 
 **D-032 Language simplifications**: Accepted 2026-11-08. One expression grammar (COMMON §4); ordering only on Int and Decimal; explicit `@validate` call arguments; no spread or `except`; `@personal` and `@context` renamed `@private` and `@global`; `pattern` uses the Odin `core:text/regex` dialect; templates gain `t(...)`, `url(...)` and `Ref` traversal.
 

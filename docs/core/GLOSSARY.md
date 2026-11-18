@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-18
 ---
 
 # Vegabase: Glossary
@@ -15,11 +15,11 @@ updated: 2026-11-08
 
 **Admin**: A person who uses the admin app to approve plugins and manage users and domains; a separate role from editor. _Avoid:_ owner, superuser.
 
-**Cache class**: How a component's output is served, derived from its schema (VEGS-DATA §5): **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
+**Cache class**: How a component's output is served, derived from its schema (earlier draft; not in the pass 1 specs): **shell** (CDN, tagged by read set), **cached fragment** (CDN, signed, `s-maxage`), **on-demand fragment** (rendered by the owning worker from cached fields), **live** (rendered by the owning worker, fields fetched every render). _Avoid:_ freshness level.
 
 **CDN**: The third-party cache in front of origin that serves public shells, cached fragments and assets. Never a security boundary. "Edge cache" means the same thing. _Avoid:_ public cache.
 
-**Component**: A record type marked `@component` plus the one template that names it; placeable in slots, identified by its namespace and name, never its path (VEGS §6). _Avoid:_ snippet, partial.
+**Component**: A `component` declaration plus the one template that names it; placeable in slots, identified by its prefix and name, never its path (VEGA §5). _Avoid:_ snippet, partial.
 
 **Component replacement**: A theme's explicit declaration that its component takes the place of a plugin component with the same schema and data fields (syntax: Q-045). _Avoid:_ override, theme override.
 
@@ -37,7 +37,7 @@ updated: 2026-11-08
 
 **Customer**: A visitor logged in to a store's customer account. _Avoid:_ buyer, user, account.
 
-**Data need**: A `data` field in a schema: a typed value the data layer resolves through a declared loader, bound to one source role (VEGS-DATA §1). _Avoid:_ query, data binding.
+**Data need**: A prop filled by a loader: a typed value the data layer resolves through a declared loader, bound to one source role (VEGA §7). _Avoid:_ query, data binding.
 
 **Deployment**: An immutable, versioned snapshot of a tenant's theme and its compiled plans, validated before it can be activated. _Avoid:_ build, release, theme version.
 
@@ -53,7 +53,7 @@ updated: 2026-11-08
 
 **Extension**: A vendor lib or plugin. The core is not an extension. _Avoid:_ app, add-on, integration, module.
 
-**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state (`@fallback`, VEGS-DATA §7), or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
+**Fallback view**: What the origin serves when something can't be rendered: a stale value, a component's `unavailable` state (`@fallback`; earlier draft; not in the pass 1 specs), or a minimal built-in page. Never a 5xx page (D-018). _Avoid:_ error page.
 
 **Fencing**: Rejecting a write whose generation is older than the tenant's current one, so only the owning worker writes (D-018). _Avoid:_ locking.
 
@@ -67,7 +67,7 @@ updated: 2026-11-08
 
 **Gate**: An override or access policy that keeps visitors from a page. Gates fail closed. _Avoid:_ readiness gate.
 
-**Group**: An optional `@group` tag on a component that slot sets select by; replaces the old section and block kinds (VEGS §6.2). _Avoid:_ kind, component type.
+**Group**: A named union of components that a slot accepts; replaces the old section and block kinds (VEGA §4.3). _Avoid:_ kind, component type.
 
 **Language toolchain**: The template and schema compiler front-end, type checker, LSP and plugin SDK; built separately from core and distributable as signed binaries (D-012). _Avoid:_ compiler (alone), CLI.
 
@@ -85,7 +85,7 @@ updated: 2026-11-08
 
 **Page**: The HTML a visitor receives for a URL: a shell plus fragments. _Avoid:_ "page" for a composition or a fixed page.
 
-**Page kind**: The role of a page type (a `@page` record): **fixed page** (no route params, served at editor-set URLs), **entity** (route params bind its subject), **not-found** (`@not_found`), or a plugin page kind served only through gates (Q-046). See VEGS-DATA §4. _Avoid:_ template type, static page.
+**Page kind**: The role of a page type (a `@page` record): **fixed page** (no route params, served at editor-set URLs), **entity** (route params bind its subject), **not-found** (`@not_found`), or a plugin page kind served only through gates (Q-046). From the earlier draft; not in the pass 1 specs (lang D-13, D-52). _Avoid:_ template type, static page.
 
 **PII class**: A field's or storage entry's personal-data class, which drives scope approval, filtering and erasure. _Avoid:_ sensitivity.
 
@@ -99,11 +99,11 @@ updated: 2026-11-08
 
 **Readiness check**: The rule that a deployment activates only after its required fields are in the read index and it fits the origin budget. _Avoid:_ readiness gate.
 
-**Route**: An editor-managed URL or URL pattern that maps to a page type and a composition (VEGS-DATA §4). _Avoid:_ template, path (a path is one URL).
+**Route**: An editor-managed URL or URL pattern that maps to a page type and a composition (earlier draft; not in the pass 1 specs). _Avoid:_ template, path (a path is one URL).
 
 **Shell**: The cacheable, non-personalized HTML frame of a page, into which fragments are placed. _Avoid:_ layout, skeleton.
 
-**Slot**: A field marked `slot` where editors place child components, limited by its component set and count; depth is capped by the core (VEGS §5). _Avoid:_ region, zone, container.
+**Slot**: A field marked `slot` where editors place child components, limited by its component set and count; depth is capped by the core (VEGA §6.1). _Avoid:_ region, zone, container.
 
 **Source role**: Where a data need's input comes from: route subject (`@route`), tenant globals or request (`@global`), or entity-reference setting (`Ref(T)` prop). _Avoid:_ data source, binding.
 
@@ -115,13 +115,13 @@ updated: 2026-11-08
 
 **Theme**: A tenant's typed component library, with locales and assets. It declares data needs and default route patterns, but no functions, entity types or routes (D-029). _Avoid:_ template, skin.
 
-**Transform**: A template-callable `fn`, implemented by the core or a vendor lib, never a plugin (VEGS §4.4). _Avoid:_ filter, helper.
+**Transform**: A template-callable `fn`, implemented by the core or a vendor lib, never a plugin (VEGA §10 disagrees: lang D-64 lets a plugin define pure functions; whether one that is not first-party may run on the render path needs a ruling, lang D-66). _Avoid:_ filter, helper.
 
 **Type owner**: The one extension that provides an entity type's schema, batch resolver, change feed and reconciliation. _Avoid:_ owner, provider, source.
 
-**Vegabase**: The project and product name. File extensions `.vegt`/`.vegs` are provisional (Q-013).
+**Vegabase**: The project and product name. The file extension is `.vega` (lang D-16; Q-013 not yet closed).
 
-**Vendor lib**: A trusted native extension built and signed by the platform team, loaded only in workers whose tenants enable it. Shopify is one. _Avoid:_ native plugin, app, integration.
+**Vendor lib**: A plugin that the platform team maintains as first-party (lang D-66). Today: a trusted native extension built and signed by the platform team, loaded only in workers whose tenants enable it. Shopify is one. _Avoid:_ native plugin, app, integration.
 
 **Visitor**: Anyone requesting pages from a tenant, logged in or not. _Avoid:_ shopper, user, guest.
 

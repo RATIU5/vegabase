@@ -32,15 +32,15 @@ Worked examples: `examples/` (fifteen `.vega` files) and EXAMPLES.md. Nothing ha
 | Spec term                            | Glossary term                    | Note                                                        |
 | ------------------------------------ | -------------------------------- | ----------------------------------------------------------- |
 | bare name                            | Theme                            | A name the theme declares (VEGA §2)                         |
-| `std` prefix                         | Core                             | Types and functions the core ships                          |
-| plugin prefix (`shopify`, `maps`)    | Extension (vendor lib or plugin) | A vendor lib is a first-party plugin (lang D-66, VEGA §10)  |
+| prefix (`std`, `shopify`, `maps`)    | Prefix                           | VEGA §2                                                     |
+| plugin                               | Plugin, Extension                | A vendor lib is a first-party plugin (lang D-66, VEGA §10)  |
 | `component` plus its template        | Component                        | VEGA §5                                                     |
 | named union of components            | (replaces `@group`)              | VEGA §4.3                                                   |
 | slot field                           | Slot                             | VEGA §6.1                                                   |
 | prop filled by a loader              | Data need                        | VEGA §7                                                     |
 | `$` value                            | Source role                      | VEGA §7                                                     |
 | `$id`                                | instance ID (GLOSSARY: Fragment) | VEGA-TEMPLATE §4.3                                          |
-| `content` type                       | Entity type                      | VEGA §8                                                     |
+| `content` type                       | Content type                     | VEGA §8                                                     |
 | function from the core or a first-party plugin | Transform              | VEGA §10                                                    |
 | host                                 | —                                | Whatever supplies field values, loaders and `$` values (lang D-28) |
 
@@ -52,10 +52,6 @@ These specs outrank the lines below. Each line needs a fix in its own doc.
 
 | Core line | Says | Specs say |
 | --- | --- | --- |
-| GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66) |
-| GLOSSARY: Type owner | the one extension that provides an entity type | a theme may declare a content type; its owner is open (VEGA §8) |
-| GLOSSARY: Entity, Namespace, Source role, Edition, Language toolchain, Theme | `@collection`, `theme.Hero`, `@route`, `@global`, `Ref(T)`, "template and schema languages", "default route patterns" | none of these exist in the language (VEGA §2, §12) |
-| GLOSSARY: Page kind, Storage class, Fallback view, Cache class, Route | `@page`, `@private`, `@fallback`, `@cache` | not specified; open under lang Q-11 and Q-41 |
 | ARCHITECTURE: seams, code map | "data fields"; separate `source/template/` and `source/schema/` | props filled by loaders (VEGA §7); one language (lang D-16) |
 | DESIGN §6 | a plugin's WASM imports from vendor lib namespaces and uses vendor lib connectors | a plugin's code never calls another plugin (lang D-67) |
 | OPERATIONS | a component's `unavailable` state | a loader that finds nothing gives the not-found page or null (lang D-38) |

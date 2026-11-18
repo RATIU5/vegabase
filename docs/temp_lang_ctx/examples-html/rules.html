@@ -66,7 +66,7 @@
 <body>
 <div class="blobs"><i></i><i></i><i></i><i></i></div>
 <figure>
-<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 15</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
+<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 16</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
 <div class="rules">
 <p class="lead">Read this before the example files. The examples show the syntax; these are the rules behind it.</p>
 <h2>Files</h2><ul>
@@ -103,6 +103,11 @@
 <li>It is written like a component: its own <code>@{ }</code> block, then <code>fields { }</code>. It has no <code>props</code> and no template. <span class=ref>D-63</span></li>
 <li>Its name is a type. A component takes one as a prop: <code>recipe: Recipe</code>, then <code>&#123;&#123;recipe.title&#125;&#125;</code>. <span class=ref>D-63</span></li>
 <li>In <code>fields</code>, the same line is a picker: the editor chooses one recipe. <span class=ref>D-55, D-63</span></li>
+</ul>
+<h2>Plugins</h2><ul>
+<li>A plugin may ship <code>.vega</code> files with components, unions, aliases, content types and locales. <span class=ref>D-64</span></li>
+<li>In a theme, a plugin's names keep their prefix, and the file names the plugin with <code>use</code>: <code>use maps</code>, then <code>maps.Map</code>. <span class=ref>D-18, D-64</span></li>
+<li>The admin offers a plugin component only when a theme union lists it: <code>Sections :: Hero | maps.Map</code>. <span class=ref>D-64</span></li>
 </ul>
 <h2>Slots in a template</h2><ul>
 <li><code>&#123;&#123;slot blocks&#125;&#125;</code> outputs every child of the slot, in order, with no wrapper. <span class=ref>D-49</span></li>

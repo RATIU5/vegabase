@@ -1,7 +1,9 @@
 {{
   use std
+  use maps
 
-  Sections  :: Hero | ProductInfo | Tabs | Grid | FeaturedRecipe
+  # maps.Map comes from a plugin; the admin offers it because this union lists it
+  Sections  :: Hero | ProductInfo | Tabs | Grid | FeaturedRecipe | maps.Map
   Blocks    :: BuyButton
   HeadParts :: ProductMeta | SiteMeta
   Panels    :: TabPanel

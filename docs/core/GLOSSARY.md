@@ -119,7 +119,7 @@ updated: 2026-11-18
 
 **Type owner**: The one extension that provides an entity type's schema, batch resolver, change feed and reconciliation. _Avoid:_ owner, provider, source.
 
-**Vegabase**: The project and product name. The file extension is `.vega` (lang D-16; Q-013 not yet closed).
+**Vegabase**: The project and product name. The file extension is `.vega` (D-033).
 
 **Vendor lib**: A plugin that the platform team maintains as first-party (lang D-66): a trusted native extension built and signed by the platform team (lang D-67), loaded only in workers whose tenants enable it. Shopify is one. _Avoid:_ native plugin, app, integration.
 

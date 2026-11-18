@@ -49,13 +49,11 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 
 | Core line | Says | Specs say |
 | --- | --- | --- |
-| core D-029 | entity types come only from `std` or extensions | a theme may declare a `content` type (lang D-63, ruled 2026-11-18); D-029 needs amending |
 | GLOSSARY: Type owner | the one extension that provides an entity type | open: who owns the entries of a theme's content type (VEGA §8) |
 | GLOSSARY: Component replacement; core Q-045 | a theme component may take the place of a plugin component | not in this edition (lang D-64, ruled 2026-11-18) |
 | GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
 | GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66); the wording needs one pass, the rules agree (lang D-67) |
-| core D-027 | the specs cover `.vegs` and `.vegt` | one file type, `.vega` (lang D-16) |
-| core Q-013 | file extensions are open | `.vega` (lang D-16) |
+| core D-028, D-030, D-031, D-032 | describe the earlier draft: `theme` namespace, `{type Name}`, `@fallback`, `@cache`, COMMON §4 | not amended yet; each needs a pass against VEGA.md and VEGA-TEMPLATE.md |
 
 ## Open language questions
 

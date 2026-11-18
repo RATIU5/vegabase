@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-18
 ---
 
 # Vegabase: Decisions
@@ -61,17 +61,19 @@ updated: 2026-11-08
 
 **D-026 Plugin approval**: Accepted 2026-11-08. The platform team reviews and signs a plugin bundle once; a tenant admin then approves its scopes for that tenant.
 
-**D-027 Language specs**: Accepted 2026-11-08. `docs/specs/` is the single source of truth for `.vegs`/`.vegt` syntax and semantics, ranked below DECISIONS and above GLOSSARY. Accepted D- entries bind the specs.
+**D-027 Language specs**: Accepted 2026-11-08. `docs/specs/` is the single source of truth for `.vegs`/`.vegt` syntax and semantics, ranked below DECISIONS and above GLOSSARY. Accepted D- entries bind the specs. Amended by D-033.
 
 **D-028 Namespaces and implementation tiers**: Accepted 2026-11-08. Schema names live in namespaces: `theme`, `std` (core) or an extension. A theme declares no functions or directives. Template-callable `fn`s and template directives come from the core or vendor libs; plugin `fn`s serve `@show` and `@validate` only; plugin loaders are batched resolvers, never called per render. `@editor` routes come from the core or vendor libs. Why: no WASM on the render path; plugins never render HTML.
 
-**D-029 Theme data needs**: Accepted 2026-11-08. Amends D-009: a theme declares data fields (loaders of the core or extensions) and default route patterns; editors still own routes. Entity types (`@collection`) come only from `std` or extensions (D-020).
+**D-029 Theme data needs**: Accepted 2026-11-08. Amends D-009: a theme declares data fields (loaders of the core or extensions) and default route patterns; editors still own routes. Entity types (`@collection`) come only from `std` or extensions (D-020). Amended by D-033.
 
 **D-030 Template binding and page kinds**: Accepted 2026-11-08. A template names its type with `{type Name}`; paths carry no meaning. Section and block kinds become `@component` plus `@group`. `@page` without route params is a fixed page, with them an entity page; `@not_found` marks the not-found page.
 
 **D-031 Rendering safety in the language**: Accepted 2026-11-08. `@fallback` modes are stale, null and unavailable (default); no error mode (D-018). `@cache` sits on loaders, data fields and pages; fields and pages only tighten. Cache class is derived, `@private` data makes an on-demand fragment, and `@fragment` only tightens. No `raw`; escaping is contextual (VEGA-TEMPLATE §7).
 
 **D-032 Language simplifications**: Accepted 2026-11-08. One expression grammar (COMMON §4); ordering only on Int and Decimal; explicit `@validate` call arguments; no spread or `except`; `@personal` and `@context` renamed `@private` and `@global`; `pattern` uses the Odin `core:text/regex` dialect; templates gain `t(...)`, `url(...)` and `Ref` traversal.
+
+**D-033 One file type, `.vega`**: Accepted 2026-11-18. Amends D-027 and D-029; closes Q-013. Schema code and templates share `.vega` files, specified in `specs/VEGA.md` and `specs/VEGA-TEMPLATE.md`. A theme may declare content types. Why: the lead's rulings, lang D-16 and D-63.
 
 ## Open questions
 
@@ -89,7 +91,6 @@ updated: 2026-11-08
 | Q-010 | Which types and contexts are index-backed vs request-time, with what staleness limits? | Workload model per type against memory and bulk-operation limits |
 | Q-011 | Does the deploy pipeline run in the owning worker or a separate process? | In worker · separate process handing plans over · architecture decision |
 | Q-012 | Is the admin app a part, or a client of the deploy pipeline and data layer? | Keep · demote · architecture decision |
-| Q-013 | Theme file extensions? | Keep `.vegt`/`.vegs` · rename · before editor tooling starts |
 | Q-014 | Plugins as signed binary bundles or source with a server-side build? | Binaries (lint is advisory) · source · plugin pipeline decision |
 | Q-015 | May vetted partners author vendor libs? | Platform team only · partners with platform review, build and signing · project lead |
 | Q-016 | Is linux_arm64 a production target? | amd64 only for 1.0 · both · hosting cost comparison |

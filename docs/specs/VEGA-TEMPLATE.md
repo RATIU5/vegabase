@@ -7,7 +7,7 @@ updated: 2026-11-18
 
 What the HTML part of a `.vega` file may hold: tags, slots, expressions and output. Declarations are in VEGA.md. Index and term map: README.md.
 
-Citations and status marks follow VEGA.md: `lang D-59` is an entry of `docs/temp_lang_ctx/decisions.md`; *no entry* is shown in the examples with no decision; *open* is not decided.
+Citations and status marks follow VEGA.md: `lang D-59` is an entry of DECISIONS.md in this folder; *no entry* is shown in the examples with no decision; *open* is not decided.
 
 **Design rules**
 
@@ -170,7 +170,7 @@ Every row is an error before rendering.
 
 ## 10. Example
 
-`Tabs.vega`, from `docs/temp_lang_ctx/examples/`:
+`Tabs.vega`, from `examples/`:
 
 ```
 {{

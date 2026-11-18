@@ -1,8 +1,8 @@
-# Decisions, open questions, prior art
+# Language decisions, open questions, prior art
 
 Updated: 2026-11-18. IDs are never reused. Status: Decided, Proposed, Rejected, Open.
 
-These IDs (D-1, Q-1, PA-1) are local to `docs/temp_lang_ctx/`. They are not the `D-001` / `Q-001` entries in `docs/core/DECISIONS.md`; those are cited as "core D-031".
+These IDs (D-1, Q-1, PA-1) are local to `docs/specs/` and are cited elsewhere as `lang D-1`. The file moved here from `docs/temp_lang_ctx/decisions.md` on 2026-11-18; the brief it cites is still `docs/temp_lang_ctx/brief.md`, and the `examples-html/` pages and `rules.html` it mentions were deleted that day. They are not the `D-001` / `Q-001` entries in `docs/core/DECISIONS.md`; those are cited as "core D-031".
 
 ## Decisions
 
@@ -88,7 +88,7 @@ Whether the Shopify vendor lib counts as a plugin here is Q-18.
 
 **D-33 A pipe mixed with another operator needs parentheses** (lead, 2026-11-12; closes Q-43). `(a ?? b ?? c) | std.imageUrl(width = 1200)`. No precedence rule to remember. A pipe alone needs none: `image | std.imageUrl(width = 800)`. `x | std.length > 0` is an error; write `not std.empty(x)` or `(x | std.length) > 0`.
 
-**Example sets, 2026-11-12.** Current: `examples/` (six `.vega` files, the set to show stakeholders). `example-theme/` and `example-theme-vega/` were deleted on the lead's instruction; entries above that cite files in them refer to sketches that no longer exist. `examples.md` holds only a stale fragment. Not covered by the six files: `render`, `yields`, the split form, `Ref`, `List`.
+**Example sets, 2026-11-12.** Current: `examples/` (six `.vega` files, the set to show stakeholders). `example-theme/` and `example-theme-vega/` were deleted on the lead's instruction; entries above that cite files in them refer to sketches that no longer exist. `examples.md` (now `EXAMPLES.md`) held only a stale fragment at that date. Not covered by the six files: `render`, `yields`, the split form, `Ref`, `List`.
 
 **D-34 Translation keys are strings** (lead, 2026-11-12; closes Q-42). `t("hero.label")`, not `t(hero.label)`, so a key cannot be mistaken for a field. A key missing from a locale table is still a check-time error. **Confirmed 2026-11-18** (lead: "Fail the check"): this holds for every locale table, with no fallback to the default locale. Rejected: the assistant's middle rule, an error only for the default locale and a warning with fallback for the others.
 

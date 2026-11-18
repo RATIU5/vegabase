@@ -11,18 +11,20 @@ The `.vega` language is one file type for schema code and templates (lang D-16).
 
 Edition: **draft** (no edition shipped yet). This is pass 1: it states only what is decided, and marks every other point *no entry* or *open*.
 
-**Citations.** `lang D-59` and `lang Q-10` are entries of `docs/temp_lang_ctx/decisions.md`, until they move into `core/DECISIONS.md`. `core D-031` is an entry of `core/DECISIONS.md`.
+**Citations.** `lang D-59` and `lang Q-10` are entries of `docs/specs/DECISIONS.md`. `core D-031` is an entry of `core/DECISIONS.md`.
 
 ## File map
 
 | File             | Owns                                                                                                             | Read when                                    |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
 | VEGA.md          | Files and blocks, names and `use`, brackets, types, components, fields, props, content types, locale tables, plugins | Declaring a type, a component or a content type |
+| DECISIONS.md     | The language decisions (`lang D-`), open questions (`lang Q-`) and prior art                                     | Before treating a language rule as settled   |
+| EXAMPLES.md      | The example set, three check errors with their messages, the buy button in Liquid and in `.vega`                 | Showing the syntax or an error message       |
 | VEGA-TEMPLATE.md | Binding, tags, slots in a template, `$id`, expressions, output and escaping, whitespace                          | Writing or checking a template               |
 
 Each fact lives in one file. Other files link to it by file and section (`VEGA §6.1`).
 
-Worked examples: `docs/temp_lang_ctx/examples/` (fifteen `.vega` files) and `docs/temp_lang_ctx/examples.md`. Nothing has been parsed or run, and no grammar exists yet.
+Worked examples: `examples/` (fifteen `.vega` files) and EXAMPLES.md. Nothing has been parsed or run, and no grammar exists yet.
 
 ## Spec terms and glossary terms
 
@@ -57,4 +59,4 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 
 ## Open language questions
 
-`docs/temp_lang_ctx/decisions.md`, section "Open questions", and each *Open* line in the two spec files. Q-035 to Q-049 in `core/DECISIONS.md` predate this rewrite and have not been checked against it.
+DECISIONS.md, section "Open questions", and each *Open* line in the two spec files. Q-035 to Q-049 in `core/DECISIONS.md` predate this rewrite and have not been checked against it.

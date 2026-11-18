@@ -7,7 +7,7 @@ updated: 2026-11-18
 
 What a `.vega` file may declare: names, types, components, content types, locale tables, and what a plugin adds. Tags, slots in a template, expressions and output are in VEGA-TEMPLATE.md. Index and term map: README.md.
 
-**Citations.** `D-` and `Q-` numbers in this file are the entries of `docs/temp_lang_ctx/decisions.md`, written `lang D-59`, until they move into `core/DECISIONS.md`. Core entries are written `core D-031`.
+**Citations.** `D-` and `Q-` numbers in this file are the entries of DECISIONS.md in this folder, written `lang D-59`. Core entries are written `core D-031`.
 
 **Status of every rule.** A rule with a `lang D-` number is decided. A rule marked *no entry* is shown in the examples but has no decision yet. A point marked *open* is not decided and must not be assumed.
 

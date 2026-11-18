@@ -1,6 +1,6 @@
 # Brief
 
-Updated: 2026-11-18. Source: the project lead's starting context. Kept current; changes need a D- entry in decisions.md.
+Updated: 2026-11-18. Source: the project lead's starting context. Kept current; changes need a D- entry in `docs/specs/DECISIONS.md`.
 
 ## What this is
 
@@ -67,4 +67,4 @@ Also:
 
 ## Open questions
 
-Tracked in decisions.md (Q-1 onward).
+Tracked in `docs/specs/DECISIONS.md` (Q-1 onward).

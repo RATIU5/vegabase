@@ -43,7 +43,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-25 Cycles.** Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component, because stored content is finite. Declaration order and file order never matter.
 
-**D-39 A comment starts with `#` inside `{{ }}`.** It runs to the end of the line or to `}}`, whichever comes first, and outputs nothing. A literal `{{` in the output is written as a string, `{{"{{"}}`. *Open:* a comment that holds `}}`.
+**D-39 A comment starts with `#` inside `{{ }}`.** It runs to the end of the line or to `}}`, whichever comes first, and outputs nothing. An empty block, `{{}}`, is valid and outputs nothing. A literal `{{` in the output is written as a string, `{{"{{"}}`. *Open:* a comment that holds `}}`.
 
 ### Brackets, types and limits
 
@@ -55,9 +55,11 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-47 A lowercase name with `( )` is a function call; a capitalised name with `{ }` is a type being filled in.** `( )` holds bare values by position. `{ }` holds `name = value` entries in any order. A `name =` never appears inside `( )`. Types start with a capital letter and every other name starts lowercase; the checker enforces it. `[ ]` holds a list of values.
 
+**D-70 Literals.** A string sits in double quotes on one line; `\"` and `\\` are its only escapes. A number is whole and may start with `-`. The other literals are `true`, `false` and `null`. *Open:* decimal numbers, which wait on a decimal type.
+
 **D-50 The list type is `List { of = T }`.** `List { of = shopify.Variant }`, `List { of = Text, min = 1, max = 12 }`. No capitalised name is followed by parentheses anywhere in the language. Inside a `{ }` block, `of` is the only entry that takes a type; every other entry takes a value.
 
-**D-26 `|` is both the union and the pipe.** A union sits in a type, a pipe in a value. There is no `|>`.
+**D-26 `|` is both the union and the pipe.** A union sits in a type, a pipe in a value. There is no `|>`. A union may be named, `Tone :: "light" | "dark"`, or written directly on a field, `tone: "light" | "dark"`.
 
 **D-29 A group is a named union.** `Blocks :: Title | Price | BuyButton`, used as `slot Blocks { min = 1, max = 12 }`. There is no `group` construct. A new component is added to the union by hand. *Open:* a warning for a component that no slot accepts.
 
@@ -121,7 +123,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-33 A pipe mixed with another operator needs parentheses.** `(a ?? b ?? c) | std.imageUrl(1200)`. A pipe alone needs none. `x | std.length > 0` is an error.
 
-**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; and the pipe. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. There is no arithmetic; a calculation is a function from the core or a vendor lib.
+**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; and the pipe. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. `not` applies to one value, so negating a comparison is written `not (a == b)`. There is no arithmetic; a calculation is a function from the core or a vendor lib.
 
 **D-40 There is no whitespace syntax.** (1) A line that holds only a tag or a comment leaves nothing behind, not even its newline. (2) Whitespace inside an HTML start tag is normalised. (3) All other whitespace is kept as written.
 
@@ -129,7 +131,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 ### Translations
 
-**D-36 `locale` is the word for a table of translations for one language.**
+**D-36 `locale` is the word for a table of translations for one language.** A locale's name is a language tag: `en`, `pt-BR`, `zh-Hant`.
 
 **D-34 Translation keys are strings.** `t("hero.label")`, so a key cannot be mistaken for a field. A key missing from any locale table is a check error. There is no fallback to another locale.
 
@@ -160,7 +162,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 | Q-31 | How does a template name a form target? | The examples hand-write `/cart/add` |
 | Q-32 | Is `use std` exempt from the `use` rule? | Most files need it |
 | Q-33 | Do translations take values and plural forms? | |
-| Q-35 | Constructs the examples use with no decision | `Text`, `Int`, `Bool` as built-ins · `elif` · `for item, i` and whether `i` starts at 0 or 1 · the alias form `Name :: Type` · a union of string literals · what an `if` condition may be · how a pipe passes its left value · `for ... else` |
+| Q-35 | Constructs the examples use with no decision | `Text`, `Int`, `Bool` as built-ins · `elif` · `for item, i` and whether `i` starts at 0 or 1 · the alias form `Name :: Type` · what an `if` condition may be · how a pipe passes its left value · `for ... else` |
 | Q-39 | How do a component's CSS and JS work? | Proposed: `<style>`, `<script>` and `<link>` pass through as plain HTML; `{{ }}` inside `<style>` or `<script>` is an error |
 | Q-40 | How does the host know which component is the shell? | |
 | Q-41 | How is per-visitor data, such as a cart, kept out of shared cached output? | |

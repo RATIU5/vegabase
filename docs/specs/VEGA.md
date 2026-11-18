@@ -58,6 +58,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 
 - `fields { }` and `props { }` hold `name: Type` lines, not `name = value` (lang D-59).
 - In a `name = value` block, `of` is the only entry that takes a type. Every other entry takes a value, so `label = "Hero"` is a string, never a type (lang D-50).
+- A string sits in double quotes on one line, with `\"` and `\\` as its only escapes. A number is whole and may start with `-` (lang D-70).
 - Entries are separated by a comma or a newline. Entries that share a line need a comma. A comma at a line end is allowed (lang D-45).
 - Only a `{ }`, `[ ]` or `( )` may span lines. A field line or an expression never continues on the next line; to break a long expression, wrap it in parentheses (lang D-45).
 
@@ -92,7 +93,7 @@ overlay: Int { min = 0, max = 90 } = 40 @{ show = tone == "dark" }
 - `Name :: Type` gives a type a name: `Headline :: Text { max = 80 }`. lang D-25 names aliases; the form itself has *no entry*.
 - `A | B` in a type is a union. `|` in a value is a pipe; position tells them apart (lang D-26).
 - A group of components is a named union. There is no `group` construct: `Blocks :: Title | Price | BuyButton` (lang D-29).
-- A union of string literals is a fixed set of values: `Tone :: "light" | "dark"` (*no entry*).
+- A union of string literals is a fixed set of values: `Tone :: "light" | "dark"`. A union may also be written directly on a field: `tone: "light" | "dark"` (lang D-26).
 
 ## 5. Components
 
@@ -203,10 +204,10 @@ en :: locale {
 }
 ```
 
-- A `locale` table holds the translations for one language (lang D-36).
+- A `locale` table holds the translations for one language. Its name is a language tag: `en`, `pt-BR`, `zh-Hant` (lang D-36).
 - A key is read as a string: `t("hero.label")`. A key missing from any locale table is a check error. There is no fallback to another locale (lang D-34).
 
-*Open:* locale names that hold a hyphen, such as `pt-BR`; values and plural forms in a translation (lang Q-33).
+*Open:* values and plural forms in a translation (lang Q-33).
 
 ## 10. Plugins
 

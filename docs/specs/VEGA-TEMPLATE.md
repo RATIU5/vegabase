@@ -121,7 +121,7 @@ Limits (lang D-62):
 - A translation key is a string, so it cannot be mistaken for a field (lang D-34).
 - Functions come from the core (`std`) and from first-party plugins (lang D-67). A template defines none.
 
-- `and` or `or` joins comparisons without parentheses. Mixing `and` with `or` needs them. There is no arithmetic (lang D-69).
+- `and` or `or` joins comparisons without parentheses. Mixing `and` with `or` needs them. `not` applies to one value: `not (a == b)`. There is no arithmetic (lang D-69).
 
 *Open:* local names in a template (lang Q-10).
 

@@ -33,8 +33,10 @@ def blocks(src):
                 raise VegaError("line %d: {{ is never closed" % line_of(src, start))
             c = src[j]
             if c == '"':
-                end = src.find('"', j + 1)
-                if end < 0:
+                end = j + 1
+                while end < len(src) and src[end] not in '"\n':
+                    end += 2 if src[end] == "\\" else 1
+                if end >= len(src) or src[end] != '"':
                     raise VegaError("line %d: string is never closed" % line_of(src, j))
                 j = end + 1
             elif c == "#":
@@ -105,6 +107,8 @@ def run(folder, expect_ok):
 if __name__ == "__main__":
     print("examples that must parse")
     bad = run(HERE.parent / "examples", True)
+    print("edge cases that must parse")
+    bad += run(HERE / "good", True)
     print("files that must fail")
     bad += run(HERE / "bad", False)
     sys.exit(1 if bad else 0)

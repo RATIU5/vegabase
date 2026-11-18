@@ -1,0 +1,7 @@
+{{
+  Card :: component {
+    fields {
+      offset: Int { min = -10, max = 10 } = -2
+    }
+  }
+}}

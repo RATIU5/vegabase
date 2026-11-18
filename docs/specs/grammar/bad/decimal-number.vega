@@ -1,0 +1,7 @@
+{{
+  Card :: component {
+    fields {
+      ratio: Int = 1.5
+    }
+  }
+}}

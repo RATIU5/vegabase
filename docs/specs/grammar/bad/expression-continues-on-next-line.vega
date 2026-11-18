@@ -1,0 +1,8 @@
+{{
+  Card :: component {
+    fields {
+      a: Int = 1 @{ show = b ==
+        "x" }
+    }
+  }
+}}

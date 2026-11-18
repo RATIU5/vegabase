@@ -66,7 +66,7 @@
 <body>
 <div class="blobs"><i></i><i></i><i></i><i></i></div>
 <figure>
-<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 14</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
+<figcaption><span class="name">rules</span><nav><span>&larr;</span><span class="count">1 / 15</span><a href="shared.vega.html" title="Next: shared.vega" aria-label="Next file">&rarr;</a></nav></figcaption>
 <div class="rules">
 <p class="lead">Read this before the example files. The examples show the syntax; these are the rules behind it.</p>
 <h2>Files</h2><ul>
@@ -102,6 +102,7 @@
 <li><code>Name :: content { }</code> defines a content type: the shape of a thing an editor creates many of and does not place on a page, such as a recipe or a blog post. <span class=ref>D-63</span></li>
 <li>It is written like a component: its own <code>@{ }</code> block, then <code>fields { }</code>. It has no <code>props</code> and no template. <span class=ref>D-63</span></li>
 <li>Its name is a type. A component takes one as a prop: <code>recipe: Recipe</code>, then <code>&#123;&#123;recipe.title&#125;&#125;</code>. <span class=ref>D-63</span></li>
+<li>In <code>fields</code>, the same line is a picker: the editor chooses one recipe. <span class=ref>D-55, D-63</span></li>
 </ul>
 <h2>Slots in a template</h2><ul>
 <li><code>&#123;&#123;slot blocks&#125;&#125;</code> outputs every child of the slot, in order, with no wrapper. <span class=ref>D-49</span></li>
@@ -114,7 +115,7 @@
 </ul>
 <h2>Fields: what an editor fills in</h2><ul>
 <li>The host stores fields and the admin shows them. A slot is a field, and may have default content: <code>= [ SiteMeta {} ]</code>. <span class=ref>D-31, D-51</span></li>
-<li>A field whose library type names a stored thing, such as <code>image: std.Image</code> or <code>product: shopify.Product</code>, is a picker in the admin. <code>std.Url</code> is a plain input that is checked on save, not a picker. <span class=ref>D-41, D-55</span></li>
+<li>A field whose library type names a stored thing, such as <code>image: std.Image</code> or <code>product: shopify.Product</code>, is a picker in the admin. So is a field with a content type. <code>std.Url</code> is a plain input that is checked on save, not a picker. <span class=ref>D-41, D-55, D-63</span></li>
 <li>Admin settings sit in one <code>@{ }</code> block after the type: <code>@{ label = "Subheading" }</code>. A component's own block sits at the root of <code>component { }</code>, outside <code>fields</code>. <span class=ref>D-46, D-60</span></li>
 <li>Everything that starts with <code>@</code> is for the admin only. Deleting every block changes no stored data and no output. <span class=ref>D-46</span></li>
 </ul>

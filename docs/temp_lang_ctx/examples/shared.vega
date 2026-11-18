@@ -1,7 +1,7 @@
 {{
   use std
 
-  Sections  :: Hero | ProductInfo | Tabs | Grid
+  Sections  :: Hero | ProductInfo | Tabs | Grid | FeaturedRecipe
   Blocks    :: BuyButton
   HeadParts :: ProductMeta | SiteMeta
   Panels    :: TabPanel

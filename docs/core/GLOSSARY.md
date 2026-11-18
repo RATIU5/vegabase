@@ -115,13 +115,13 @@ updated: 2026-11-18
 
 **Theme**: A tenant's typed component library, with locales and assets. It declares data needs and default route patterns, but no functions, entity types or routes (D-029). _Avoid:_ template, skin.
 
-**Transform**: A template-callable `fn`, implemented by the core or a vendor lib, never a plugin (VEGA §10 disagrees: lang D-64 lets a plugin define pure functions; whether one that is not first-party may run on the render path needs a ruling, lang D-66). _Avoid:_ filter, helper.
+**Transform**: A template-callable `fn`, implemented by the core or a vendor lib, never a plugin that is not first-party (VEGA §10, lang D-67). _Avoid:_ filter, helper.
 
 **Type owner**: The one extension that provides an entity type's schema, batch resolver, change feed and reconciliation. _Avoid:_ owner, provider, source.
 
 **Vegabase**: The project and product name. The file extension is `.vega` (lang D-16; Q-013 not yet closed).
 
-**Vendor lib**: A plugin that the platform team maintains as first-party (lang D-66). Today: a trusted native extension built and signed by the platform team, loaded only in workers whose tenants enable it. Shopify is one. _Avoid:_ native plugin, app, integration.
+**Vendor lib**: A plugin that the platform team maintains as first-party (lang D-66): a trusted native extension built and signed by the platform team (lang D-67), loaded only in workers whose tenants enable it. Shopify is one. _Avoid:_ native plugin, app, integration.
 
 **Visitor**: Anyone requesting pages from a tenant, logged in or not. _Avoid:_ shopper, user, guest.
 

@@ -38,7 +38,7 @@ Worked examples: `docs/temp_lang_ctx/examples/` (fifteen `.vega` files) and `doc
 | `$` value                            | Source role                      | VEGA §7                                                     |
 | `$id`                                | instance ID (GLOSSARY: Fragment) | VEGA-TEMPLATE §4.3                                          |
 | `content` type                       | Entity type                      | VEGA §8                                                     |
-| pure function from the core or a plugin | Transform                     | VEGA §10                                                    |
+| function from the core or a first-party plugin | Transform              | VEGA §10                                                    |
 | host                                 | —                                | Whatever supplies field values, loaders and `$` values (lang D-28) |
 
 Banned in the specs: Go, island, document, partial, region, default slot, template-safe, publish (for content), bare owner.
@@ -52,12 +52,11 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 | GLOSSARY: Component | a record marked `@component` | `Name :: component { }` (VEGA §5) |
 | GLOSSARY: Data need | a `data` field in a schema | a prop filled by a loader (VEGA §7) |
 | GLOSSARY: Entity type | declared only by `std` or an extension | a theme may declare a `content` type (VEGA §8) |
-| GLOSSARY: Transform; core D-028 | template functions come only from the core or vendor libs, never a plugin | any plugin may define pure functions (lang D-64); whether one that is not first-party may run while a page renders is open (lang D-66) |
 | GLOSSARY: Theme | declares no entity types | a theme may declare a `content` type (VEGA §8) |
 | GLOSSARY: Component replacement | a theme component may take the place of a plugin component | open; lang D-64 holds an unconfirmed proposal against it |
 | GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
 | DESIGN: Locales | a missing translation falls back to the default locale | a key missing from a locale table is a check error (lang D-34, VEGA §9) |
-| GLOSSARY: Plugin; core D-007 | a plugin is untrusted and runs in WASM; a vendor lib is a separate native tier | a vendor lib is a plugin that the core team maintains (lang D-66); whether it still runs native is open |
+| GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66); the wording needs one pass, the rules agree (lang D-67) |
 | core D-027 | the specs cover `.vegs` and `.vegt` | one file type, `.vega` (lang D-16) |
 | core Q-013 | file extensions are open | `.vega` (lang D-16) |
 

@@ -215,11 +215,12 @@ use maps
 Sections :: Hero | maps.Map
 ```
 
-- Only a plugin can define loaders, kinds of page, pure functions and form actions (lang D-64).
-- A vendor lib is a plugin that the core team maintains as first-party. The language makes no distinction between the two (lang D-66).
+- Only a plugin can define loaders, kinds of page and form actions (lang D-64). Functions a template calls come only from the core and from first-party plugins (lang D-67).
+- A vendor lib is a plugin that the core team maintains as first-party. The contract is the same for both; the host runs a first-party plugin as native code and every other plugin in WASM (lang D-66, D-67).
+- A plugin may `use` a first-party plugin: `use shopify`, then `product: shopify.Product`. No plugin depends on a plugin that is not first-party (lang D-67).
 - A plugin's shape carries a name, a type and a one-line description for everything it offers, so an editor can list what `shopify.` and `$shopify.` offer (lang D-56).
 
-*Open:* how a plugin declares a loader, a kind of page, a function or an action; how a `.vega` file is tied to its plugin; whether one plugin may `use` another; whether a function from a plugin that is not first-party may run while a page renders (lang D-66, core D-028); whether form actions are in the first edition (lang Q-16).
+*Open:* how a plugin declares a loader, a kind of page, a function or an action; how a `.vega` file is tied to its plugin; whether form actions are in the first edition (lang Q-16).
 
 ## 11. Check errors
 

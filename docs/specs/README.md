@@ -1,52 +1,65 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-18
 ---
 
 # Vegabase language specs: Start here
 
-The schema language (`.vegs`) and template language (`.vegt`) are one **edition** (GLOSSARY: Edition). These files are the single source of truth for their syntax and semantics. Mechanisms (parser, caches, sandbox) are in `docs/core/DESIGN.md`.
+The `.vega` language is one file type for schema code and templates (lang D-16). It is one **edition** (GLOSSARY: Edition). These files are the single source of truth for its syntax and semantics. Mechanisms (parser, caches, sandbox) are in `docs/core/DESIGN.md`.
 
 **Precedence**: CHARTER > DECISIONS > these specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK. An Accepted D- entry binds the specs; a spec rule binds the glossary and every lower doc.
 
-Edition: **draft** (no edition shipped yet). File extensions are kept (Q-013).
+Edition: **draft** (no edition shipped yet). This is pass 1: it states only what is decided, and marks every other point *no entry* or *open*.
+
+**Citations.** `lang D-59` and `lang Q-10` are entries of `docs/temp_lang_ctx/decisions.md`, until they move into `core/DECISIONS.md`. `core D-031` is an entry of `core/DECISIONS.md`.
 
 ## File map
 
-| File         | Owns                                                                                          | Read when                                         |
-| ------------ | --------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| COMMON.md    | Lexical rules, namespaces and `use`, the expression grammar and its subsets, directive syntax, `check` levels, extension policy | Reading or writing either language |
-| VEGS.md      | Schema declarations, types, fields, components and slots, core directives, `@validate`, `t(...)`, `@editor`, schema `check` rules, grammar | Declaring types, components, functions or directives |
-| VEGS-DATA.md | `data` fields, loaders, `@route`, pages and collections, `@global`, `@private`, `@cache`/`@timeout`/`@fallback`, cache class, stored data and drift | Anything that reads data, routes or caches |
-| VEGT.md      | Template binding, tags, scope, template expressions, output and escaping, template directives, template `check` rules, grammar | Writing or checking a template |
+| File             | Owns                                                                                                             | Read when                                    |
+| ---------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| VEGA.md          | Files and blocks, names and `use`, brackets, types, components, fields, props, content types, locale tables, plugins | Declaring a type, a component or a content type |
+| VEGA-TEMPLATE.md | Binding, tags, slots in a template, `$id`, expressions, output and escaping, whitespace                          | Writing or checking a template               |
 
-Each fact lives in one file. Other files link to it by file and section (`VEGS §6.1`).
+Each fact lives in one file. Other files link to it by file and section (`VEGA §6.1`).
+
+Worked examples: `docs/temp_lang_ctx/examples/` (fifteen `.vega` files) and `docs/temp_lang_ctx/examples.md`. Nothing has been parsed or run, and no grammar exists yet.
 
 ## Spec terms and glossary terms
 
-| Spec term                          | Glossary term                         | Note                                                          |
-| ---------------------------------- | ------------------------------------- | ------------------------------------------------------------- |
-| namespace (`theme`, `std`, `shopify`) | —                                  | Never "owner"; "type owner" is a different concept           |
-| `theme` namespace                  | Theme                                 | The tenant's theme files                                      |
-| `std` namespace                    | Core                                  | Types, functions and directives the core ships                |
-| extension namespace                | Extension (vendor lib or plugin)      | Shopify is a vendor lib (D-015)                               |
-| `@component` record + template     | Component                             | VEGS §6                                                       |
-| `@group(name)`                     | (replaces Kind `section`/`block`)     | VEGS §6.2                                                     |
-| `@page` type                       | Page kind: fixed page or `entity`     | VEGS-DATA §4                                                  |
-| `@not_found` type                  | Page kind: `not-found`                | VEGS-DATA §4                                                  |
-| slot field                         | Slot                                  | VEGS §5                                                       |
-| editor-saved slot contents         | Composition                           | VEGS-DATA §8                                                  |
-| `data` field                       | Data need                             | VEGS-DATA §1                                                  |
-| `@route` / `@global` / `Ref(T)` prop | Source role: route subject / tenant globals and request / entity-reference setting | VEGS-DATA §1 |
-| `@collection` type                 | Entity type                           | Declared only by `std` or an extension (VEGS-DATA §4)         |
-| `@private`                         | Storage class: private                | VEGS-DATA §6                                                  |
-| `@cache(ttl, stale)`               | Freshness window, staleness limit     | VEGS-DATA §7                                                  |
-| derived cache class, `@fragment`   | Cache class, Fragment                 | VEGS-DATA §5                                                  |
-| template-callable `fn`             | Transform                             | Core or vendor lib only (VEGS §4.4)                           |
-| `@fallback("unavailable")`         | Fallback view                         | VEGS-DATA §7                                                  |
+| Spec term                            | Glossary term                    | Note                                                        |
+| ------------------------------------ | -------------------------------- | ----------------------------------------------------------- |
+| bare name                            | Theme                            | A name the theme declares (VEGA §2)                         |
+| `std` prefix                         | Core                             | Types and functions the core ships                          |
+| plugin prefix (`shopify`, `maps`)    | Extension (vendor lib or plugin) | VEGA §10                                                    |
+| `component` plus its template        | Component                        | VEGA §5                                                     |
+| named union of components            | (replaces `@group`)              | VEGA §4.3                                                   |
+| slot field                           | Slot                             | VEGA §6.1                                                   |
+| prop filled by a loader              | Data need                        | VEGA §7                                                     |
+| `$` value                            | Source role                      | VEGA §7                                                     |
+| `$id`                                | instance ID (GLOSSARY: Fragment) | VEGA-TEMPLATE §4.3                                          |
+| `content` type                       | Entity type                      | VEGA §8                                                     |
+| pure function from the core or a plugin | Transform                     | VEGA §10                                                    |
+| host                                 | —                                | Whatever supplies field values, loaders and `$` values (lang D-28) |
 
 Banned in the specs: Go, island, document, partial, region, default slot, template-safe, publish (for content), bare owner.
 
+## Where these specs disagree with the core docs
+
+Pass 1 follows the language decisions. These lower or older lines now disagree and need a ruling or a fix:
+
+| Core line | Says | Specs say |
+| --- | --- | --- |
+| GLOSSARY: Component | a record marked `@component` | `Name :: component { }` (VEGA §5) |
+| GLOSSARY: Data need | a `data` field in a schema | a prop filled by a loader (VEGA §7) |
+| GLOSSARY: Entity type | declared only by `std` or an extension | a theme may declare a `content` type (VEGA §8) |
+| GLOSSARY: Transform | never implemented by a plugin | a plugin may define pure functions (VEGA §10) |
+| GLOSSARY: Theme | declares no entity types | a theme may declare a `content` type (VEGA §8) |
+| GLOSSARY: Component replacement | a theme component may take the place of a plugin component | open; lang D-64 holds an unconfirmed proposal against it |
+| GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
+| core D-015 | Shopify is a vendor lib, a tier apart from plugins | the Shopify library is a plugin like any other (lang D-64) |
+| core D-027 | the specs cover `.vegs` and `.vegt` | one file type, `.vega` (lang D-16) |
+| core Q-013 | file extensions are open | `.vega` (lang D-16) |
+
 ## Open language questions
 
-Q-035 to Q-049 in DECISIONS.
+`docs/temp_lang_ctx/decisions.md`, section "Open questions", and each *Open* line in the two spec files. Q-035 to Q-049 in `core/DECISIONS.md` predate this rewrite and have not been checked against it.

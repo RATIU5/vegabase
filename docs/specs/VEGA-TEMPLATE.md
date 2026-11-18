@@ -111,8 +111,9 @@ Limits (lang D-62):
 | function call, values by position | `std.imageUrl(1200, 630)` | lang D-43 |
 | pipe | `image \| std.imageUrl(800)` | lang D-26 |
 | fallback for null | `text ?? t("product.add_to_cart")` | lang D-38 |
-| comparison | `tone == "dark"`, `link != null` | examples; *no entry* |
-| `not` | `not variant.available` | examples; *no entry* |
+| comparison | `tone == "dark"`, `link != null`, `a > b`, `a <= b` | lang D-69 |
+| `not` | `not variant.available` | lang D-69 |
+| `and`, `or` | `a != null and a > b` | lang D-69 |
 | translation | `t("hero.label")` | lang D-34 |
 
 - A pipe passes the value on its left as the first value of the call on its right. A call with no other values needs no parentheses: `price | shopify.money` (examples; *no entry*).
@@ -120,7 +121,9 @@ Limits (lang D-62):
 - A translation key is a string, so it cannot be mistaken for a field (lang D-34).
 - Functions come from the core (`std`) and from first-party plugins (lang D-67). A template defines none.
 
-*Open:* the full operator list, including `and`, `or` and arithmetic; local names in a template (lang Q-10).
+- `and` or `or` joins comparisons without parentheses. Mixing `and` with `or` needs them. There is no arithmetic (lang D-69).
+
+*Open:* local names in a template (lang Q-10).
 
 ## 6. `$` values
 

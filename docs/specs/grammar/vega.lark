@@ -37,7 +37,10 @@ end_for: "/for"
 slot_tag: "slot" NAME record?
 render_tag: "render" type_name record
 
-?expr: pipe | not_expr | compare | coalesce | operand
+?expr: pipe | and_expr | or_expr | _simple
+and_expr: _simple ("and" _simple)+
+or_expr: _simple ("or" _simple)+
+_simple: not_expr | compare | coalesce | operand
 pipe: operand ("|" pipe_target)+
 pipe_target: fn_name ("(" args? ")")?
 not_expr: "not" operand
@@ -57,13 +60,13 @@ literal: STRING | INT | TRUE | FALSE | NULL
 SLOT: "slot"
 OF: "of"
 OPTIONAL: "?"
-COMPARE: "==" | "!="
+COMPARE: "==" | "!=" | "<=" | ">=" | "<" | ">"
 TRUE: "true"
 FALSE: "false"
 NULL: "null"
 HOST_VALUE: /\$[a-z][A-Za-z0-9_]*(\.[a-z][A-Za-z0-9_]*)*/
 TYPE: /[A-Z][A-Za-z0-9]*/
-NAME: /(?!(of|use|template|component|content|fields|props|locale|slot|render|if|elif|else|for|in|not|true|false|null)\b)[a-z][A-Za-z0-9_]*/
+NAME: /(?!(of|use|template|component|content|fields|props|locale|slot|render|if|elif|else|for|in|not|and|or|true|false|null)\b)[a-z][A-Za-z0-9_]*/
 MEMBER: /[a-z][A-Za-z0-9_]*/
 STRING: /"[^"\n]*"/
 INT: /[0-9]+/

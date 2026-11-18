@@ -40,7 +40,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | A prefix always names a library: the core's `std`, or a plugin | lang D-18, D-24 |
 | `use name` in the first block names a library. Every file that reads a value typed by a library has `use` for it, however the value arrived | lang D-9 |
 | Declaring the same name twice is an error naming both places | lang D-24 |
-| Nineteen words are reserved and cannot name a field, a prop, a loop item or a locale key. Any word may follow a `.`. The list is in VEGA-GRAMMAR §4 | lang D-68 |
+| Twenty-one words are reserved and cannot name a field, a prop, a loop item or a locale key. Any word may follow a `.`. The list is in VEGA-GRAMMAR §4 | lang D-68 |
 
 **Cycles** (lang D-25). Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component.
 
@@ -59,6 +59,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 - `fields { }` and `props { }` hold `name: Type` lines, not `name = value` (lang D-59).
 - In a `name = value` block, `of` is the only entry that takes a type. Every other entry takes a value, so `label = "Hero"` is a string, never a type (lang D-50).
 - Entries are separated by a comma or a newline. Entries that share a line need a comma. A comma at a line end is allowed (lang D-45).
+- Only a `{ }`, `[ ]` or `( )` may span lines. A field line or an expression never continues on the next line; to break a long expression, wrap it in parentheses (lang D-45).
 
 ## 4. Types
 

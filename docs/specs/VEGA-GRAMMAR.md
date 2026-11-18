@@ -60,22 +60,21 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 | `INT` | digits |
 | `HOST_VALUE` | `$`, then names joined by `.` |
 
-Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `true`, `false`, `null`.
+Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`.
 
-Spaces and tabs are ignored. A line break separates entries inside `{ }` and `[ ]`, and is ignored inside `( )`.
+Spaces and tabs are ignored. A line break separates entries inside `{ }` and `[ ]`, and is ignored inside `( )`. Nothing else may span lines (lang D-45).
 
 ## 5. What the grammar had to choose
 
-The spec leaves each of these open. A grammar cannot, so `vega.lark` picks one answer. None of the six is decided; each needs a ruling.
+The spec leaves each of these open. A grammar cannot, so `vega.lark` picks one answer. None of the five is decided; each needs a ruling.
 
 | # | Choice in the grammar | Open point |
 | --- | --- | --- |
-| 1 | The operators are `not`, `==`, `!=`, `??` and the pipe. An expression uses one kind; any mix needs parentheses. There is no `and`, `or`, `<`, `>` or arithmetic | lang Q-35 |
-| 2 | A field line and an expression cannot continue on the next line. Only a `{ }`, `[ ]` or `( )` may span lines | lang D-45 |
-| 3 | A union may be written directly on a field: `tone: "light" \| "dark"` | lang Q-35 |
-| 4 | A string has no escape, so it cannot hold `"`. A number is whole and has no sign | none yet |
-| 5 | A locale name is a `NAME`, so `pt-BR` cannot be written | VEGA §9 |
-| 6 | `{{}}` and a block that holds only a comment are valid and output nothing | lang D-39 |
+| 1 | `not` takes one value, so `not a == b` needs parentheses. `??` may sit inside an `and` or `or` without them | lang D-69 |
+| 2 | A union may be written directly on a field: `tone: "light" \| "dark"` | lang Q-35 |
+| 3 | A string has no escape, so it cannot hold `"`. A number is whole and has no sign | none yet |
+| 4 | A locale name is a `NAME`, so `pt-BR` cannot be written | VEGA §9 |
+| 5 | `{{}}` and a block that holds only a comment are valid and output nothing | lang D-39 |
 
 Rules the grammar accepts but a check must reject:
 
@@ -87,4 +86,5 @@ Rules the grammar accepts but a check must reject:
 - The HTML: tags, attributes, and whether a block sits in text, in a start tag or in an attribute value.
 - `{{` inside `<script>` and `<style>` (lang Q-39).
 - A comment that holds `}}` (lang D-39).
+- `<` and `>` inside a block that sits in an HTML start tag, such as `<p {{if a > b}}class="x"{{/if}}>`. The scanner here is not an HTML tokenizer, so it cannot show whether a real one copes.
 - Every type rule and every name rule.

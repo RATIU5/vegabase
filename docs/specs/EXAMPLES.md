@@ -17,7 +17,7 @@ Fifteen files in `examples/`, the smallest set that shows the whole syntax.
 | `Hero.vega` | Fields with limits, defaults and admin blocks; `show`; a `std.Url` field; a `List` field |
 | `ProductInfo.vega` | The three prop forms; a slot with default content; a loader that may find nothing; a `std.RichText` value; `for item, i`; `render` |
 | `BuyButton.vega` | A prop a parent must pass; `if` inside a start tag; `??` |
-| `ProductCard.vega` | A code-only component; `elif` |
+| `ProductCard.vega` | A code-only component; `elif`; `and` with `>` |
 | `Shell.vega` | The shell with `head` and `body` slots; `std.asset` |
 | `ProductMeta.vega`, `SiteMeta.vega` | Page metadata; nullable overrides; a `Bool` field; a template in its own file |
 | `Tabs.vega`, `TabPanel.vega`, `Grid.vega` | A parent that loops over a slot's children; `$id` |

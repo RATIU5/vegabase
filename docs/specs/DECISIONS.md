@@ -39,7 +39,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-24 A name the theme declares is written bare and is visible from every file.** There is no `theme.` prefix and no `use theme`. A prefix always names a library. Declaring the same name twice is an error naming both places. *Open:* whether declaring a built-in name is an error.
 
-**D-68 Nineteen words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid.
+**D-68 Twenty-one words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid.
 
 **D-25 Cycles.** Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component, because stored content is finite. Declaration order and file order never matter.
 
@@ -51,7 +51,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-44 A type's limits go in a `{ }` block after the type.** `Text { max = 80 }`, `Int { min = 0, max = 90 } = 40`, `Text { max = 160 }?`. The order on a field line is: type, limits, `?`, default, admin block. A pattern is a string: `pattern = "^[a-z-]+$"`. *Why:* `Text(80)` does not say minimum or maximum.
 
-**D-45 Entries are separated by a comma or a newline.** Entries that share a line need a comma. Entries on separate lines need none; a comma at a line end is allowed. This covers every `{ }` and `[ ]` list and the arguments in `( )`. *Open:* where a long value may break across lines; whether the formatter removes commas at line ends.
+**D-45 Entries are separated by a comma or a newline.** Entries that share a line need a comma. Entries on separate lines need none; a comma at a line end is allowed. This covers every `{ }` and `[ ]` list and the arguments in `( )`. Only a `{ }`, `[ ]` or `( )` may span lines; a field line or an expression never continues on the next line. *Open:* whether the formatter removes commas at line ends.
 
 **D-47 A lowercase name with `( )` is a function call; a capitalised name with `{ }` is a type being filled in.** `( )` holds bare values by position. `{ }` holds `name = value` entries in any order. A `name =` never appears inside `( )`. Types start with a capital letter and every other name starts lowercase; the checker enforces it. `[ ]` holds a list of values.
 
@@ -121,6 +121,8 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-33 A pipe mixed with another operator needs parentheses.** `(a ?? b ?? c) | std.imageUrl(1200)`. A pipe alone needs none. `x | std.length > 0` is an error.
 
+**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; and the pipe. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. There is no arithmetic; a calculation is a function from the core or a vendor lib.
+
 **D-40 There is no whitespace syntax.** (1) A line that holds only a tag or a comment leaves nothing behind, not even its newline. (2) Whitespace inside an HTML start tag is normalised. (3) All other whitespace is kept as written.
 
 **D-15 Not borrowed from DUST: truthiness and `is ... as` narrowing.** Odin stays an influence on declaration syntax: `::` for what is known up front, `:` for a value of a type.
@@ -158,7 +160,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 | Q-31 | How does a template name a form target? | The examples hand-write `/cart/add` |
 | Q-32 | Is `use std` exempt from the `use` rule? | Most files need it |
 | Q-33 | Do translations take values and plural forms? | |
-| Q-35 | Constructs the examples use with no decision | `Text`, `Int`, `Bool` as built-ins · `elif` · `for item, i` and whether `i` starts at 0 or 1 · the alias form `Name :: Type` · a union of string literals · comparison operators and `not` · what an `if` condition may be · how a pipe passes its left value · `for ... else` |
+| Q-35 | Constructs the examples use with no decision | `Text`, `Int`, `Bool` as built-ins · `elif` · `for item, i` and whether `i` starts at 0 or 1 · the alias form `Name :: Type` · a union of string literals · what an `if` condition may be · how a pipe passes its left value · `for ... else` |
 | Q-39 | How do a component's CSS and JS work? | Proposed: `<style>`, `<script>` and `<link>` pass through as plain HTML; `{{ }}` inside `<style>` or `<script>` is an error |
 | Q-40 | How does the host know which component is the shell? | |
 | Q-41 | How is per-visitor data, such as a cart, kept out of shared cached output? | |

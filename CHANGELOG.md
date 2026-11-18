@@ -1,3 +1,9 @@
+## 1.0.0-alpha.1 (2026-11-18)
+
+### Documentation
+
+#### Rewrite the language specs for the single `.vega` file type ([#6](https://github.com/RATIU5/vegabase/pull/6))
+
 ## 1.0.0-alpha.0 (2026-11-08)
 
 ### Maintenance

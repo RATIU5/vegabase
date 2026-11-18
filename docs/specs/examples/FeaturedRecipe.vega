@@ -1,0 +1,15 @@
+{{
+  FeaturedRecipe :: component {
+    @{ label = "Featured recipe" }
+
+    fields {
+      # a field with a content type is a picker in the admin
+      recipe: Recipe @{ label = "Recipe" }
+    }
+  }
+
+  template FeaturedRecipe
+}}
+<section class="featured-recipe" id="{{$id}}">
+  {{render RecipeCard { recipe = recipe } }}
+</section>

@@ -1,0 +1,5 @@
+{{
+  Card :: component {
+    fields { title: Text subtitle: Text }
+  }
+}}

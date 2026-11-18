@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-18
 ---
 
 # Vegabase: Operations
@@ -15,7 +15,7 @@ updated: 2026-11-08
 
 ## 2. Never stop serving (D-018)
 
-- No origin response is a 5xx page. Anything that can't be rendered gets a fallback view: the stale cached value, the component's `unavailable` state, or a minimal built-in page.
+- No origin response is a 5xx page. Anything that can't be rendered gets a fallback view: a stale value or a minimal built-in page. A loader that finds nothing gives the not-found page or null (lang D-38); whether a component can declare its own unavailable state is open (lang Q-11).
 - Control plane unreachable: workers keep serving with frozen ownership, gates and activation. Moves, activations, approvals and gate edits wait until it returns. The CDN keeps serving cached pages.
 - Gates still fail closed: when access can't be verified, the gate page is the fallback.
 - Worker crash: the supervisor restarts it within a tested reopen budget. Host loss: restore from backup elsewhere under a new generation. Recovery targets: Q-021.
@@ -40,9 +40,9 @@ updated: 2026-11-08
 
 ## 6. Security operations
 
-- Plugins: the platform team reviews and signs each bundle once; a tenant admin approves its scopes (D-026). Load-time checks are in DESIGN §6.
-- Signing: platform keys (HSM or equivalent) sign the core, vendor libs, language toolchain and approved plugin bundles. Workers trust a control-plane key set plus a revocation list.
-- Secrets: tenant credentials by reference only, never in plugin memory or logs. Storage, rotation and admin authentication: Q-029.
+- Sandboxed plugins: the platform team reviews and signs each bundle once; a tenant admin approves its scopes (D-026). Load-time checks are in DESIGN §6.
+- Signing: platform keys (HSM or equivalent) sign the core, vendor libs, language toolchain and approved sandboxed plugin bundles. Workers trust a control-plane key set plus a revocation list.
+- Secrets: tenant credentials by reference only, never in sandboxed plugin memory or logs. Storage, rotation and admin authentication: Q-029.
 - Erasure is a platform workflow across StardustDB history, Postgres, caches, CDN, logs, PII-classed plugin storage, published fields and backups, with an audit record. A restore re-applies erasures (Q-021).
 
 ## 7. Observability (D-024)

@@ -1,0 +1,40 @@
+{{
+  use std
+  use maps
+
+  # maps.Map comes from a plugin; the admin offers it because this union lists it
+  Sections  :: Hero | ProductInfo | Tabs | Grid | FeaturedRecipe | maps.Map
+  Blocks    :: BuyButton
+  HeadParts :: ProductMeta | SiteMeta
+  Panels    :: TabPanel
+  Tiles     :: Hero | Tabs
+
+  Headline :: Text { max = 80 } @{ label = t("headline.label") }
+  Tone     :: "light" | "dark"
+
+  # SiteMeta is defined here; its template is in SiteMeta.vega
+  SiteMeta :: component {
+    @{ label = "Site metadata" }
+
+    props {
+      site: std.SiteSettings = std.siteSettings()
+    }
+  }
+
+  en :: locale {
+    headline = { label = "Headline" }
+    hero = {
+      label = "Hero banner"
+      hint = "Full-width banner with a heading"
+      button = "Shop now"
+    }
+    product = {
+      option = "Option"
+      sold_out = "Sold out"
+      sale = "Sale"
+      add_to_cart = "Add to cart"
+      no_images = "No images yet"
+    }
+    recipe = { minutes = "minutes" }
+  }
+}}

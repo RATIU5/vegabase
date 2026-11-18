@@ -1,0 +1,15 @@
+{{
+  use std
+
+  # a content type: an editor creates many recipes, and none is placed on a page
+  Recipe :: content {
+    @{ label = "Recipe" }
+
+    fields {
+      title:   Text { max = 80 }
+      photo:   std.Image
+      minutes: Int { min = 1 }
+      steps:   List { of = Text, min = 1 }
+    }
+  }
+}}

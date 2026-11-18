@@ -1,0 +1,24 @@
+{{
+  use std
+  use shopify
+
+  ProductCard :: component {
+    props {
+      product: shopify.Product
+    }
+  }
+
+  template ProductCard
+}}
+<a class="card" href="{{product.url}}">
+  {{if product.featuredImage != null}}
+    <img src="{{product.featuredImage | std.imageUrl(400)}}" alt="{{product.featuredImage.alt}}">
+  {{/if}}
+  <h3>{{product.title}}</h3>
+  {{if not product.available}}
+    <p class="badge">{{t("product.sold_out")}}</p>
+  {{elif product.compareAtPrice != null and product.compareAtPrice > product.price}}
+    <p class="badge">{{t("product.sale")}}</p>
+  {{/if}}
+  <p>{{product.price | shopify.money}}</p>
+</a>

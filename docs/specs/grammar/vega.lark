@@ -1,0 +1,77 @@
+first_block: _NL* (statement (_NL+ statement)*)? _NL*
+
+?statement: use | template_line | declaration
+use: "use" NAME
+template_line: "template" TYPE
+declaration: TYPE "::" (component | content | type admin?)
+           | LOCALE_NAME "::" locale
+
+component: "component" "{" _NL* (_cpart (_NL+ _cpart)*)? _NL* "}"
+content: "content" "{" _NL* (_cpart (_NL+ _cpart)*)? _NL* "}"
+_cpart: admin | fields | props
+fields: "fields" "{" _NL* (field (_sep field)*)? _sep? "}"
+props: "props" "{" _NL* (field (_sep field)*)? _sep? "}"
+locale: "locale" record
+
+field: NAME ":" SLOT? type OPTIONAL? default? admin?
+default: "=" expr
+admin: "@" record
+
+type: type_atom ("|" type_atom)*
+type_atom: (type_name | STRING) limits?
+type_name: (NAME ".")? TYPE
+limits: record
+
+record: "{" _NL* (entry (_sep entry)*)? _sep? "}"
+entry: OF "=" type | NAME "=" expr
+_sep: ("," | _NL)+
+
+inline: (tag | expr)?
+?tag: if_tag | elif_tag | else_tag | end_if | for_tag | end_for | slot_tag | render_tag
+if_tag: "if" expr
+elif_tag: "elif" expr
+else_tag: "else"
+end_if: "/if"
+for_tag: "for" NAME ("," NAME)? "in" expr
+end_for: "/for"
+slot_tag: "slot" NAME record?
+render_tag: "render" type_name record
+
+?expr: pipe | and_expr | or_expr | _simple
+and_expr: _simple ("and" _simple)+
+or_expr: _simple ("or" _simple)+
+_simple: not_expr | compare | coalesce | operand
+pipe: operand ("|" pipe_target)+
+pipe_target: fn_name ("(" args? ")")?
+not_expr: "not" operand
+compare: operand COMPARE operand
+coalesce: operand ("??" operand)+
+
+?operand: path | call | literal | host_value | list | component_value | record | "(" _NL* expr _NL* ")"
+path: NAME ("." MEMBER)*
+call: fn_name "(" args? ")"
+fn_name: NAME ("." MEMBER)?
+args: _NL* expr (_NL* "," _NL* expr)* _NL*
+list: "[" _NL* (expr (_sep expr)*)? _sep? "]"
+component_value: type_name record
+host_value: HOST_VALUE
+literal: STRING | INT | TRUE | FALSE | NULL
+
+SLOT: "slot"
+OF: "of"
+OPTIONAL: "?"
+COMPARE: "==" | "!=" | "<=" | ">=" | "<" | ">"
+TRUE: "true"
+FALSE: "false"
+NULL: "null"
+HOST_VALUE: /\$[a-z][A-Za-z0-9_]*(\.[a-z][A-Za-z0-9_]*)*/
+TYPE: /[A-Z][A-Za-z0-9]*/
+NAME: /(?!(of|use|template|component|content|fields|props|locale|slot|render|if|elif|else|for|in|not|and|or|true|false|null)\b)[a-z][A-Za-z0-9_]*/
+MEMBER: /[a-z][A-Za-z0-9_]*/
+STRING: /"([^"\\\n]|\\["\\])*"/
+LOCALE_NAME: /[a-z]{2,3}(-[A-Za-z0-9]{2,8})*/
+INT: /-?[0-9]+/
+_NL: /\r?\n/
+
+%ignore /[ \t]+/
+%ignore /#[^\n]*/

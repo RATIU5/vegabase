@@ -1,0 +1,17 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+{{if a == b}}
+{{elif c > d}}
+{{elif not e}}
+{{else}}
+{{/if}}
+{{for item, i in list}}
+  <li id="{{$id}}-{{i}}">{{item}}</li>
+{{/for}}

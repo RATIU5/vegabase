@@ -1,0 +1,8 @@
+{{
+  Card :: component {
+    fields {
+      tone: "light" | "dark" = "light"
+      media: Photo | Clip
+    }
+  }
+}}

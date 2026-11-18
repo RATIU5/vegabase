@@ -1,0 +1,9 @@
+{{
+  Card :: component {
+    fields {
+      quote: Text = "She said \"hi\" and left"
+      path: Text = "a\\b"
+      colour: Text = "#fff"
+    }
+  }
+}}

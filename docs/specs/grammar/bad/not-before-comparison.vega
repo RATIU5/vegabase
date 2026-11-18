@@ -1,0 +1,11 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+{{if not a == b}}
+{{/if}}

@@ -1,0 +1,15 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+<img src="{{(
+  image ?? fallback
+) | std.imageUrl(
+  1200,
+  630
+)}}">

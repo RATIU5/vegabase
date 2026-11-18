@@ -1,0 +1,21 @@
+{{
+  use std
+
+  RecipeCard :: component {
+    props {
+      recipe: Recipe
+    }
+  }
+
+  template RecipeCard
+}}
+<article class="recipe">
+  <img src="{{recipe.photo | std.imageUrl(600)}}" alt="{{recipe.photo.alt}}">
+  <h3>{{recipe.title}}</h3>
+  <p>{{recipe.minutes}} {{t("recipe.minutes")}}</p>
+  <ol>
+    {{for step in recipe.steps}}
+      <li>{{step}}</li>
+    {{/for}}
+  </ol>
+</article>

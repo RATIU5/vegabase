@@ -1,0 +1,12 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+{{for a in list}}
+  <p>{{a}}</p>
+{{/if}}

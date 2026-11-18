@@ -1,0 +1,8 @@
+{{
+  use std
+
+  template SiteMeta
+}}
+<title>{{site.name}}</title>
+<meta property="og:title" content="{{site.name}}">
+<meta property="og:image" content="{{site.shareImage | std.imageUrl(1200, 630)}}">

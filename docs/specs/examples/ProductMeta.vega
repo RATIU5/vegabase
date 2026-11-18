@@ -1,0 +1,26 @@
+{{
+  use std
+  use shopify
+
+  ProductMeta :: component {
+    @{ label = "Product page metadata" }
+
+    fields {
+      title: Text { max = 60 }? @{ label = "Title override" }
+      image: std.Image? @{ label = "Share image override" }
+      noindex: Bool = false @{ label = "Hide from search engines" }
+    }
+    props {
+      product: shopify.Product = $shopify.product
+      site:    std.SiteSettings = std.siteSettings()
+    }
+  }
+
+  template ProductMeta
+}}
+<title>{{title ?? product.title}} | {{site.name}}</title>
+<meta property="og:title" content="{{title ?? product.title}}">
+{{if noindex}}
+  <meta name="robots" content="noindex">
+{{/if}}
+<meta property="og:image" content="{{(image ?? product.featuredImage ?? site.shareImage) | std.imageUrl(1200, 630)}}">

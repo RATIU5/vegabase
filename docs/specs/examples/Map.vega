@@ -1,0 +1,14 @@
+{{
+  # this file ships inside the maps plugin, not in the theme
+  Map :: component {
+    @{ label = "Map" }
+
+    fields {
+      address: Text { max = 200 }
+      zoom:    Int { min = 1, max = 20 } = 14
+    }
+  }
+
+  template Map
+}}
+<div class="map" id="{{$id}}" data-address="{{address}}" data-zoom="{{zoom}}"></div>

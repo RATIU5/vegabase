@@ -1,0 +1,10 @@
+{{
+  Card :: component {
+    fields {
+      title: Text
+    }
+  }
+
+  template Card
+}}
+<p>{{Other :: component {}}}</p>

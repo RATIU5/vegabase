@@ -1,0 +1,20 @@
+{{
+  use std
+
+  Grid :: component {
+    @{ label = "Grid" }
+
+    fields {
+      items: slot Tiles { max = 4 }
+    }
+  }
+
+  template Grid
+}}
+{{if not std.empty(items)}}
+  <div class="grid grid-{{items | std.length}}" id="{{$id}}">
+    {{for item in items}}
+      <div class="cell">{{slot item}}</div>
+    {{/for}}
+  </div>
+{{/if}}

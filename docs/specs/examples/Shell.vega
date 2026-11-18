@@ -1,0 +1,28 @@
+{{
+  use std
+
+  Shell :: component {
+    fields {
+      head: slot HeadParts { min = 1, max = 1 } = [
+        SiteMeta {}
+      ]
+      body: slot Sections { min = 1 }
+    }
+    props {
+      site: std.SiteSettings = std.siteSettings()
+    }
+  }
+
+  template Shell
+}}
+<!doctype html>
+<html lang="{{site.locale}}">
+<head>
+  <meta charset="utf-8">
+  {{slot head}}
+  <link rel="stylesheet" href="{{std.asset("theme.css")}}">
+</head>
+<body>
+  <main>{{slot body}}</main>
+</body>
+</html>

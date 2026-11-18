@@ -141,7 +141,7 @@
 <li>A template has no functions of its own, no assignment and no IO. A loop runs only over data. A template never sets a status and never redirects. <span class=ref>brief, D-38</span></li>
 <li>A pipe mixed with another operator needs parentheses: <code>(a ?? b) | std.imageUrl(1200)</code>. That is the rule, not a gap. <span class=ref>D-33</span></li>
 <li><code>&#123;&#123;if&#125;&#125;</code> may sit inside a start tag to add an attribute: <code>&#123;&#123;if not product.available&#125;&#125;disabled&#123;&#123;/if&#125;&#125;</code>. It never wraps a field or a <code>use</code>. <span class=ref>D-27</span></li>
-<li>A translation key is a string, <code>t("hero.label")</code>, looked up in a <code>locale</code> table. A missing key is an error before rendering. <span class=ref>D-34, D-36</span></li>
+<li>A translation key is a string, <code>t("hero.label")</code>, looked up in a <code>locale</code> table. A key missing from any locale table is an error before rendering; there is no fallback to another language. <span class=ref>D-34, D-36</span></li>
 <li>A line that holds only a tag or a comment leaves nothing behind. Other whitespace is kept. There is no trim syntax. <span class=ref>D-40</span></li>
 </ul>
 <h2>Shown in these files, with no decision entry yet</h2><ul>

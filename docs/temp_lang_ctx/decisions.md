@@ -90,7 +90,7 @@ Whether the Shopify vendor lib counts as a plugin here is Q-18.
 
 **Example sets, 2026-11-12.** Current: `examples/` (six `.vega` files, the set to show stakeholders). `example-theme/` and `example-theme-vega/` were deleted on the lead's instruction; entries above that cite files in them refer to sketches that no longer exist. `examples.md` holds only a stale fragment. Not covered by the six files: `render`, `yields`, the split form, `Ref`, `List`.
 
-**D-34 Translation keys are strings** (lead, 2026-11-12; closes Q-42). `t("hero.label")`, not `t(hero.label)`, so a key cannot be mistaken for a field. A key missing from a locale table is still a check-time error.
+**D-34 Translation keys are strings** (lead, 2026-11-12; closes Q-42). `t("hero.label")`, not `t(hero.label)`, so a key cannot be mistaken for a field. A key missing from a locale table is still a check-time error. **Confirmed 2026-11-18** (lead: "Fail the check"): this holds for every locale table, with no fallback to the default locale. Rejected: the assistant's middle rule, an error only for the default locale and a warning with fallback for the others.
 
 **D-35 No `global` construct** (lead, 2026-11-12: "global doesn't seem as necessary"; the assistant agrees). A component that needs site-wide data declares it like any other data need: `site: data std.SiteSettings = std.siteSettings()`, read as `shell.site.locale`. Every name a template reads is then declared in its own file. The host runs a loader once per distinct call (D-31), so repeating the line costs no extra fetch. Cost: the line is repeated in each component that needs it. Still open: where theme-wide editor settings live (Q-27).
 

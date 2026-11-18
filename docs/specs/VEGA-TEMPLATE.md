@@ -165,7 +165,7 @@ Every row is an error before rendering.
 | A slot that does not pass a prop one of its children must be passed | §4.1 |
 | A pipe mixed with another operator without parentheses | §5 |
 | `name =` inside `( )` | §5 |
-| A translation key missing from a locale table | §5 |
+| A translation key missing from any locale table | §5 |
 | `std.asset` with a path that is not a literal, or a file that does not exist | §7 |
 
 ## 10. Example

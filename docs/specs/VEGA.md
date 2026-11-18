@@ -201,7 +201,7 @@ en :: locale {
 ```
 
 - A `locale` table holds the translations for one language (lang D-36).
-- A key is read as a string: `t("hero.label")`. A key missing from a locale table is a check error (lang D-34).
+- A key is read as a string: `t("hero.label")`. A key missing from any locale table is a check error. There is no fallback to another locale (lang D-34).
 
 *Open:* locale names that hold a hyphen, such as `pt-BR`; values and plural forms in a translation (lang Q-33).
 
@@ -239,7 +239,7 @@ Every row is an error before rendering.
 | A `template` error | §5 |
 | A prop that must be passed and is not, on any chain of slots that can reach it | §7 |
 | A loop between loaders | §7 |
-| A translation key missing from a locale table | §9 |
+| A translation key missing from any locale table | §9 |
 
 *Open:* the wording and layout of error messages (examples E-5 is a sketch).
 

@@ -34,7 +34,7 @@ CDN (client TLS, HTTP/3, caching) ─ authenticated origin pull / mTLS
 - Package: `.vega` files anywhere in the theme (paths carry no meaning; a template names its component, VEGA-TEMPLATE §1), optional `.css` and budgeted `.js`, `assets/**`. Manifest syntax (edition, name, vendor libs, global settings): Q-044. The extension is `.vega` (lang D-16; Q-013 not yet closed).
 - Deploy fails on every `check` error (`specs/VEGA.md` §11, `specs/VEGA-TEMPLATE.md` §9), extension-namespace collisions (Q-045), and unsafe uploads (size, traversal, symlinks, MIME).
 - Components and unions: VEGA §5, §4.3. Page kinds and the composition depth cap are from the earlier draft and are not in the pass 1 specs (lang D-13, Q-11).
-- Locales: `locale` tables and `t(...)` (VEGA §9, VEGA-TEMPLATE §5); missing translations fall back to the default locale. Placeholders and plurals: Q-036. Merchant-translated content lives in the database (Q-031).
+- Locales: `locale` tables and `t(...)` (VEGA §9, VEGA-TEMPLATE §5); a key missing from any locale table fails the check, with no fallback (lang D-34). Placeholders and plurals: Q-036. Merchant-translated content lives in the database (Q-031).
 - Assets: fingerprinted, pre-compressed (Brotli, zstd), selected from the tree actually rendered; fragments declare theirs; each loads once. The JS budget covers packaged JS.
 - **Language toolchain** (D-012): parser, type checker, compiler front-end and LSP live in packages that import nothing from core runtime packages. The deploy pipeline links the same packages, so local and server results match. Shipped as signed binaries per developer OS, versioned per edition.
 

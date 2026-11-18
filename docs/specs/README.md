@@ -56,6 +56,7 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 | GLOSSARY: Component replacement; core Q-045 | a theme component may take the place of a plugin component | not in this edition (lang D-64, ruled 2026-11-18) |
 | GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
 | GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66); the wording needs one pass, the rules agree (lang D-67) |
+| DESIGN §6: load-time checks, storage | a plugin's WASM may import from enabled vendor lib namespaces, and reaches tenant databases through vendor lib connectors | a plugin's code never calls another plugin; types and data only (lang D-67; CHARTER hard line) |
 | core D-028, D-030, D-031, D-032 | describe the earlier draft: `theme` namespace, `{type Name}`, `@fallback`, `@cache`, COMMON §4 | not amended yet; each needs a pass against VEGA.md and VEGA-TEMPLATE.md |
 
 ## Open language questions

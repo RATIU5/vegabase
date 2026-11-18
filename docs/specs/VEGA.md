@@ -183,10 +183,11 @@ Recipe :: content {
 }
 ```
 
+- A theme or a plugin may declare one (lang D-63, D-64).
 - It is written like a component: its own `@{ }` block, then `fields { }`. It has no `props` and no template (lang D-63).
 - Its name is a type. As a prop it is a value a parent passes; as a field it is a picker (lang D-63).
 
-*Open:* how a component loads one entry or a list; the `$` value on an entry's own page; whether a content type may hold a slot; a plain group of fields with no entries of its own.
+*Open:* who owns and stores the entries of a theme's content type; how a component loads one entry or a list; the `$` value on an entry's own page; whether a content type may hold a slot; a plain group of fields with no entries of its own.
 
 ## 9. Locale tables
 

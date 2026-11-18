@@ -113,7 +113,7 @@ updated: 2026-11-18
 
 **Tenant**: One hosted site with its own domains, data, theme and deployments: a store or a non-commerce site. _Avoid:_ site, client, account, instance.
 
-**Theme**: A tenant's typed component library, with locales and assets. It declares data needs and default route patterns, but no functions, entity types or routes (D-029). _Avoid:_ template, skin.
+**Theme**: A tenant's typed component library, with locales and assets. It declares data needs, content types (lang D-63) and default route patterns, but no functions or routes (D-029). _Avoid:_ template, skin.
 
 **Transform**: A template-callable `fn`, implemented by the core or a vendor lib, never a plugin that is not first-party (VEGA §10, lang D-67). _Avoid:_ filter, helper.
 

@@ -51,8 +51,8 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 | --- | --- | --- |
 | GLOSSARY: Component | a record marked `@component` | `Name :: component { }` (VEGA §5) |
 | GLOSSARY: Data need | a `data` field in a schema | a prop filled by a loader (VEGA §7) |
-| GLOSSARY: Entity type | declared only by `std` or an extension | a theme may declare a `content` type (VEGA §8) |
-| GLOSSARY: Theme | declares no entity types | a theme may declare a `content` type (VEGA §8) |
+| core D-029 | entity types come only from `std` or extensions | a theme may declare a `content` type (lang D-63, ruled 2026-11-18); D-029 needs amending |
+| GLOSSARY: Type owner | the one extension that provides an entity type | open: who owns the entries of a theme's content type (VEGA §8) |
 | GLOSSARY: Component replacement | a theme component may take the place of a plugin component | open; lang D-64 holds an unconfirmed proposal against it |
 | GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
 | DESIGN: Locales | a missing translation falls back to the default locale | a key missing from a locale table is a check error (lang D-34, VEGA §9) |

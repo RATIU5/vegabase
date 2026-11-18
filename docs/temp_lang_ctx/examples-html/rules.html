@@ -108,6 +108,7 @@
 <li>A plugin may ship <code>.vega</code> files with components, unions, aliases, content types and locales. <span class=ref>D-64</span></li>
 <li>In a theme, a plugin's names keep their prefix, and the file names the plugin with <code>use</code>: <code>use maps</code>, then <code>maps.Map</code>. <span class=ref>D-18, D-64</span></li>
 <li>The admin offers a plugin component only when a theme union lists it: <code>Sections :: Hero | maps.Map</code>. <span class=ref>D-64</span></li>
+<li>Only a plugin can define four more things: loaders, such as <code>shopify.pageBy("size-guide")</code>; kinds of page, which supply <code>$</code> values such as <code>$shopify.product</code>; pure functions, such as <code>shopify.money</code>; and form actions. How a plugin declares them is not decided. <span class=ref>D-52, D-64</span></li>
 </ul>
 <h2>Slots in a template</h2><ul>
 <li><code>&#123;&#123;slot blocks&#125;&#125;</code> outputs every child of the slot, in order, with no wrapper. <span class=ref>D-49</span></li>

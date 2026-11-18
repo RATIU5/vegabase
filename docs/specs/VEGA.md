@@ -38,13 +38,12 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | A type starts with a capital letter. Every other name starts lowercase. The checker enforces it | lang D-47 |
 | A name the theme declares is written bare and is visible from every file of the theme | lang D-24 |
 | A prefix always names a library: the core's `std`, or a plugin | lang D-18, D-24 |
-| `use name` in the first block names a library. Every file that needs data from a library has `use` for it | lang D-9 |
-| A file that only receives a value typed by a library, from a parent, also needs `use` for it | lang D-9, *reading*; lang Q-32 still asks whether `use std` is needed |
-| Declaring the same name twice is an error naming both places | lang D-24, *reading* |
+| `use name` in the first block names a library. Every file that reads a value typed by a library has `use` for it, however the value arrived | lang D-9 |
+| Declaring the same name twice is an error naming both places | lang D-24 |
 
 **Cycles** (lang D-25). Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component.
 
-*Open:* which words are reserved; whether a loop variable may share a name with a field.
+*Open:* whether `use std` should be exempt from the `use` rule (lang Q-32); whether declaring a built-in name is an error; which words are reserved; whether a loop variable may share a name with a field.
 
 ## 3. Brackets and separators
 
@@ -162,7 +161,7 @@ Three forms (lang D-51):
 | `product: shopify.Product = $shopify.product` | a parent may pass it; if none does, the page supplies it | lang D-52 |
 | `site: std.SiteSettings = std.siteSettings()` | the engine loads it | lang D-51 |
 
-- `$` marks a page value, and a plugin declares which kind of page supplies it (lang D-52). `$id` is the one `$` value that belongs to a placed component, not to the page (lang D-65). Taking `$` to mean any value the host supplies is a *reading* of D-65.
+- `$` marks a value the host supplies (lang D-65). A page value is one kind, and a plugin declares which kind of page supplies it (lang D-52). `$id` is another, and belongs to a placed component (lang D-65).
 - A loader may read a prop or a field. The engine orders the fetches. A loop between loaders is an error (lang D-53).
 - Equal loader calls run once per render, in one component or in several (lang D-42).
 - A loader that finds nothing: with `Type`, the host stops and renders the site's not-found page with status 404. With `Type?`, the value is null (lang D-38).
@@ -220,7 +219,7 @@ Sections :: Hero | maps.Map
 - A plugin can define loaders, kinds of page and form actions (lang D-64). The core defines loaders too, such as `std.siteSettings()` (lang D-35); a theme defines none. Functions a template calls come only from the core and from first-party plugins (lang D-67).
 - A vendor lib is a plugin that the core team maintains as first-party. The contract is the same for both; the host runs a first-party plugin as native code and every other plugin in WASM (lang D-66, D-67).
 - A theme cannot replace a plugin component in this edition. It writes its own component and lists that one in its union (lang D-64).
-- A plugin may `use` a first-party plugin: `use shopify`, then `product: shopify.Product`. No plugin depends on a plugin that is not first-party, and the admin refuses to enable a plugin unless the first-party plugin it uses is enabled (lang D-67, *reading*).
+- A plugin may `use` a first-party plugin: `use shopify`, then `product: shopify.Product`. No plugin depends on a plugin that is not first-party, and the admin refuses to enable a plugin unless the first-party plugin it uses is enabled (lang D-67).
 - That dependency covers types and data only. The core hands a plugin the fields it declared it reads; a plugin's code never calls another plugin (lang D-67; CHARTER, hard lines).
 - A plugin's shape carries a name, a type and a one-line description for everything it offers, so an editor can list what `shopify.` and `$shopify.` offer (lang D-56).
 
@@ -232,7 +231,7 @@ Every row is an error before rendering.
 
 | Error | Section |
 | --- | --- |
-| A name declared twice (*reading*), or an unknown name | §2 |
+| A name declared twice, or an unknown name | §2 |
 | A type that does not start with a capital letter, or another name that does | §2 |
 | A value typed by a library in a file with no `use` for it | §2 |
 | An alias cycle, a directly self-containing type, a `render` cycle | §2 |

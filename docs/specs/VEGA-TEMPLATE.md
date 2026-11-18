@@ -124,7 +124,7 @@ Limits (lang D-62):
 
 ## 6. `$` values
 
-- `$` marks a page value (lang D-52). `$id` belongs to a placed component, not to the page (lang D-65). Taking `$` to mean any value the host supplies is a *reading* of D-65.
+- `$` marks a value the host supplies (lang D-52, D-65).
 - A page value is the default of a prop: `product: shopify.Product = $shopify.product` (lang D-52, VEGA §7).
 - `$id` is read in the template (§4.3).
 

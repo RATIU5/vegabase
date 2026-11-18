@@ -53,7 +53,7 @@ Pass 1 follows the language decisions. These lower or older lines now disagree a
 | GLOSSARY: Data need | a `data` field in a schema | a prop filled by a loader (VEGA §7) |
 | core D-029 | entity types come only from `std` or extensions | a theme may declare a `content` type (lang D-63, ruled 2026-11-18); D-029 needs amending |
 | GLOSSARY: Type owner | the one extension that provides an entity type | open: who owns the entries of a theme's content type (VEGA §8) |
-| GLOSSARY: Component replacement | a theme component may take the place of a plugin component | open; lang D-64 holds an unconfirmed proposal against it |
+| GLOSSARY: Component replacement; core Q-045 | a theme component may take the place of a plugin component | not in this edition (lang D-64, ruled 2026-11-18) |
 | GLOSSARY: Page kind, Storage class, Fallback view | `@page`, `@private`, `@fallback` | not in pass 1 (lang D-13, Q-11, Q-41) |
 | DESIGN: Locales | a missing translation falls back to the default locale | a key missing from a locale table is a check error (lang D-34, VEGA §9) |
 | GLOSSARY: Plugin, Extension | a plugin is always untrusted; an extension is "a vendor lib or plugin" | a vendor lib is a first-party plugin (lang D-66); the wording needs one pass, the rules agree (lang D-67) |

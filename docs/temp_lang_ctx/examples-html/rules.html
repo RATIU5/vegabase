@@ -111,6 +111,7 @@
 <li>A plugin can define four more things: loaders, such as <code>shopify.pageBy("size-guide")</code>; kinds of page, which supply <code>$</code> values such as <code>$shopify.product</code>; pure functions, such as <code>shopify.money</code>; and form actions. How a plugin declares them is not decided. <span class=ref>D-52, D-64</span></li>
 <li>A vendor lib, such as <code>shopify</code>, is a plugin that the core team maintains as first-party. It runs as native code, and every other plugin runs sandboxed. Only the core and first-party plugins supply functions a template calls. <span class=ref>D-66, D-67</span></li>
 <li>A plugin may <code>use</code> a first-party plugin, such as <code>use shopify</code>. No plugin depends on one that is not first-party. <span class=ref>D-67</span></li>
+<li>A theme cannot replace a plugin component. It writes its own and lists that one in its union. <span class=ref>D-64</span></li>
 </ul>
 <h2>Slots in a template</h2><ul>
 <li><code>&#123;&#123;slot blocks&#125;&#125;</code> outputs every child of the slot, in order, with no wrapper. <span class=ref>D-49</span></li>

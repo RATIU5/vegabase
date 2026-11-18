@@ -21,7 +21,7 @@ updated: 2026-11-18
 
 **Component**: A `component` declaration plus the one template that names it; placeable in slots, identified by its prefix and name, never its path (VEGA §5). _Avoid:_ snippet, partial.
 
-**Component replacement**: A theme's explicit declaration that its component takes the place of a plugin component with the same schema and data fields (syntax: Q-045). _Avoid:_ override, theme override.
+**Component replacement**: A theme's explicit declaration that its component takes the place of a plugin component with the same schema and data fields (syntax: Q-045). Not in the first edition (lang D-64). _Avoid:_ override, theme override.
 
 **Composition**: An editor-saved arrangement of components in slots, with setting values, served on a route. _Avoid:_ page, page config, JSON template.
 

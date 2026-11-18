@@ -57,6 +57,10 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-70 Literals.** A string sits in double quotes on one line; `\"` and `\\` are its only escapes. A number is whole and may start with `-`. The other literals are `true`, `false` and `null`. *Open:* decimal numbers, which wait on a decimal type.
 
+**D-71 `Text`, `Int` and `Bool` are built in.** They need no `use` and no prefix.
+
+**D-72 An alias names a type.** `Headline :: Text { max = 80 } @{ label = "Headline" }`. An alias may carry limits and an admin block. A field's own admin block wins, entry by entry.
+
 **D-50 The list type is `List { of = T }`.** `List { of = shopify.Variant }`, `List { of = Text, min = 1, max = 12 }`. No capitalised name is followed by parentheses anywhere in the language. Inside a `{ }` block, `of` is the only entry that takes a type; every other entry takes a value.
 
 **D-26 `|` is both the union and the pipe.** A union sits in a type, a pipe in a value. There is no `|>`. A union may be named, `Tone :: "light" | "dark"`, or written directly on a field, `tone: "light" | "dark"`.
@@ -117,11 +121,13 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 ### Output
 
+**D-73 `if` and `for`.** `{{if cond}} ... {{elif cond}} ... {{else}} ... {{/if}}`. A condition is a `Bool`: a `Bool` value, a comparison, or those joined by `not`, `and` and `or`. A null test is a comparison. `{{for item in list}} ... {{/for}}` loops over a list; `{{for item, i in list}}` also gives the position as `i`, starting at 1. There is no `for ... else`; an empty list is tested with `std.empty(list)`.
+
 **D-21 A value standing alone is output.** A statement inside `{{ }}` is a declaration, a tag or a value. A value is written at that position, escaped for it. There is no output keyword.
 
 **D-37 The type decides escaping; there is no `raw`.** Every value is escaped for its position: text, attribute or URL. Only a `std.RichText` value is output as HTML, and only between tags. A template cannot turn `Text` into HTML. Whoever produces a `RichText` cleans it: the host on save, or the library that loads it. The language cannot check that a library's `RichText` is clean.
 
-**D-33 A pipe mixed with another operator needs parentheses.** `(a ?? b ?? c) | std.imageUrl(1200)`. A pipe alone needs none. `x | std.length > 0` is an error.
+**D-33 A pipe mixed with another operator needs parentheses.** `(a ?? b ?? c) | std.imageUrl(1200)`. A pipe alone needs none. `x | std.length > 0` is an error. A pipe passes the value on its left as the first argument of the call on its right; a call with no other arguments needs no parentheses: `price | shopify.money`.
 
 **D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; and the pipe. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. `not` applies to one value, so negating a comparison is written `not (a == b)`. There is no arithmetic; a calculation is a function from the core or a vendor lib.
 
@@ -162,7 +168,6 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 | Q-31 | How does a template name a form target? | The examples hand-write `/cart/add` |
 | Q-32 | Is `use std` exempt from the `use` rule? | Most files need it |
 | Q-33 | Do translations take values and plural forms? | |
-| Q-35 | Constructs the examples use with no decision | `Text`, `Int`, `Bool` as built-ins · `elif` · `for item, i` and whether `i` starts at 0 or 1 · the alias form `Name :: Type` · what an `if` condition may be · how a pipe passes its left value · `for ... else` |
 | Q-39 | How do a component's CSS and JS work? | Proposed: `<style>`, `<script>` and `<link>` pass through as plain HTML; `{{ }}` inside `<style>` or `<script>` is an error |
 | Q-40 | How does the host know which component is the shell? | |
 | Q-41 | How is per-visitor data, such as a cart, kept out of shared cached output? | |

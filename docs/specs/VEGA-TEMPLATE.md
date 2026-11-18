@@ -7,7 +7,7 @@ updated: 2026-11-18
 
 What the HTML part of a `.vega` file may hold: tags, slots, expressions and output. Declarations are in VEGA.md. Index and term map: README.md.
 
-Citations and status marks follow VEGA.md: `lang D-59` is an entry of DECISIONS.md in this folder; *no entry* is shown in the examples with no decision; *reading* is the assistant's reading of an entry, not confirmed by the lead; *open* is not decided.
+Citations and status marks follow VEGA.md: `lang D-59` is an entry of DECISIONS.md in this folder; *open* is not decided.
 
 **Design rules**
 
@@ -37,9 +37,9 @@ Inside `{{ }}`, a statement is a declaration, a tag or a value (lang D-21).
 | Tag | Form | Entry |
 | --- | --- | --- |
 | `if` | `{{if cond}} ... {{else}} ... {{/if}}` | lang D-27 |
-| `elif` | `{{elif cond}}` between `{{if}}` and `{{else}}` | *no entry* |
-| `for` | `{{for item in list}} ... {{/for}}` | brief; examples |
-| `for` with position | `{{for item, i in list}}` gives the position as `i` | *no entry* |
+| `elif` | `{{elif cond}}` between `{{if}}` and `{{else}}` | lang D-73 |
+| `for` | `{{for item in list}} ... {{/for}}` | lang D-73 |
+| `for` with position | `{{for item, i in list}}` gives the position as `i`, starting at 1 | lang D-73 |
 | `slot` | `{{slot blocks}}`, `{{slot blocks { product = product } }}` | lang D-49 |
 | `render` | `{{render ProductCard { product = item } }}` | lang D-49 |
 
@@ -52,16 +52,16 @@ Inside `{{ }}`, a statement is a declaration, a tag or a value (lang D-21).
 ```
 
 - `if` never wraps a field, a `use` or any declaration (lang D-27).
-- There is no truthiness (lang D-15). What a condition may be, a `Bool`, a comparison or a null test such as `{{if subheading != null}}`, is a *reading*; the note behind it sits unconfirmed in lang Q-35.
+- There is no truthiness (lang D-15). A condition is a `Bool`: a `Bool` value, a comparison, or those joined by `not`, `and` and `or`. A null test is a comparison: `{{if subheading != null}}` (lang D-73).
 
 *Open:* which expressions narrow a nullable value, and whether narrowing reaches `else`, `elif` and `and`; `if` inside an attribute value.
 
 ### 3.2 `for`
 
 - A loop runs over a list, or over the children of a slot (§4.2) (brief, lang D-62).
-- An empty list is tested with `std.empty(list)`; there is no `for ... else` in the examples.
+- An empty list is tested with `std.empty(list)`. There is no `for ... else` (lang D-73).
 
-*Open:* whether `i` starts at 0 or 1; whether a loop variable may share a name with a field.
+*Open:* whether a loop variable may share a name with a field.
 
 ### 3.3 `render`
 
@@ -116,7 +116,7 @@ Limits (lang D-62):
 | `and`, `or` | `a != null and a > b` | lang D-69 |
 | translation | `t("hero.label")` | lang D-34 |
 
-- A pipe passes the value on its left as the first value of the call on its right. A call with no other values needs no parentheses: `price | shopify.money` (examples; *no entry*).
+- A pipe passes the value on its left as the first value of the call on its right. A call with no other values needs no parentheses: `price | shopify.money` (lang D-33).
 - A pipe mixed with another operator needs parentheses: `(a ?? b ?? c) | std.imageUrl(1200)`. `x | std.length > 0` is an error (lang D-33).
 - A translation key is a string, so it cannot be mistaken for a field (lang D-34).
 - Functions come from the core (`std`) and from first-party plugins (lang D-67). A template defines none.

@@ -9,7 +9,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 
 **Citations.** `D-` and `Q-` numbers in this file are the entries of DECISIONS.md in this folder, written `lang D-59`. Core entries are written `core D-031`.
 
-**Status of every rule.** A rule with a `lang D-` number is decided. A rule marked *no entry* is shown in the examples but has no decision yet. A rule marked *reading* is the assistant's reading of an entry, which the lead has not confirmed. A point marked *open* is not decided and must not be assumed.
+**Status of every rule.** A rule with a `lang D-` number is decided. A point marked *open* is not decided and must not be assumed.
 
 **Design rules**
 
@@ -68,9 +68,9 @@ What a `.vega` file may declare: names, types, components, content types, locale
 
 | Type | Meaning | Entry |
 | --- | --- | --- |
-| `Text` | a string | used throughout; *no entry* |
-| `Int` | a whole number | used throughout; *no entry* |
-| `Bool` | true or false | *no entry* |
+| `Text` | a string; built in | lang D-71 |
+| `Int` | a whole number; built in | lang D-71 |
+| `Bool` | true or false; built in | lang D-71 |
 | `List { of = T }` | a list of `T` | lang D-50 |
 | `std.Image` | a stored image; a picker in the admin | lang D-55 |
 | `std.Url` | `http`, `https`, `mailto`, `tel` or a relative path; anything else is rejected on save | lang D-41 |
@@ -90,7 +90,7 @@ overlay: Int { min = 0, max = 90 } = 40 @{ show = tone == "dark" }
 
 ### 4.3 Aliases and unions
 
-- `Name :: Type` gives a type a name: `Headline :: Text { max = 80 }`. lang D-25 names aliases; the form itself has *no entry*.
+- `Name :: Type` gives a type a name: `Headline :: Text { max = 80 }`. An alias may carry limits and an admin block (lang D-72).
 - `A | B` in a type is a union. `|` in a value is a pipe; position tells them apart (lang D-26).
 - A group of components is a named union. There is no `group` construct: `Blocks :: Title | Price | BuyButton` (lang D-29).
 - A union of string literals is a fixed set of values: `Tone :: "light" | "dark"`. A union may also be written directly on a field: `tone: "light" | "dark"` (lang D-26).
@@ -154,6 +154,7 @@ blocks: slot Blocks { min = 1, max = 12 } = [
 - Entries: `label`, `hint`, `show` (lang D-46).
 - `show` hides a field in the admin when its condition is false. The field keeps its value (lang D-27).
 - There is one spelling. `@label("X")` is not allowed (lang D-46).
+- When a field's type is an alias with an admin block, the field's own block wins, entry by entry (lang D-72).
 
 ## 7. Props
 

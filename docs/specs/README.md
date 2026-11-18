@@ -9,7 +9,7 @@ The `.vega` language is one file type for schema code and templates (lang D-16).
 
 **Precedence**: CHARTER > DECISIONS > these specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK. An Accepted D- entry binds the specs; a spec rule binds the glossary and every lower doc.
 
-Edition: **draft** (no edition shipped yet). The spec files state only what is decided, and mark every other point *no entry*, *reading* or *open*.
+Edition: **draft** (no edition shipped yet). The spec files state only what is decided, and mark every other point *open*.
 
 **Citations.** `lang D-59` and `lang Q-10` are entries of `docs/specs/DECISIONS.md`. `core D-031` is an entry of `core/DECISIONS.md`.
 

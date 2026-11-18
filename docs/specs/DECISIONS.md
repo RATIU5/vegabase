@@ -55,7 +55,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-47 A lowercase name with `( )` is a function call; a capitalised name with `{ }` is a type being filled in.** `( )` holds bare values by position. `{ }` holds `name = value` entries in any order. A `name =` never appears inside `( )`. Types start with a capital letter and every other name starts lowercase; the checker enforces it. `[ ]` holds a list of values.
 
-**D-50 The list type is `List { of = T }`.** `List { of = shopify.Variant }`, `List { of = Text, min = 1, max = 12 }`. No capitalised name is followed by parentheses anywhere in the language.
+**D-50 The list type is `List { of = T }`.** `List { of = shopify.Variant }`, `List { of = Text, min = 1, max = 12 }`. No capitalised name is followed by parentheses anywhere in the language. Inside a `{ }` block, `of` is the only entry that takes a type; every other entry takes a value.
 
 **D-26 `|` is both the union and the pipe.** A union sits in a type, a pipe in a value. There is no `|>`.
 

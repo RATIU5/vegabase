@@ -57,6 +57,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | `component { }`, `content { }`, `fields { }`, `props { }`, `locale { }` | a block that belongs to that word | lang D-36, D-59, D-63 |
 
 - `fields { }` and `props { }` hold `name: Type` lines, not `name = value` (lang D-59).
+- In a `name = value` block, `of` is the only entry that takes a type. Every other entry takes a value, so `label = "Hero"` is a string, never a type (lang D-50).
 - Entries are separated by a comma or a newline. Entries that share a line need a comma. A comma at a line end is allowed (lang D-45).
 
 ## 4. Types

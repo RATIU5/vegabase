@@ -19,5 +19,6 @@
 !/scripts/**
 !/VERSION
 !/odinfmt.json
+!/odx.json
 !/source/**
 !/third_party/**

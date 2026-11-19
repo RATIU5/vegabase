@@ -17,7 +17,7 @@ Scan_Case :: struct {
 	at:      Span,
 }
 
-scan_cases := [?]Scan_Case {
+SCAN_CASES := [?]Scan_Case {
 	{name = "empty string", src = "", ok = true},
 	{name = "plain html", src = `<p>hi</p>`, ok = true},
 	{name = "one block", src = `a{{x}}b`, codes = {`x`}, ok = true},
@@ -59,7 +59,7 @@ scan_cases := [?]Scan_Case {
 
 @(test)
 scan_table :: proc(t: ^testing.T) {
-	for c in scan_cases {
+	for c in SCAN_CASES {
 		blocks := make([dynamic]Block)
 		defer delete(blocks)
 		errors := make([dynamic]Error)

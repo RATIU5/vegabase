@@ -15,12 +15,18 @@ run = "sh scripts/build.sh"
 
 [tasks.lint]
 description = "Type-check and vet"
-run = "odin check source -vet -vet-cast -strict-style"
+run = [
+  "odin check source -vet -vet-cast -strict-style",
+  "odin check source/vega -no-entry-point -vet -vet-cast -strict-style",
+]
 
 [tasks.test]
 description = "Run tests"
 depends = ["test:grammar"]
-run = "odin test source -vet -strict-style"
+run = [
+  "odin test source -vet -strict-style",
+  "odin test source/vega -vet -strict-style",
+]
 
 [tasks.fmt]
 description = "Format the source"

@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # Language decisions, open questions, prior art
@@ -137,7 +137,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 ### Translations
 
-**D-36 `locale` is the word for a table of translations for one language.** A locale's name is a language tag: `en`, `pt-BR`, `zh-Hant`.
+**D-36 `locale` is the word for a table of translations for one language.** A locale's name is a language tag written with `_` between its parts: `en`, `pt_BR`, `zh_Hant`. The host maps a tag's `-` to `_`.
 
 **D-34 Translation keys are strings.** `t("hero.label")`, so a key cannot be mistaken for a field. A key missing from any locale table is a check error. There is no fallback to another locale.
 

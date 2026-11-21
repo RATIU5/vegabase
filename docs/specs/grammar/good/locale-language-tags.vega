@@ -3,11 +3,11 @@
     hello = "Hello"
   }
 
-  pt-BR :: locale {
+  pt_BR :: locale {
     hello = "Olá"
   }
 
-  zh-Hant :: locale {
+  zh_Hant :: locale {
     hello = "你好"
   }
 }}

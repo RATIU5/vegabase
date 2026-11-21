@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # The `.vega` language: grammar
@@ -57,7 +57,7 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 | `NAME` | a lowercase letter, then letters, digits and `_`; not a reserved word |
 | `MEMBER` | the same as `NAME`, but any word; used after a `.` |
 | `STRING` | `"`, then characters on one line, with `\"` and `\\` as the only escapes, then `"` (lang D-70) |
-| `LOCALE_NAME` | a language tag: two or three lowercase letters, then parts joined by `-` (lang D-36) |
+| `LOCALE_NAME` | a language tag: two or three lowercase letters, then parts of two to eight letters or digits, each after a `_` (lang D-36) |
 | `INT` | digits, with an optional leading `-` (lang D-70) |
 | `HOST_VALUE` | `$`, then names joined by `.` |
 

@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # The `.vega` language: declarations
@@ -205,7 +205,7 @@ en :: locale {
 }
 ```
 
-- A `locale` table holds the translations for one language. Its name is a language tag: `en`, `pt-BR`, `zh-Hant` (lang D-36).
+- A `locale` table holds the translations for one language. Its name is a language tag written with `_` between its parts: `en`, `pt_BR`, `zh_Hant`. The host maps a tag's `-` to `_` (lang D-36).
 - A key is read as a string: `t("hero.label")`. A key missing from any locale table is a check error. There is no fallback to another locale (lang D-34).
 
 *Open:* values and plural forms in a translation (lang Q-33).

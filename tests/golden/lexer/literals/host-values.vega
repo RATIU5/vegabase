@@ -1,0 +1,4 @@
+{{$site}}
+{{$site.locale}}
+{{$a.b.c}}
+{{$a.}}

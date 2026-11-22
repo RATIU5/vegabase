@@ -9,12 +9,12 @@ VEGA_UPDATE_GOLDEN :: #config(VEGA_UPDATE_GOLDEN, false)
 GOLDEN_LEXER_DIR :: "tests/golden/lexer"
 
 first_difference :: proc(want, got: string) -> (line: int, want_line, got_line: string) {
-	want_rest := want
-	got_rest := got
+	want := want
+	got := got
 	for {
 		line += 1
-		w, w_ok := strings.split_lines_iterator(&want_rest)
-		g, g_ok := strings.split_lines_iterator(&got_rest)
+		w, w_ok := strings.split_lines_iterator(&want)
+		g, g_ok := strings.split_lines_iterator(&got)
 		if !w_ok && !g_ok {
 			return 0, "", ""
 		}
@@ -52,16 +52,22 @@ check_golden :: proc(t: ^testing.T, path: string) {
 		}
 		defer delete(want)
 
-		line, want_line, got_line := first_difference(string(want), got)
-		testing.expectf(
-			t,
-			line == 0,
-			"%s: differs at line %d\n  want: %s\n  got:  %s",
-			tokens_path,
-			line,
-			want_line,
-			got_line,
-		)
+		if string(want) != got {
+			line, want_line, got_line := first_difference(string(want), got)
+			if line == 0 {
+				testing.expectf(t, false, "%s: files differ only in trailing lines", tokens_path)
+			} else {
+				testing.expectf(
+					t,
+					false,
+					"%s: differs at line %d\n  want: %s\n  got:  %s",
+					tokens_path,
+					line,
+					want_line,
+					got_line,
+				)
+			}
+		}
 	}
 }
 

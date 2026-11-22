@@ -62,20 +62,18 @@ dump_tokens :: proc(src: string, allocator := context.allocator) -> string {
 	defer delete(blocks)
 	tokens := make([dynamic]Token, allocator)
 	defer delete(tokens)
-	scan_errors := make([dynamic]Error, allocator)
-	defer delete(scan_errors)
-	lex_errors := make([dynamic]Error, allocator)
-	defer delete(lex_errors)
+	errors := make([dynamic]Error, allocator)
+	defer delete(errors)
 
 	b := strings.builder_make(allocator)
 	p := Position {
 		line = 1,
 	}
 
-	scanned := scan(src, &blocks, &scan_errors)
+	scanned := scan(src, &blocks, &errors)
 	for block in blocks {
 		clear(&tokens)
-		lexed := lex(src, block.code, &tokens, &lex_errors)
+		lexed := lex(src, block.code, &tokens, &errors)
 		write_head(&b, &p, src, "Block", block.span)
 		strings.write_byte(&b, '\n')
 		for token in tokens {
@@ -86,12 +84,12 @@ dump_tokens :: proc(src: string, allocator := context.allocator) -> string {
 			strings.write_byte(&b, '\n')
 		}
 		if !lexed {
-			write_error(&b, &p, src, lex_errors[0])
+			write_error(&b, &p, src, errors[len(errors) - 1])
 			return strings.to_string(b)
 		}
 	}
 	if !scanned {
-		write_error(&b, &p, src, scan_errors[0])
+		write_error(&b, &p, src, errors[len(errors) - 1])
 	}
 	return strings.to_string(b)
 }

@@ -1,0 +1,12 @@
+Block@0..69 1:1
+  Newline@2..3 1:3 "\n"
+  Newline@10..11 2:8 "\n"
+  Use@13..16 3:3 "use"
+  Name@17..20 3:7 "std"
+  Newline@31..32 3:21 "\n"
+  Newline@43..44 4:12 "\n"
+  Render@46..52 5:3 "render"
+  Name@53..57 5:10 "hero"
+  Newline@57..58 5:14 "\n"
+  Newline@66..67 6:9 "\n"
+  End@67..67 7:1 ""

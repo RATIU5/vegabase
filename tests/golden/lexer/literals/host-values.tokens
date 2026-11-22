@@ -1,0 +1,13 @@
+Block@0..9 1:1
+  Host_Value@2..7 1:3 "$site"
+  End@7..7 1:8 ""
+Block@10..26 2:1
+  Host_Value@12..24 2:3 "$site.locale"
+  End@24..24 2:15 ""
+Block@27..37 3:1
+  Host_Value@29..35 3:3 "$a.b.c"
+  End@35..35 3:9 ""
+Block@38..45 4:1
+  Host_Value@40..42 4:3 "$a"
+  Dot@42..43 4:5 "."
+  End@43..43 4:6 ""

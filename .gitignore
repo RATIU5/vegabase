@@ -38,3 +38,6 @@
 
 !/third_party/
 !/third_party/**
+
+!/tests/
+!/tests/**

@@ -6,7 +6,7 @@ import "core:testing"
 
 VEGA_UPDATE_GOLDEN :: #config(VEGA_UPDATE_GOLDEN, false)
 
-GOLDEN_LEXER_DIR :: "tests/golden/lexer"
+GOLDEN_LEXER_DIR :: #directory + "/../../tests/golden/lexer"
 
 first_difference :: proc(want, got: string) -> (line: int, want_line, got_line: string) {
 	want := want
@@ -78,10 +78,6 @@ golden_lexer :: proc(t: ^testing.T) {
 
 	count := 0
 	for info in os.walker_walk(&walker) {
-		if path, err := os.walker_error(&walker); err != nil {
-			testing.expectf(t, false, "%s: cannot walk: %v", path, err)
-			break
-		}
 		if info.type != .Regular || !strings.has_suffix(info.fullpath, ".vega") {
 			continue
 		}

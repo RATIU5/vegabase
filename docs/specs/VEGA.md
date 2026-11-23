@@ -40,7 +40,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | A prefix always names a library: the core's `std`, or a plugin | lang D-18, D-24 |
 | `use name` in the first block names a library. Every file that reads a value typed by a library has `use` for it, however the value arrived | lang D-9 |
 | Declaring the same name twice is an error naming both places | lang D-24 |
-| Twenty-one words are reserved and cannot name a field, a prop, a loop item or a locale key. Any word may follow a `.`. The list is in VEGA-GRAMMAR §4 | lang D-68 |
+| Twenty-one words are reserved and cannot name a field, a prop, a loop item or a locale key. Any word may follow a `.`. A reserved word may name a locale table: `or :: locale { }` is Odia. The list is in VEGA-GRAMMAR §4 | lang D-68 |
 
 **Cycles** (lang D-25). Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component.
 

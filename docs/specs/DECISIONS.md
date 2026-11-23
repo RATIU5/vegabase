@@ -39,7 +39,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-24 A name the theme declares is written bare and is visible from every file.** There is no `theme.` prefix and no `use theme`. A prefix always names a library. Declaring the same name twice is an error naming both places. *Open:* whether declaring a built-in name is an error.
 
-**D-68 Twenty-one words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid.
+**D-68 Twenty-one words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid. A reserved word may name a locale table, because a language tag is not a name: `or :: locale { }` is Odia.
 
 **D-25 Cycles.** Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component, because stored content is finite. Declaration order and file order never matter.
 

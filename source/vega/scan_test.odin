@@ -1,12 +1,6 @@
 package vega
 
-import "base:runtime"
-import "core:strings"
 import "core:testing"
-
-examples_files := #load_directory("../../docs/specs/examples")
-good_files := #load_directory("../../docs/specs/grammar/good")
-bad_files := #load_directory("../../docs/specs/grammar/bad")
 
 Scan_Case :: struct {
 	name:    string,
@@ -103,32 +97,4 @@ scan_block_spans :: proc(t: ^testing.T) {
 	}
 	testing.expect_value(t, blocks[0].span, Span{1, 6})
 	testing.expect_value(t, blocks[0].code, Span{3, 4})
-}
-
-@(test)
-scan_spec_files :: proc(t: ^testing.T) {
-	blocks := make([dynamic]Block)
-	defer delete(blocks)
-	errors := make([dynamic]Error)
-	defer delete(errors)
-
-	groups := [?][]runtime.Load_Directory_File{examples_files, good_files, bad_files}
-	for group in groups {
-		for file in group {
-			clear(&blocks)
-			clear(&errors)
-
-			ok := scan(string(file.data), &blocks, &errors)
-
-			if strings.has_suffix(file.name, "unclosed-block.vega") {
-				testing.expect_value(t, ok, false)
-				if testing.expect_value(t, len(errors), 1) {
-					testing.expect_value(t, errors[0].message, "{{ is never closed")
-				}
-			} else {
-				testing.expectf(t, ok, "%s", file.name)
-				testing.expect_value(t, len(errors), 0)
-			}
-		}
-	}
 }

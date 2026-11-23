@@ -1,10 +1,11 @@
 {{
   Card :: component {
     fields {
+      price: Int
       title: Text
     }
   }
 
   template Card
 }}
-<p>{{price * quantity}}</p>
+<p>{{price *}}</p>

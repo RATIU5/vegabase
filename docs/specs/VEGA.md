@@ -58,7 +58,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 
 - `fields { }` and `props { }` hold `name: Type` lines, not `name = value` (lang D-59).
 - In a `name = value` block, `of` is the only entry that takes a type. Every other entry takes a value, so `label = "Hero"` is a string, never a type (lang D-50).
-- A string sits in double quotes on one line, with `\"` and `\\` as its only escapes. A number is whole and may start with `-` (lang D-70).
+- A string sits in double quotes on one line, with `\"` and `\\` as its only escapes. A number is whole; `-2` is `2` negated (lang D-69, D-70).
 - Entries are separated by a comma or a newline. Entries that share a line need a comma. A comma at a line end is allowed (lang D-45).
 - Only a `{ }`, `[ ]` or `( )` may span lines. A field line or an expression never continues on the next line; to break a long expression, wrap it in parentheses (lang D-45).
 

@@ -57,6 +57,11 @@ Token_Kind :: enum u8 {
 	Less_Equal,
 	Greater,
 	Greater_Equal,
+	Plus,
+	Minus,
+	Star,
+	Slash,
+	Percent,
 }
 
 Token :: struct {
@@ -170,9 +175,6 @@ lex_string :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int
 
 lex_int :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int, ok: bool) {
 	i := start
-	if s[i] == '-' {
-		i += 1
-	}
 	for i < len(s) && is_digit(s[i]) {
 		i += 1
 	}
@@ -226,6 +228,14 @@ lex_punct :: proc(s: string, i: int) -> (kind: Token_Kind, width: int) {
 		return .At, 1
 	case '|':
 		return .Pipe, 1
+	case '+':
+		return .Plus, 1
+	case '-':
+		return .Minus, 1
+	case '*':
+		return .Star, 1
+	case '%':
+		return .Percent, 1
 	case ':':
 		if next == ':' {
 			return .Colon_Colon, 2
@@ -258,6 +268,20 @@ lex_punct :: proc(s: string, i: int) -> (kind: Token_Kind, width: int) {
 		return .Question, 1
 	}
 	return .Invalid, 1
+}
+
+lex_slash :: proc(s: string, i: int, end: int) -> (kind: Token_Kind, next: int) {
+	word_end := i + 1
+	for word_end < end && is_word(s[word_end]) {
+		word_end += 1
+	}
+	switch s[i + 1:word_end] {
+	case "if":
+		return .End_If, word_end
+	case "for":
+		return .End_For, word_end
+	}
+	return .Slash, i + 1
 }
 
 lex :: proc(
@@ -309,10 +333,7 @@ lex :: proc(
 				i += 1
 			}
 			kind = .Type
-		case '0' ..= '9', '-':
-			if c == '-' && (i + 1 >= end || !is_digit(s[i + 1])) {
-				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
-			}
+		case '0' ..= '9':
 			next, int_ok := lex_int(s, i, errors)
 			if !int_ok {
 				return false
@@ -334,19 +355,7 @@ lex :: proc(
 				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
 			}
 		case '/':
-			word_end := i + 1
-			for word_end < end && is_word(s[word_end]) {
-				word_end += 1
-			}
-			switch s[i + 1:word_end] {
-			case "if":
-				kind = .End_If
-			case "for":
-				kind = .End_For
-			case:
-				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
-			}
-			i = word_end
+			kind, i = lex_slash(s, i, end)
 		case:
 			punct, punct_width := lex_punct(s, i)
 			if punct != .Invalid {

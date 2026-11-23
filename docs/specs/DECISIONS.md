@@ -55,7 +55,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-47 A lowercase name with `( )` is a function call; a capitalised name with `{ }` is a type being filled in.** `( )` holds bare values by position. `{ }` holds `name = value` entries in any order. A `name =` never appears inside `( )`. Types start with a capital letter and every other name starts lowercase; the checker enforces it. `[ ]` holds a list of values.
 
-**D-70 Literals.** A string sits in double quotes on one line; `\"` and `\\` are its only escapes. A number is whole and may start with `-`. The other literals are `true`, `false` and `null`. *Open:* decimal numbers, which wait on a decimal type.
+**D-70 Literals.** A string sits in double quotes on one line; `\"` and `\\` are its only escapes. A number is whole; a negative number is a number after `-` (D-69). The other literals are `true`, `false` and `null`. *Open:* decimal numbers, which wait on a decimal type.
 
 **D-71 `Text`, `Int` and `Bool` are built in.** They need no `use` and no prefix.
 
@@ -129,7 +129,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-33 A pipe mixed with another operator needs parentheses.** `(a ?? b ?? c) | std.imageUrl(1200)`. A pipe alone needs none. `x | std.length > 0` is an error. A pipe passes the value on its left as the first argument of the call on its right; a call with no other arguments needs no parentheses: `price | shopify.money`.
 
-**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; and the pipe. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. `not` applies to one value, so negating a comparison is written `not (a == b)`. There is no arithmetic; a calculation is a function from the core or a vendor lib.
+**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; the arithmetic `+`, `-`, `*`, `/` and `%`; and the pipe. `*`, `/` and `%` bind tighter than `+` and `-`, and arithmetic binds tighter than a comparison: `a + 1 > b`. A leading `-` negates one value: `-2`, `-offset`. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. `not` applies to one value, so negating a comparison is written `not (a == b)`. Arithmetic mixed with `??` or a pipe needs parentheses: `(a ?? 0) + 1`. Arithmetic takes numbers only; `+` never joins text, because `{{a}}{{b}}` already does. `Int / Int` gives an `Int`, truncated toward zero. `a / b` and `a % b` may be null, because `b` may be zero, so the result is handled like any `T?`: `(a / b) ?? 0`. A divisor that is a literal other than zero gives a plain value: `price / 2`.
 
 **D-40 There is no whitespace syntax.** (1) A line that holds only a tag or a comment leaves nothing behind, not even its newline. (2) Whitespace inside an HTML start tag is normalised. (3) All other whitespace is kept as written.
 

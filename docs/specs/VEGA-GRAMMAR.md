@@ -59,6 +59,7 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 | `STRING` | `"`, then characters on one line, with `\"` and `\\` as the only escapes, then `"` (lang D-70) |
 | `LOCALE_NAME` | a language tag: two or three lowercase letters, then parts of two to eight letters or digits, each after a `_` (lang D-36) |
 | `INT` | digits; a leading `-` is the negation operator (lang D-69, D-70) |
+| `DECIMAL` | digits, `.`, digits (lang D-70) |
 | `HOST_VALUE` | `$`, then names joined by `.` |
 
 Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`.

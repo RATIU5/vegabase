@@ -12,6 +12,7 @@ Token_Kind :: enum u8 {
 	Type,
 	String,
 	Int,
+	Decimal,
 	Host_Value,
 	Of,
 	Use,
@@ -173,7 +174,7 @@ lex_string :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int
 	return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
 }
 
-lex_int :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int, ok: bool) {
+lex_number :: proc(s: string, start: int) -> (kind: Token_Kind, next: int) {
 	i := start
 	for i < len(s) && is_digit(s[i]) {
 		i += 1
@@ -183,9 +184,9 @@ lex_int :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int, o
 		for i < len(s) && is_digit(s[i]) {
 			i += 1
 		}
-		return 0, fail(errors, start, i, "decimal numbers are not supported")
+		return .Decimal, i
 	}
-	return i, true
+	return .Int, i
 }
 
 lex_host_value :: proc(s: string, start: int) -> int {
@@ -334,12 +335,7 @@ lex :: proc(
 			}
 			kind = .Type
 		case '0' ..= '9':
-			next, int_ok := lex_int(s, i, errors)
-			if !int_ok {
-				return false
-			}
-			i = next
-			kind = .Int
+			kind, i = lex_number(s, i)
 		case '"':
 			next, string_ok := lex_string(s, i, errors)
 			if !string_ok {

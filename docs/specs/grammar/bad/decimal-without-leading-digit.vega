@@ -1,7 +1,7 @@
 {{
   Card :: component {
     fields {
-      ratio: Int = 1.5
+      ratio: Decimal = .5
     }
   }
 }}

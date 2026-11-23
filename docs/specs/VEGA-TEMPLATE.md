@@ -124,7 +124,7 @@ Limits (lang D-62):
 
 - `and` or `or` joins comparisons without parentheses. Mixing `and` with `or` needs them. `not` applies to one value: `not (a == b)` (lang D-69).
 - `*`, `/` and `%` bind tighter than `+` and `-`; arithmetic binds tighter than a comparison. Arithmetic mixed with `??` or a pipe needs parentheses: `(a ?? 0) + 1` (lang D-69).
-- Arithmetic takes numbers only; `+` never joins text. `Int / Int` truncates toward zero. `a / b` and `a % b` may be null, because `b` may be zero: `(a / b) ?? 0`. A divisor that is a literal other than zero gives a plain value (lang D-69).
+- Arithmetic takes numbers only; `+` never joins text. `Int / Int` truncates toward zero; an `Int` with a `Decimal` gives a `Decimal`. `a / b` and `a % b` may be null, because `b` may be zero: `(a / b) ?? 0`. A divisor that is a literal other than zero gives a plain value (lang D-69).
 
 *Open:* local names in a template (lang Q-10).
 

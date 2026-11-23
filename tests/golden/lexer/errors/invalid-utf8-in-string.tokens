@@ -1,0 +1,2 @@
+Block@0..9 1:1
+Error@4..5 1:5 "string is not valid UTF-8"

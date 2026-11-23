@@ -2,6 +2,8 @@ package vega
 
 import "core:unicode/utf8"
 
+UNEXPECTED_CHARACTER :: "unexpected character"
+
 Token_Kind :: enum u8 {
 	Invalid,
 	End,
@@ -60,11 +62,6 @@ Token_Kind :: enum u8 {
 Token :: struct {
 	kind: Token_Kind,
 	span: Span,
-}
-
-fail_lex :: proc(errors: ^[dynamic]Error, start, end: int, message: string) -> bool {
-	append(errors, Error{span = {u32(start), u32(end)}, message = message})
-	return false
 }
 
 is_lower :: proc(c: u8) -> bool {
@@ -143,10 +140,10 @@ lex_string :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int
 		case c == '"':
 			return i + 1, true
 		case c == '\n':
-			return 0, fail_lex(errors, start, start + 1, "string is never closed")
+			return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
 		case c == '\\':
 			if i + 1 >= len(s) {
-				return 0, fail_lex(errors, start, start + 1, "string is never closed")
+				return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
 			}
 			escaped := s[i + 1]
 			if escaped == '"' || escaped == '\\' {
@@ -157,18 +154,18 @@ lex_string :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int
 			if escaped >= 0x80 {
 				_, width = utf8.decode_rune_in_string(s[i + 1:])
 			}
-			return 0, fail_lex(errors, i, i + 1 + width, "unknown escape in string")
+			return 0, fail(errors, i, i + 1 + width, "unknown escape in string")
 		case c >= 0x80:
 			r, width := utf8.decode_rune_in_string(s[i:])
 			if r == utf8.RUNE_ERROR && width == 1 {
-				return 0, fail_lex(errors, i, i + 1, "string is not valid UTF-8")
+				return 0, fail(errors, i, i + 1, "string is not valid UTF-8")
 			}
 			i += width
 		case:
 			i += 1
 		}
 	}
-	return 0, fail_lex(errors, start, start + 1, "string is never closed")
+	return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
 }
 
 lex_int :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int, ok: bool) {
@@ -184,7 +181,7 @@ lex_int :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int, o
 		for i < len(s) && is_digit(s[i]) {
 			i += 1
 		}
-		return 0, fail_lex(errors, start, i, "decimal numbers are not supported")
+		return 0, fail(errors, start, i, "decimal numbers are not supported")
 	}
 	return i, true
 }
@@ -293,7 +290,7 @@ lex :: proc(
 				i += 2
 				kind = .Newline
 			} else {
-				return fail_lex(errors, i, i + 1, "unexpected character")
+				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
 			}
 		case '#':
 			for i < end && s[i] != '\n' {
@@ -314,7 +311,7 @@ lex :: proc(
 			kind = .Type
 		case '0' ..= '9', '-':
 			if c == '-' && (i + 1 >= end || !is_digit(s[i + 1])) {
-				return fail_lex(errors, i, i + 1, "unexpected character")
+				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
 			}
 			next, int_ok := lex_int(s, i, errors)
 			if !int_ok {
@@ -334,7 +331,7 @@ lex :: proc(
 				i = lex_host_value(s, i)
 				kind = .Host_Value
 			} else {
-				return fail_lex(errors, i, i + 1, "unexpected character")
+				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
 			}
 		case '/':
 			word_end := i + 1
@@ -347,7 +344,7 @@ lex :: proc(
 			case "for":
 				kind = .End_For
 			case:
-				return fail_lex(errors, i, i + 1, "unexpected character")
+				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
 			}
 			i = word_end
 		case:
@@ -360,7 +357,7 @@ lex :: proc(
 				if c >= 0x80 {
 					_, width = utf8.decode_rune_in_string(s[i:])
 				}
-				return fail_lex(errors, i, i + width, "unexpected character")
+				return fail(errors, i, i + width, UNEXPECTED_CHARACTER)
 			}
 		}
 

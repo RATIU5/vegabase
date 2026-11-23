@@ -2,14 +2,11 @@ package vega
 
 import "core:strings"
 
+BLOCK_NEVER_CLOSED :: "{{ is never closed"
+
 Block :: struct {
 	span: Span,
 	code: Span,
-}
-
-fail_scan :: proc(errors: ^[dynamic]Error, start, end: int, message: string) -> bool {
-	append(errors, Error{span = {u32(start), u32(end)}, message = message})
-	return false
 }
 
 scan :: proc(src: string, blocks: ^[dynamic]Block, errors: ^[dynamic]Error) -> (ok: bool) {
@@ -37,7 +34,7 @@ scan :: proc(src: string, blocks: ^[dynamic]Block, errors: ^[dynamic]Error) -> (
 		depth := 0
 		for {
 			if j >= len(src) {
-				return fail_scan(errors, start, start + 2, "{{ is never closed")
+				return fail(errors, start, start + 2, BLOCK_NEVER_CLOSED)
 			}
 			switch src[j] {
 			case '"':
@@ -46,7 +43,7 @@ scan :: proc(src: string, blocks: ^[dynamic]Block, errors: ^[dynamic]Error) -> (
 					end += 2 if src[end] == '\\' else 1
 				}
 				if end >= len(src) || src[end] != '"' {
-					return fail_scan(errors, j, j + 1, "string is never closed")
+					return fail(errors, j, j + 1, STRING_NEVER_CLOSED)
 				}
 				j = end + 1
 			case '#':
@@ -54,7 +51,7 @@ scan :: proc(src: string, blocks: ^[dynamic]Block, errors: ^[dynamic]Error) -> (
 				line_end := len(src) if newline < 0 else j + newline
 				close := strings.index(src[j:line_end], "}}")
 				if newline < 0 && close < 0 {
-					return fail_scan(errors, start, start + 2, "{{ is never closed")
+					return fail(errors, start, start + 2, BLOCK_NEVER_CLOSED)
 				}
 				if close >= 0 {
 					j += close
@@ -76,7 +73,7 @@ scan :: proc(src: string, blocks: ^[dynamic]Block, errors: ^[dynamic]Error) -> (
 					i = j + 2
 					continue next_block
 				} else {
-					return fail_scan(errors, j, j + 1, "} with no {")
+					return fail(errors, j, j + 1, "} with no {")
 				}
 			case:
 				j += 1

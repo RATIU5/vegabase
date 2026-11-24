@@ -9,8 +9,8 @@ declaration: TYPE "::" (component | content | type admin?)
 component: _COMPONENT "{" _NL* (_cpart (_NL+ _cpart)*)? _NL* "}"
 content: _CONTENT "{" _NL* (_cpart (_NL+ _cpart)*)? _NL* "}"
 _cpart: admin | fields | props
-fields: _FIELDS "{" _NL* (field (_sep field)*)? _sep? "}"
-props: _PROPS "{" _NL* (field (_sep field)*)? _sep? "}"
+fields: _FIELDS "{" _NL* (field (_sep field)* _sep?)? "}"
+props: _PROPS "{" _NL* (field (_sep field)* _sep?)? "}"
 locale: _LOCALE record
 
 field: NAME ":" SLOT? type OPTIONAL? default? admin?
@@ -22,7 +22,7 @@ type_atom: (type_name | STRING) limits?
 type_name: (NAME ".")? TYPE
 limits: record
 
-record: "{" _NL* (entry (_sep entry)*)? _sep? "}"
+record: "{" _NL* (entry (_sep entry)* _sep?)? "}"
 entry: OF "=" type | NAME "=" expr
 _sep: ("," | _NL)+
 
@@ -55,7 +55,7 @@ path: NAME ("." MEMBER)*
 call: fn_name "(" args? ")"
 fn_name: NAME ("." MEMBER)?
 args: _NL* expr (_NL* "," _NL* expr)* _NL*
-list: "[" _NL* (expr (_sep expr)*)? _sep? "]"
+list: "[" _NL* (expr (_sep expr)* _sep?)? "]"
 component_value: type_name record
 host_value: HOST_VALUE
 literal: STRING | DECIMAL | INT | TRUE | FALSE | NULL

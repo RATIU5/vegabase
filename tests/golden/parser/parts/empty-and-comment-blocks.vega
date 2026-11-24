@@ -1,0 +1,3 @@
+<p>{{}}</p>
+{{# nothing here }}
+<p>{{ title }}</p>

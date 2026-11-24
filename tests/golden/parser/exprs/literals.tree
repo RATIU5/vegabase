@@ -42,4 +42,4 @@ File@0..227 1:1
         Named@195..199 11:10 "Text"
           Name@195..199 11:10 "Text"
         Host_Value@202..213 11:17 "$page.title"
-  Template_Text@226..227 14:3 "\n"
+  Html@226..227 14:3 "\n"

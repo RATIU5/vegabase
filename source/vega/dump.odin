@@ -274,7 +274,18 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 	if len(file.errors) > 0 {
 		write_error(&b, starts, file.errors[len(file.errors) - 1])
 	} else {
-		write_node(&b, file, starts, 1, "Template_Text", file.template)
+		for part in file.parts[1:] {
+			write_node(
+				&b,
+				file,
+				starts,
+				1,
+				reflect.enum_string(part.kind),
+				part.span,
+				part.kind == .Html,
+			)
+			write_expr(&b, file, starts, 2, part.expr)
+		}
 	}
 	return strings.to_string(b)
 }

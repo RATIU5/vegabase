@@ -64,24 +64,27 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		return file, false
 	}
 	file.template = {0, u32(len(src))}
-	if len(blocks) == 0 || strings.trim_space(src[:blocks[0].span.start]) != "" {
-		return file, true
-	}
-	first := blocks[0]
-	file.template.start = first.span.end
-
 	tokens := make([dynamic]Token, allocator)
-	if !lex(src, first.code, &tokens, &file.errors) {
-		return file, false
-	}
 	p := Parser {
 		file        = &file,
-		tokens      = tokens[:],
 		entry_stack = make([dynamic]Entry, allocator),
 		type_stack  = make([dynamic]Type, allocator),
 		expr_stack  = make([dynamic]Expr_Id, allocator),
 	}
-	ok = parse_first_block(&p)
+	rest := blocks[:]
+	if len(blocks) > 0 && strings.trim_space(src[:blocks[0].span.start]) == "" {
+		first := blocks[0]
+		file.template.start = first.span.end
+		if !lex(src, first.code, &tokens, &file.errors) {
+			return file, false
+		}
+		p.tokens = tokens[:]
+		if !parse_first_block(&p) {
+			return file, false
+		}
+		rest = blocks[1:]
+	}
+	ok = parse_template(&p, &tokens, rest)
 	return file, ok
 }
 

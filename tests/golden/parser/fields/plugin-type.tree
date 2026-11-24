@@ -14,4 +14,4 @@ File@0..116 1:1
         Named@94..102 8:12 "maps.Map"
           Prefix@94..98 8:12 "maps"
           Name@99..102 8:17 "Map"
-  Template_Text@115..116 11:3 "\n"
+  Html@115..116 11:3 "\n"

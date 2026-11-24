@@ -1,10 +1,10 @@
 package vega
 
-EXPECTED_BLOCK_END :: "expected }} after the value"
+EXPECTED_BLOCK_END :: "expected }} to end the block"
 
 is_tag_keyword :: proc(kind: Token_Kind) -> bool {
 	#partial switch kind {
-	case .If, .Elif, .Else, .End_If, .For, .End_For, .Slot, .Render:
+	case .For, .End_For, .Slot, .Render:
 		return true
 	}
 	return false
@@ -30,11 +30,30 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> 
 		if kind == .End || is_tag_keyword(kind) {
 			continue
 		}
-		expr := parse_expr(p) or_return
+		part := Part {
+			kind = .Value,
+			span = block.span,
+		}
+		#partial switch kind {
+		case .If:
+			part.kind = .If
+		case .Elif:
+			part.kind = .Elif
+		case .Else:
+			part.kind = .Else
+		case .End_If:
+			part.kind = .End_If
+		}
+		if part.kind != .Value {
+			p.pos += 1
+		}
+		if part.kind == .Value || part.kind == .If || part.kind == .Elif {
+			part.expr = parse_expr(p) or_return
+		}
 		if peek(p).kind != .End {
 			return parse_fail(p, peek(p), EXPECTED_BLOCK_END)
 		}
-		append(&p.file.parts, Part{kind = .Value, span = block.span, expr = expr})
+		append(&p.file.parts, part)
 	}
 	add_html(p, at, len(p.file.src))
 	return true

@@ -1,0 +1,2 @@
+File@0..23 1:1
+Error@8..11 2:3 "use, template and declarations belong in the first block"

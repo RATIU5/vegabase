@@ -122,10 +122,12 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> 
 		part := Part {
 			span = block.span,
 		}
+		skip_newlines(p)
 		if kind := peek(p).kind;
 		   kind == .Use || kind == .Template || peek(p, 1).kind == .Colon_Colon {
 			return parse_fail(p, peek(p), STATEMENT_OUTSIDE_FIRST_BLOCK)
 		}
+		p.pos = 0
 		parse_tag(p, &part) or_return
 		if peek(p).kind != .End {
 			return parse_fail(p, peek(p), EXPECTED_BLOCK_END)

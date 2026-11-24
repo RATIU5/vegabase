@@ -290,6 +290,10 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 					write_node(&b, file, starts, 2, "Index", part.index)
 				}
 			}
+			if part.kind == .Slot || part.kind == .Render {
+				write_node(&b, file, starts, 2, "Name", part.name)
+				write_entries(&b, file, starts, 2, "Entries", part.entries)
+			}
 			write_expr(&b, file, starts, 2, part.expr)
 		}
 	}

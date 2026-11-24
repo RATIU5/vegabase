@@ -1,0 +1,4 @@
+<p>{{slot body}}</p>
+<p>{{slot item { product = product } }}</p>
+{{render Card { a = 1 } }}
+{{render std.Card { } }}

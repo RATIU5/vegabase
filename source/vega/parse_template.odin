@@ -3,14 +3,6 @@ package vega
 EXPECTED_BLOCK_END :: "expected }} to end the block"
 EXPECTED_IN :: "expected in"
 
-is_tag_keyword :: proc(kind: Token_Kind) -> bool {
-	#partial switch kind {
-	case .Slot, .Render:
-		return true
-	}
-	return false
-}
-
 add_html :: proc(p: ^Parser, start, end: int) {
 	if start == end {
 		return
@@ -25,6 +17,23 @@ parse_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {
 	}
 	p.pos += 1
 	return name.span, true
+}
+
+parse_type_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {
+	token := peek(p)
+	if token.kind == .Type {
+		p.pos += 1
+		return token.span, true
+	}
+	if token.kind != .Name || peek(p, 1).kind != .Dot {
+		return {}, parse_fail(p, token, EXPECTED_TYPE)
+	}
+	name := peek(p, 2)
+	if name.kind != .Type {
+		return {}, parse_fail(p, name, EXPECTED_TYPE_NAME)
+	}
+	p.pos += 3
+	return {token.span.start, name.span.end}, true
 }
 
 parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
@@ -56,6 +65,18 @@ parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
 	case .End_For:
 		part.kind = .End_For
 		p.pos += 1
+	case .Slot:
+		part.kind = .Slot
+		p.pos += 1
+		part.name = parse_name(p) or_return
+		if peek(p).kind == .Open_Brace {
+			part.entries = parse_record(p) or_return
+		}
+	case .Render:
+		part.kind = .Render
+		p.pos += 1
+		part.name = parse_type_name(p) or_return
+		part.entries = parse_record(p) or_return
 	case:
 		part.kind = .Value
 		part.expr = parse_expr(p) or_return
@@ -72,8 +93,7 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> 
 		lex(p.file.src, block.code, tokens, &p.file.errors) or_return
 		p.tokens = tokens[:]
 		p.pos = 0
-		kind := peek(p).kind
-		if kind == .End || is_tag_keyword(kind) {
+		if peek(p).kind == .End {
 			continue
 		}
 		part := Part {

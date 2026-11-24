@@ -1,0 +1,22 @@
+File@0..117 1:1
+  Html@0..3 1:1 "<p>"
+  Slot@3..16 1:4
+    Name@10..14 1:11 "body"
+  Html@16..24 1:17 "</p>\n<p>"
+  Slot@24..60 2:4
+    Name@31..35 2:11 "item"
+    Entries@38..55 2:18
+      Entry@38..55 2:18
+        Key@38..45 2:18 "product"
+        Path@48..55 2:28 "product"
+  Html@60..65 2:40 "</p>\n"
+  Render@65..91 3:1
+    Name@74..78 3:10 "Card"
+    Entries@81..86 3:17
+      Entry@81..86 3:17
+        Key@81..82 3:17 "a"
+        Int@85..86 3:21 "1"
+  Html@91..92 3:27 "\n"
+  Render@92..116 4:1
+    Name@101..109 4:10 "std.Card"
+  Html@116..117 4:25 "\n"

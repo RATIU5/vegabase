@@ -9,35 +9,6 @@ examples_files := #load_directory("../../docs/specs/examples")
 good_files := #load_directory("../../docs/specs/grammar/good")
 bad_files := #load_directory("../../docs/specs/grammar/bad")
 
-scan_and_lex :: proc(
-	t: ^testing.T,
-	name: string,
-	src: string,
-	blocks: ^[dynamic]Block,
-	tokens: ^[dynamic]Token,
-	errors: ^[dynamic]Error,
-) -> bool {
-	clear(blocks)
-	clear(errors)
-	if !scan(src, blocks, errors) {
-		return false
-	}
-	for block in blocks {
-		clear(tokens)
-		clear(errors)
-		if !lex(src, block.code, tokens, errors) {
-			return false
-		}
-		testing.expectf(
-			t,
-			len(tokens) > 0 && tokens[len(tokens) - 1].kind == .End,
-			"%s: no End token",
-			name,
-		)
-	}
-	return true
-}
-
 @(test)
 spec_files :: proc(t: ^testing.T) {
 	arena: virtual.Arena
@@ -80,26 +51,28 @@ spec_files :: proc(t: ^testing.T) {
 
 @(test)
 spec_file_prefixes :: proc(t: ^testing.T) {
-	blocks := make([dynamic]Block)
-	defer delete(blocks)
-	tokens := make([dynamic]Token)
-	defer delete(tokens)
-	errors := make([dynamic]Error)
-	defer delete(errors)
+	arena: virtual.Arena
+	arena_err := virtual.arena_init_growing(&arena)
+	assert(arena_err == nil)
+	defer virtual.arena_destroy(&arena)
+	arena_alloc := virtual.arena_allocator(&arena)
 
 	groups := [?][]runtime.Load_Directory_File{examples_files, good_files, bad_files}
 	for group in groups {
 		for file in group {
 			for n in 0 ..= len(file.data) {
-				scan_and_lex(t, file.name, string(file.data[:n]), &blocks, &tokens, &errors)
-				if len(errors) > 1 {
+				parsed, ok := parse(file.name, string(file.data[:n]), arena_alloc)
+				error_count := len(parsed.errors)
+				virtual.arena_free_all(&arena)
+				if error_count != (0 if ok else 1) {
 					testing.expectf(
 						t,
 						false,
-						"%s: prefix %d: %d errors",
+						"%s: prefix %d: ok=%v, %d errors",
 						file.name,
 						n,
-						len(errors),
+						ok,
+						error_count,
 					)
 					break
 				}

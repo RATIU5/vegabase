@@ -1,6 +1,6 @@
 package vega
 
-AND_OR_MIXED :: "and and or cannot mix; use parentheses"
+AND_OR_MIXED :: "`and` and `or` cannot mix; use parentheses"
 COMPARE_CHAINED :: "comparisons cannot be chained; use parentheses"
 PIPE_NEEDS_OPERAND :: "the input of | must be one value; use parentheses"
 COALESCE_NEEDS_OPERAND :: "the left side of ?? must be one value; use parentheses"
@@ -97,7 +97,7 @@ parse_chain :: proc(
 	ok: bool,
 ) {
 	kind := Expr_Kind.And if op == .And else Expr_Kind.Or
-	other := Token_Kind.Or if op == .And else Token_Kind.And
+	forbidden := Token_Kind.Or if op == .And else Token_Kind.And
 	id = first
 	for peek(p).kind == op {
 		p.pos += 1
@@ -107,7 +107,7 @@ parse_chain :: proc(
 			Expr{kind = kind, op = op, left = id, right = right, span = span_from(p, start)},
 		)
 	}
-	if peek(p).kind == other {
+	if peek(p).kind == forbidden {
 		return 0, parse_fail(p, peek(p), AND_OR_MIXED)
 	}
 	return id, true

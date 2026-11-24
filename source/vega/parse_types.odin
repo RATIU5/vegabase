@@ -82,28 +82,14 @@ parse_type_atom :: proc(p: ^Parser) -> (atom: Type, ok: bool) {
 			name = token.span,
 		}
 		p.pos += 1
-	case .Type:
-		atom = Type {
-			kind = .Named,
-			span = token.span,
-			name = token.span,
-		}
-		p.pos += 1
-	case .Name:
-		if peek(p, 1).kind != .Dot {
-			return {}, parse_fail(p, token, EXPECTED_TYPE)
-		}
-		name := peek(p, 2)
-		if name.kind != .Type {
-			return {}, parse_fail(p, name, EXPECTED_TYPE_NAME)
-		}
+	case .Type, .Name:
+		prefix, name := parse_type_name(p) or_return
 		atom = Type {
 			kind   = .Named,
-			span   = {token.span.start, name.span.end},
-			prefix = token.span,
-			name   = name.span,
+			span   = {token.span.start, name.end},
+			prefix = prefix,
+			name   = name,
 		}
-		p.pos += 3
 	case:
 		return {}, parse_fail(p, token, EXPECTED_TYPE)
 	}
@@ -112,4 +98,21 @@ parse_type_atom :: proc(p: ^Parser) -> (atom: Type, ok: bool) {
 		atom.span.end = p.tokens[p.pos - 1].span.end
 	}
 	return atom, true
+}
+
+parse_type_name :: proc(p: ^Parser) -> (prefix, name: Span, ok: bool) {
+	token := peek(p)
+	if token.kind == .Type {
+		p.pos += 1
+		return {}, token.span, true
+	}
+	if token.kind != .Name || peek(p, 1).kind != .Dot {
+		return {}, {}, parse_fail(p, token, EXPECTED_TYPE)
+	}
+	type := peek(p, 2)
+	if type.kind != .Type {
+		return {}, {}, parse_fail(p, type, EXPECTED_TYPE_NAME)
+	}
+	p.pos += 3
+	return token.span, type.span, true
 }

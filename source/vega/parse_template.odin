@@ -25,23 +25,6 @@ parse_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {
 	return name.span, true
 }
 
-parse_type_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {
-	token := peek(p)
-	if token.kind == .Type {
-		p.pos += 1
-		return token.span, true
-	}
-	if token.kind != .Name || peek(p, 1).kind != .Dot {
-		return {}, parse_fail(p, token, EXPECTED_TYPE)
-	}
-	name := peek(p, 2)
-	if name.kind != .Type {
-		return {}, parse_fail(p, name, EXPECTED_TYPE_NAME)
-	}
-	p.pos += 3
-	return {token.span.start, name.span.end}, true
-}
-
 parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
 	token := peek(p)
 	#partial switch token.kind {
@@ -81,7 +64,9 @@ parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
 	case .Render:
 		part.kind = .Render
 		p.pos += 1
-		part.name = parse_type_name(p) or_return
+		start := peek(p).span.start
+		_, name := parse_type_name(p) or_return
+		part.name = {start, name.end}
 		part.entries = parse_record(p) or_return
 	case:
 		part.kind = .Value

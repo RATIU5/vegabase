@@ -25,6 +25,9 @@ DUPLICATE_PROPS :: "a declaration can have only one props group"
 BAD_LOCALE_NAME :: "locale name must be a language code such as en or pt_BR"
 UNCLOSED_BRACKET :: "bracket is never closed"
 MISMATCHED_BRACKET :: "closing bracket does not match"
+NESTED_TOO_DEEPLY :: "nesting is too deep"
+
+MAX_NESTING :: 64
 
 Parser :: struct {
 	file:        ^File,
@@ -33,6 +36,7 @@ Parser :: struct {
 	open:        [dynamic]u32,
 	entry_stack: [dynamic]Entry,
 	type_stack:  [dynamic]Type,
+	depth:       int,
 }
 
 parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, ok: bool) {

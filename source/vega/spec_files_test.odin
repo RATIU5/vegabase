@@ -1,6 +1,8 @@
 package vega
 
 import "base:runtime"
+import "core:mem/virtual"
+import "core:strings"
 import "core:testing"
 
 examples_files := #load_directory("../../docs/specs/examples")
@@ -94,5 +96,34 @@ spec_file_prefixes :: proc(t: ^testing.T) {
 				}
 			}
 		}
+	}
+}
+
+@(test)
+nesting_too_deep :: proc(t: ^testing.T) {
+	LEVELS :: 100000
+	b: strings.Builder
+	strings.builder_init(&b)
+	defer strings.builder_destroy(&b)
+	strings.write_string(&b, "{{\n  A :: T ")
+	for _ in 1 ..< LEVELS {
+		strings.write_string(&b, "{ of = T ")
+	}
+	strings.write_string(&b, "{ }")
+	for _ in 1 ..< LEVELS {
+		strings.write_string(&b, " }")
+	}
+	strings.write_string(&b, "\n}}\n")
+
+	arena: virtual.Arena
+	arena_err := virtual.arena_init_growing(&arena)
+	assert(arena_err == nil)
+	defer virtual.arena_destroy(&arena)
+
+	file, ok := parse("deep.vega", strings.to_string(b), virtual.arena_allocator(&arena))
+	testing.expect(t, !ok)
+	testing.expect(t, len(file.errors) == 1)
+	if len(file.errors) == 1 {
+		testing.expect_value(t, file.errors[0].message, NESTED_TOO_DEEPLY)
 	}
 }

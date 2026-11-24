@@ -5,11 +5,8 @@ parse_record :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 	if open.kind != .Open_Brace {
 		return {}, parse_fail(p, open, EXPECTED_OPEN_BRACE)
 	}
-	if p.depth >= MAX_NESTING {
-		return {}, parse_fail(p, open, NESTED_TOO_DEEPLY)
-	}
-	p.depth += 1
-	defer p.depth -= 1
+	enter(p, open) or_return
+	defer leave(p)
 	p.pos += 1
 	base := len(p.entry_stack)
 	skip_newlines(p)
@@ -44,7 +41,7 @@ parse_entry :: proc(p: ^Parser) -> (entry: Entry, ok: bool) {
 	if key.kind == .Of {
 		entry.type = parse_type(p) or_return
 	} else {
-		entry.value = skip_expr(p) or_return
+		entry.value = parse_expr(p) or_return
 	}
 	entry.span = {key.span.start, p.tokens[p.pos - 1].span.end}
 	return entry, true
@@ -115,49 +112,4 @@ parse_type_atom :: proc(p: ^Parser) -> (atom: Type, ok: bool) {
 		atom.span.end = p.tokens[p.pos - 1].span.end
 	}
 	return atom, true
-}
-
-closer_of :: proc(kind: Token_Kind) -> Token_Kind {
-	#partial switch kind {
-	case .Open_Brace:
-		return .Close_Brace
-	case .Open_Bracket:
-		return .Close_Bracket
-	}
-	return .Close_Paren
-}
-
-skip_expr :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
-	start := p.pos
-	clear(&p.open)
-	loop: for {
-		token := peek(p)
-		#partial switch token.kind {
-		case .Open_Brace, .Open_Bracket, .Open_Paren:
-			append(&p.open, u32(p.pos))
-		case .Close_Brace, .Close_Bracket, .Close_Paren:
-			if len(p.open) == 0 {
-				break loop
-			}
-			if closer_of(p.tokens[pop(&p.open)].kind) != token.kind {
-				return 0, parse_fail(p, token, MISMATCHED_BRACKET)
-			}
-		case .Comma, .Newline, .At:
-			if len(p.open) == 0 {
-				break loop
-			}
-		case .End:
-			if len(p.open) > 0 {
-				return 0, parse_fail(p, p.tokens[p.open[0]], UNCLOSED_BRACKET)
-			}
-			break loop
-		}
-		p.pos += 1
-	}
-	if p.pos == start {
-		return 0, parse_fail(p, peek(p), EXPECTED_EXPRESSION)
-	}
-	span := Span{p.tokens[start].span.start, p.tokens[p.pos - 1].span.end}
-	append(&p.file.exprs, Expr{span = span})
-	return Expr_Id(len(p.file.exprs) - 1), true
 }

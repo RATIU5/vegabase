@@ -4,13 +4,13 @@ File@0..406 1:1
     Admin@32..46 3:8
       Entry@32..46 3:8
         Key@32..37 3:8 "label"
-        Expr@40..46 3:16 "\"Hero\""
+        String@40..46 3:16 "\"Hero\""
     Fields@68..97 5:7
       Field@68..97 5:7
         Name@68..75 5:7 "heading"
         Named@77..85 5:16 "Headline"
           Name@77..85 5:16 "Headline"
-        Expr@88..97 5:27 "\"Welcome\""
+        String@88..97 5:27 "\"Welcome\""
   Content@111..158 9:3
     Name@111..115 9:3 "Page"
     Props@141..152 10:13
@@ -28,13 +28,15 @@ File@0..406 1:1
     Admin@222..249 14:36
       Entry@222..249 14:36
         Key@222..227 14:36 "label"
-        Expr@230..249 14:44 "t(\"headline.label\")"
+        Call@230..249 14:44 "t(\"headline.label\")"
+          Name@230..231 14:44 "t"
+          String@232..248 14:46 "\"headline.label\""
     Named@201..218 14:15 "Text { max = 80 }"
       Name@201..205 14:15 "Text"
       Limits@208..216 14:22
         Entry@208..216 14:22
           Key@208..211 14:22 "max"
-          Expr@214..216 14:28 "80"
+          Int@214..216 14:28 "80"
   Alias@254..272 15:3
     Name@254..259 15:3 "Image"
     Named@263..272 15:12 "std.Image"
@@ -45,17 +47,25 @@ File@0..406 1:1
     Entries@295..320 18:5
       Entry@295..320 18:5
         Key@295..299 18:5 "hero"
-        Expr@302..320 18:12 "{ label = \"Hero\" }"
+        Record@302..320 18:12 "{ label = \"Hero\" }"
+          Entries@304..318 18:14
+            Entry@304..318 18:14
+              Key@304..309 18:14 "label"
+              String@312..318 18:22 "\"Hero\""
   Locale@327..373 20:3
     Name@327..332 20:3 "pt_BR"
     Entries@345..371 20:21
       Entry@345..371 20:21
         Key@345..349 20:21 "hero"
-        Expr@352..371 20:28 "{ label = \"Heroi\" }"
+        Record@352..371 20:28 "{ label = \"Heroi\" }"
+          Entries@354..369 20:30
+            Entry@354..369 20:30
+              Key@354..359 20:30 "label"
+              String@362..369 20:38 "\"Heroi\""
   Locale@376..402 21:3
     Name@376..378 21:3 "or"
     Entries@391..400 21:18
       Entry@391..400 21:18
         Key@391..393 21:18 "ok"
-        Expr@396..400 21:23 "\"ok\""
+        String@396..400 21:23 "\"ok\""
   Template_Text@405..406 22:3 "\n"

@@ -99,12 +99,27 @@ spec_file_prefixes :: proc(t: ^testing.T) {
 	}
 }
 
+expect_nesting_rejected :: proc(t: ^testing.T, src: string) {
+	arena: virtual.Arena
+	arena_err := virtual.arena_init_growing(&arena)
+	assert(arena_err == nil)
+	defer virtual.arena_destroy(&arena)
+
+	file, ok := parse("deep.vega", src, virtual.arena_allocator(&arena))
+	testing.expect(t, !ok)
+	testing.expect(t, len(file.errors) == 1)
+	if len(file.errors) == 1 {
+		testing.expect_value(t, file.errors[0].message, NESTED_TOO_DEEPLY)
+	}
+}
+
 @(test)
 nesting_too_deep :: proc(t: ^testing.T) {
 	LEVELS :: 100000
 	b: strings.Builder
 	strings.builder_init(&b)
 	defer strings.builder_destroy(&b)
+
 	strings.write_string(&b, "{{\n  A :: T ")
 	for _ in 1 ..< LEVELS {
 		strings.write_string(&b, "{ of = T ")
@@ -114,16 +129,17 @@ nesting_too_deep :: proc(t: ^testing.T) {
 		strings.write_string(&b, " }")
 	}
 	strings.write_string(&b, "\n}}\n")
+	expect_nesting_rejected(t, strings.to_string(b))
 
-	arena: virtual.Arena
-	arena_err := virtual.arena_init_growing(&arena)
-	assert(arena_err == nil)
-	defer virtual.arena_destroy(&arena)
-
-	file, ok := parse("deep.vega", strings.to_string(b), virtual.arena_allocator(&arena))
-	testing.expect(t, !ok)
-	testing.expect(t, len(file.errors) == 1)
-	if len(file.errors) == 1 {
-		testing.expect_value(t, file.errors[0].message, NESTED_TOO_DEEPLY)
+	strings.builder_reset(&b)
+	strings.write_string(&b, "{{\n  A :: component {\n    fields {\n      a: Int = ")
+	for _ in 0 ..< LEVELS {
+		strings.write_byte(&b, '(')
 	}
+	strings.write_byte(&b, '1')
+	for _ in 0 ..< LEVELS {
+		strings.write_byte(&b, ')')
+	}
+	strings.write_string(&b, "\n    }\n  }\n}}\n")
+	expect_nesting_rejected(t, strings.to_string(b))
 }

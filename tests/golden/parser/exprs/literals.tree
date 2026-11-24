@@ -1,0 +1,45 @@
+File@0..227 1:1
+  Component@5..223 2:3
+    Name@5..9 2:3 "Card"
+    Fields@44..213 4:7
+      Field@44..58 4:7
+        Name@44..45 4:7 "a"
+        Named@47..51 4:10 "Text"
+          Name@47..51 4:10 "Text"
+        String@54..58 4:17 "\"hi\""
+      Field@65..76 5:7
+        Name@65..66 5:7 "b"
+        Named@68..71 5:10 "Int"
+          Name@68..71 5:10 "Int"
+        Int@74..76 5:16 "12"
+      Field@83..100 6:7
+        Name@83..84 6:7 "c"
+        Named@86..93 6:10 "Decimal"
+          Name@86..93 6:10 "Decimal"
+        Decimal@96..100 6:20 "19.5"
+      Field@107..121 7:7
+        Name@107..108 7:7 "d"
+        Named@110..114 7:10 "Bool"
+          Name@110..114 7:10 "Bool"
+        Bool@117..121 7:17 "true"
+      Field@128..143 8:7
+        Name@128..129 8:7 "e"
+        Named@131..135 8:10 "Bool"
+          Name@131..135 8:10 "Bool"
+        Bool@138..143 8:17 "false"
+      Field(optional)@150..165 9:7
+        Name@150..151 9:7 "f"
+        Named@153..157 9:10 "Text"
+          Name@153..157 9:10 "Text"
+        Null@161..165 9:18 "null"
+      Field@172..185 10:7
+        Name@172..173 10:7 "g"
+        Named@175..179 10:10 "Text"
+          Name@175..179 10:10 "Text"
+        Host_Value@182..185 10:17 "$id"
+      Field@192..213 11:7
+        Name@192..193 11:7 "h"
+        Named@195..199 11:10 "Text"
+          Name@195..199 11:10 "Text"
+        Host_Value@202..213 11:17 "$page.title"
+  Template_Text@226..227 14:3 "\n"

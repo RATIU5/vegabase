@@ -24,7 +24,6 @@ DUPLICATE_FIELDS :: "a declaration can have only one fields group"
 DUPLICATE_PROPS :: "a declaration can have only one props group"
 BAD_LOCALE_NAME :: "locale name must be a language code such as en or pt_BR"
 UNCLOSED_BRACKET :: "bracket is never closed"
-MISMATCHED_BRACKET :: "closing bracket does not match"
 NESTED_TOO_DEEPLY :: "nesting is too deep"
 
 MAX_NESTING :: 64
@@ -33,24 +32,25 @@ Parser :: struct {
 	file:        ^File,
 	tokens:      []Token,
 	pos:         int,
-	open:        [dynamic]u32,
 	entry_stack: [dynamic]Entry,
 	type_stack:  [dynamic]Type,
+	expr_stack:  [dynamic]Expr_Id,
 	depth:       int,
 }
 
 parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, ok: bool) {
 	file = File {
-		path    = path,
-		src     = src,
-		uses    = make([dynamic]Span, allocator),
-		decls   = make([dynamic]Decl, allocator),
-		fields  = make([dynamic]Field, allocator),
-		types   = make([dynamic]Type, allocator),
-		entries = make([dynamic]Entry, allocator),
-		exprs   = make([dynamic]Expr, allocator),
-		parts   = make([dynamic]Part, allocator),
-		errors  = make([dynamic]Error, allocator),
+		path       = path,
+		src        = src,
+		uses       = make([dynamic]Span, allocator),
+		decls      = make([dynamic]Decl, allocator),
+		fields     = make([dynamic]Field, allocator),
+		types      = make([dynamic]Type, allocator),
+		entries    = make([dynamic]Entry, allocator),
+		exprs      = make([dynamic]Expr, allocator),
+		expr_items = make([dynamic]Expr_Id, allocator),
+		parts      = make([dynamic]Part, allocator),
+		errors     = make([dynamic]Error, allocator),
 	}
 	append(&file.decls, Decl{})
 	append(&file.fields, Field{})
@@ -77,9 +77,9 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 	p := Parser {
 		file        = &file,
 		tokens      = tokens[:],
-		open        = make([dynamic]u32, allocator),
 		entry_stack = make([dynamic]Entry, allocator),
 		type_stack  = make([dynamic]Type, allocator),
+		expr_stack  = make([dynamic]Expr_Id, allocator),
 	}
 	ok = parse_first_block(&p)
 	return file, ok
@@ -87,6 +87,18 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 
 parse_fail :: proc(p: ^Parser, token: Token, message: string) -> bool {
 	return fail(&p.file.errors, int(token.span.start), int(token.span.end), message)
+}
+
+enter :: proc(p: ^Parser, token: Token) -> bool {
+	if p.depth >= MAX_NESTING {
+		return parse_fail(p, token, NESTED_TOO_DEEPLY)
+	}
+	p.depth += 1
+	return true
+}
+
+leave :: proc(p: ^Parser) {
+	p.depth -= 1
 }
 
 peek :: proc(p: ^Parser, ahead := 0) -> Token {
@@ -359,7 +371,7 @@ parse_field :: proc(p: ^Parser) -> bool {
 	}
 	if peek(p).kind == .Equal {
 		p.pos += 1
-		field.default = skip_expr(p) or_return
+		field.default = parse_expr(p) or_return
 	}
 	if peek(p).kind == .At {
 		p.pos += 1

@@ -1,0 +1,44 @@
+File@0..248 1:1
+  Component@5..244 2:3
+    Name@5..9 2:3 "Card"
+    Fields@44..234 4:7
+      Field@44..59 4:7
+        Name@44..45 4:7 "a"
+        Named@47..51 4:10 "Text"
+          Name@47..51 4:10 "Text"
+        Path@54..59 4:17 "a.b.c"
+      Field@66..82 5:7
+        Name@66..67 5:7 "b"
+        Named@69..73 5:10 "Text"
+          Name@69..73 5:10 "Text"
+        Call@76..82 5:17 "t(\"x\")"
+          Name@76..77 5:17 "t"
+          String@78..81 5:19 "\"x\""
+      Field@89..124 6:7
+        Name@89..90 6:7 "c"
+        Named@92..96 6:10 "Text"
+          Name@92..96 6:10 "Text"
+        Call@99..124 6:17 "std.imageUrl(image, 1600)"
+          Name@99..111 6:17 "std.imageUrl"
+          Path@112..117 6:30 "image"
+          Int@119..123 6:37 "1600"
+      Field@131..144 7:7
+        Name@131..132 7:7 "d"
+        Named@134..138 7:10 "Text"
+          Name@134..138 7:10 "Text"
+        Call@141..144 7:17 "f()"
+          Name@141..142 7:17 "f"
+      Field@151..210 8:7
+        Name@151..152 8:7 "e"
+        Named@154..158 8:10 "Text"
+          Name@154..158 8:10 "Text"
+        Call@161..210 8:17 "std.imageUrl(\n        image,\n        1600\n      )"
+          Name@161..173 8:17 "std.imageUrl"
+          Path@183..188 9:9 "image"
+          Int@198..202 10:9 "1600"
+      Field@217..234 12:7
+        Name@217..218 12:7 "f"
+        Named@220..224 12:10 "Text"
+          Name@220..224 12:10 "Text"
+        Path@227..234 12:17 "a.of.in"
+  Template_Text@247..248 15:3 "\n"

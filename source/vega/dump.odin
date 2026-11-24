@@ -96,9 +96,74 @@ write_node :: proc(
 	strings.write_byte(b, '\n')
 }
 
+op_text :: proc(kind: Token_Kind) -> string {
+	#partial switch kind {
+	case .Equal_Equal:
+		return "=="
+	case .Not_Equal:
+		return "!="
+	case .Less:
+		return "<"
+	case .Less_Equal:
+		return "<="
+	case .Greater:
+		return ">"
+	case .Greater_Equal:
+		return ">="
+	case .Plus:
+		return "+"
+	case .Minus:
+		return "-"
+	case .Star:
+		return "*"
+	case .Slash:
+		return "/"
+	case .Percent:
+		return "%"
+	case .Question_Question:
+		return "??"
+	case .And:
+		return "and"
+	case .Or:
+		return "or"
+	}
+	return ""
+}
+
 write_expr :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, id: Expr_Id) {
-	if id != 0 {
-		write_node(b, file, starts, depth, "Expr", file.exprs[id].span)
+	if id == 0 {
+		return
+	}
+	e := file.exprs[id]
+	buf: [32]u8
+	label := reflect.enum_string(e.kind)
+	if e.op != .Invalid {
+		label = fmt.bprintf(buf[:], "%s(%s)", label, op_text(e.op))
+	}
+	write_node(b, file, starts, depth, label, e.span)
+	switch e.kind {
+	case .Not, .Negate:
+		write_expr(b, file, starts, depth + 1, e.left)
+	case .Pipe, .Compare, .Coalesce, .And, .Or, .Arith:
+		write_expr(b, file, starts, depth + 1, e.left)
+		write_expr(b, file, starts, depth + 1, e.right)
+	case .Call:
+		write_node(b, file, starts, depth + 1, "Name", e.name)
+		write_items(b, file, starts, depth + 1, e.items)
+	case .List:
+		write_items(b, file, starts, depth + 1, e.items)
+	case .Record:
+		write_entries(b, file, starts, depth + 1, "Entries", e.items)
+	case .Component_Value:
+		write_node(b, file, starts, depth + 1, "Name", e.name)
+		write_entries(b, file, starts, depth + 1, "Entries", e.items)
+	case .Path, .String, .Int, .Decimal, .Bool, .Null, .Host_Value:
+	}
+}
+
+write_items :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, range: Range) {
+	for id in file.expr_items[range.first:][:range.count] {
+		write_expr(b, file, starts, depth, id)
 	}
 }
 

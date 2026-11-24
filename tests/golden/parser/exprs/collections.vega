@@ -1,0 +1,20 @@
+{{
+  Card :: component {
+    fields {
+      a: List = [
+        1,
+        "two"
+        three,
+      ]
+      b: List = []
+      c: List = [[1, 2], [3]]
+      d: Text = { x = 1, y = "z" }
+      e: Link = std.Link { url = "/" }
+      f: Link = Link {}
+      g: Link = std.Link {
+        url = "/"
+        label = t("go") | f
+      }
+    }
+  }
+}}

@@ -1,0 +1,15 @@
+{{
+  Card :: component {
+    fields {
+      a: Text = a.b.c
+      b: Text = t("x")
+      c: Text = std.imageUrl(image, 1600)
+      d: Text = f()
+      e: Text = std.imageUrl(
+        image,
+        1600
+      )
+      f: Text = a.of.in
+    }
+  }
+}}

@@ -147,6 +147,7 @@ File :: struct {
 	types:         [dynamic]Type,
 	entries:       [dynamic]Entry,
 	exprs:         [dynamic]Expr,
+	expr_items:    [dynamic]Expr_Id,
 	parts:         [dynamic]Part,
 	errors:        [dynamic]Error,
 }

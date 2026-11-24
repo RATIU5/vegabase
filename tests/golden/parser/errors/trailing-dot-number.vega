@@ -1,0 +1,7 @@
+{{
+  Card :: component {
+    fields {
+      a: Decimal = 1.
+    }
+  }
+}}

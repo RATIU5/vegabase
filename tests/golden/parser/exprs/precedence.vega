@@ -1,0 +1,12 @@
+{{
+  Card :: component {
+    fields {
+      a: Int = -a + b * c % d - e
+      b: Bool = a + b == c * d
+      c: Int = a - -b
+      d: Int = (a + b) * c
+      e: Int = a / b / c
+      f: Int = --a
+    }
+  }
+}}

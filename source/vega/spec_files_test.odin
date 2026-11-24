@@ -40,32 +40,41 @@ scan_and_lex :: proc(
 
 @(test)
 spec_files :: proc(t: ^testing.T) {
-	blocks := make([dynamic]Block)
-	defer delete(blocks)
-	tokens := make([dynamic]Token)
-	defer delete(tokens)
-	errors := make([dynamic]Error)
-	defer delete(errors)
+	arena: virtual.Arena
+	arena_err := virtual.arena_init_growing(&arena)
+	assert(arena_err == nil)
+	defer virtual.arena_destroy(&arena)
+	arena_alloc := virtual.arena_allocator(&arena)
 
 	accepted := [?][]runtime.Load_Directory_File{examples_files, good_files}
 	for group in accepted {
 		for file in group {
-			if !scan_and_lex(t, file.name, string(file.data), &blocks, &tokens, &errors) {
+			parsed, ok := parse(file.name, string(file.data), arena_alloc)
+			if !ok || len(parsed.errors) != 0 {
 				testing.expectf(
 					t,
 					false,
 					"%s: %s at %v",
 					file.name,
-					errors[0].message,
-					errors[0].span,
+					parsed.errors[0].message if len(parsed.errors) > 0 else "no error",
+					parsed.errors[0].span if len(parsed.errors) > 0 else Span{},
 				)
 			}
+			virtual.arena_free_all(&arena)
 		}
 	}
 
 	for file in bad_files {
-		scan_and_lex(t, file.name, string(file.data), &blocks, &tokens, &errors)
-		testing.expectf(t, len(errors) <= 1, "%s: %d errors", file.name, len(errors))
+		parsed, ok := parse(file.name, string(file.data), arena_alloc)
+		testing.expectf(
+			t,
+			!ok && len(parsed.errors) == 1,
+			"%s: ok=%v, %d errors",
+			file.name,
+			ok,
+			len(parsed.errors),
+		)
+		virtual.arena_free_all(&arena)
 	}
 }
 

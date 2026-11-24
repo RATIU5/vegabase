@@ -28,6 +28,11 @@ NESTED_TOO_DEEPLY :: "nesting is too deep"
 
 MAX_NESTING :: 64
 
+Open_Tag :: struct {
+	opener, last: Part_Id,
+	has_else:     bool,
+}
+
 Parser :: struct {
 	file:        ^File,
 	tokens:      []Token,
@@ -35,6 +40,7 @@ Parser :: struct {
 	entry_stack: [dynamic]Entry,
 	type_stack:  [dynamic]Type,
 	expr_stack:  [dynamic]Expr_Id,
+	open_tags:   [dynamic]Open_Tag,
 	depth:       int,
 }
 
@@ -70,6 +76,7 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		entry_stack = make([dynamic]Entry, allocator),
 		type_stack  = make([dynamic]Type, allocator),
 		expr_stack  = make([dynamic]Expr_Id, allocator),
+		open_tags   = make([dynamic]Open_Tag, allocator),
 	}
 	rest := blocks[:]
 	if len(blocks) > 0 && strings.trim_space(src[:blocks[0].span.start]) == "" {

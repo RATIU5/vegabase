@@ -2,6 +2,12 @@ package vega
 
 EXPECTED_BLOCK_END :: "expected }} to end the block"
 EXPECTED_IN :: "expected in"
+ELIF_OUTSIDE_IF :: "{{elif}} is not inside an open {{if}}"
+ELSE_OUTSIDE_IF :: "{{else}} is not inside an open {{if}}"
+END_IF_CLOSES_NOTHING :: "{{/if}} closes nothing"
+END_FOR_CLOSES_NOTHING :: "{{/for}} closes nothing"
+IF_NEVER_CLOSED :: "{{if}} is never closed"
+FOR_NEVER_CLOSED :: "{{for}} is never closed"
 
 add_html :: proc(p: ^Parser, start, end: int) {
 	if start == end {
@@ -84,6 +90,37 @@ parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
 	return true
 }
 
+nest_part :: proc(p: ^Parser, part: ^Part) -> bool {
+	parts := p.file.parts[:]
+	id := Part_Id(len(parts))
+	top := len(p.open_tags) - 1
+	switch part.kind {
+	case .If, .For:
+		append(&p.open_tags, Open_Tag{opener = id, last = id})
+	case .Elif, .Else:
+		if top < 0 || parts[p.open_tags[top].opener].kind != .If || p.open_tags[top].has_else {
+			message := ELIF_OUTSIDE_IF if part.kind == .Elif else ELSE_OUTSIDE_IF
+			return fail(&p.file.errors, int(part.span.start), int(part.span.end), message)
+		}
+		tag := &p.open_tags[top]
+		parts[tag.last].closes = id
+		tag.last = id
+		tag.has_else = part.kind == .Else
+	case .End_If, .End_For:
+		want := Part_Kind.If if part.kind == .End_If else Part_Kind.For
+		if top < 0 || parts[p.open_tags[top].opener].kind != want {
+			message := END_IF_CLOSES_NOTHING if part.kind == .End_If else END_FOR_CLOSES_NOTHING
+			return fail(&p.file.errors, int(part.span.start), int(part.span.end), message)
+		}
+		tag := p.open_tags[top]
+		parts[tag.last].closes = id
+		part.closes = tag.opener
+		pop(&p.open_tags)
+	case .Html, .Value, .Slot, .Render:
+	}
+	return true
+}
+
 parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> bool {
 	at := int(p.file.template.start)
 	for block in blocks {
@@ -103,8 +140,14 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> 
 		if peek(p).kind != .End {
 			return parse_fail(p, peek(p), EXPECTED_BLOCK_END)
 		}
+		nest_part(p, &part) or_return
 		append(&p.file.parts, part)
 	}
 	add_html(p, at, len(p.file.src))
+	if len(p.open_tags) > 0 {
+		open := p.file.parts[p.open_tags[len(p.open_tags) - 1].opener]
+		message := IF_NEVER_CLOSED if open.kind == .If else FOR_NEVER_CLOSED
+		return fail(&p.file.errors, int(open.span.start), int(open.span.end), message)
+	}
 	return true
 }

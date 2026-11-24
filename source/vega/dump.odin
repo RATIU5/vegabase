@@ -295,6 +295,9 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 				write_entries(&b, file, starts, 2, "Entries", part.entries)
 			}
 			write_expr(&b, file, starts, 2, part.expr)
+			if part.closes != 0 {
+				write_node(&b, file, starts, 2, "Closes", file.parts[part.closes].span, false)
+			}
 		}
 	}
 	return strings.to_string(b)

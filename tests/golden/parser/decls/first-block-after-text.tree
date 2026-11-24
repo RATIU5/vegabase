@@ -1,2 +1,2 @@
 File@0..30 1:1
-Error@9..12 2:4 "expected an expression"
+Error@9..12 2:4 "use, template and declarations belong in the first block"

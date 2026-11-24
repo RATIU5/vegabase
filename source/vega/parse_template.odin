@@ -8,6 +8,7 @@ END_IF_CLOSES_NOTHING :: "{{/if}} closes nothing"
 END_FOR_CLOSES_NOTHING :: "{{/for}} closes nothing"
 IF_NEVER_CLOSED :: "{{if}} is never closed"
 FOR_NEVER_CLOSED :: "{{for}} is never closed"
+STATEMENT_OUTSIDE_FIRST_BLOCK :: "use, template and declarations belong in the first block"
 
 add_html :: proc(p: ^Parser, start, end: int) {
 	if start == end {
@@ -120,6 +121,10 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> 
 		}
 		part := Part {
 			span = block.span,
+		}
+		if kind := peek(p).kind;
+		   kind == .Use || kind == .Template || peek(p, 1).kind == .Colon_Colon {
+			return parse_fail(p, peek(p), STATEMENT_OUTSIDE_FIRST_BLOCK)
 		}
 		parse_tag(p, &part) or_return
 		if peek(p).kind != .End {

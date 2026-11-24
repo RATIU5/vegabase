@@ -1,0 +1,6 @@
+{{
+  use std
+  use maps
+  template Hero
+}}
+<p>hi</p>

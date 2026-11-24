@@ -1,0 +1,22 @@
+{{
+  Hero :: component {
+    @{ label = "Hero" }
+    fields {
+      heading: Headline = "Welcome"
+    }
+  }
+
+  Page :: content {
+    props { title: Text }
+  }
+
+  Tone :: "light" | "dark"
+  Headline :: Text { max = 80 } @{ label = t("headline.label") }
+  Image :: std.Image
+
+  en :: locale {
+    hero = { label = "Hero" }
+  }
+  pt_BR :: locale { hero = { label = "Heroi" } }
+  or :: locale { ok = "ok" }
+}}

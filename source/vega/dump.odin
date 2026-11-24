@@ -75,3 +75,47 @@ dump_tokens :: proc(src: string, allocator := context.allocator) -> string {
 	}
 	return strings.to_string(b)
 }
+
+write_node :: proc(
+	b: ^strings.Builder,
+	file: ^File,
+	starts: []u32,
+	depth: int,
+	label: string,
+	span: Span,
+	with_text := true,
+) {
+	for _ in 0 ..< depth {
+		strings.write_string(b, "  ")
+	}
+	write_head(b, starts, label, span)
+	if with_text {
+		strings.write_byte(b, ' ')
+		write_quoted(b, file.src[span.start:span.end])
+	}
+	strings.write_byte(b, '\n')
+}
+
+dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
+	b := strings.builder_make(allocator)
+	starts := line_starts(file.src, allocator)
+	defer delete(starts)
+
+	write_node(&b, file, starts, 0, "File", {0, u32(len(file.src))}, false)
+	for use in file.uses {
+		write_node(&b, file, starts, 1, "Use", use)
+	}
+	if file.template_type != {} {
+		write_node(&b, file, starts, 1, "Template_Type", file.template_type)
+	}
+	for decl in file.decls[1:] {
+		write_node(&b, file, starts, 1, reflect.enum_string(decl.kind), decl.span, false)
+		write_node(&b, file, starts, 2, "Name", decl.name)
+	}
+	if len(file.errors) > 0 {
+		write_error(&b, starts, file.errors[len(file.errors) - 1])
+	} else {
+		write_node(&b, file, starts, 1, "Template_Text", file.template)
+	}
+	return strings.to_string(b)
+}

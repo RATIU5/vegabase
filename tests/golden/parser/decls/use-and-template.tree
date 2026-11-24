@@ -1,0 +1,5 @@
+File@0..53 1:1
+  Use@9..12 2:7 "std"
+  Use@19..23 3:7 "maps"
+  Template_Type@35..39 4:12 "Hero"
+  Template_Text@42..53 5:3 "\n<p>hi</p>\n"

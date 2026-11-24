@@ -1,0 +1,18 @@
+File@0..406 1:1
+  Component@5..107 2:3
+    Name@5..9 2:3 "Hero"
+  Content@111..158 9:3
+    Name@111..115 9:3 "Page"
+  Alias@162..186 13:3
+    Name@162..166 13:3 "Tone"
+  Alias@189..251 14:3
+    Name@189..197 14:3 "Headline"
+  Alias@254..272 15:3
+    Name@254..259 15:3 "Image"
+  Locale@276..324 17:3
+    Name@276..278 17:3 "en"
+  Locale@327..373 20:3
+    Name@327..332 20:3 "pt_BR"
+  Locale@376..402 21:3
+    Name@376..378 21:3 "or"
+  Template_Text@405..406 22:3 "\n"

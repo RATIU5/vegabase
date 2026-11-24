@@ -1,0 +1,2 @@
+File@0..27 1:1
+Error@3..10 1:4 "locale name must be a language code such as en or pt_BR"

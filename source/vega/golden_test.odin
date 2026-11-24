@@ -1,5 +1,7 @@
 package vega
 
+import "base:runtime"
+import "core:mem/virtual"
 import "core:os"
 import "core:strings"
 import "core:testing"
@@ -7,6 +9,9 @@ import "core:testing"
 VEGA_UPDATE_GOLDEN :: #config(VEGA_UPDATE_GOLDEN, false)
 
 GOLDEN_LEXER_DIR :: #directory + "/../../tests/golden/lexer"
+GOLDEN_PARSER_DIR :: #directory + "/../../tests/golden/parser"
+
+Golden_Dump :: proc(path, src: string, allocator: runtime.Allocator) -> string
 
 first_difference :: proc(want, got: string) -> (line: int, want_line, got_line: string) {
 	want := want
@@ -24,29 +29,35 @@ first_difference :: proc(want, got: string) -> (line: int, want_line, got_line: 
 	}
 }
 
-check_golden :: proc(t: ^testing.T, path: string) {
+check_golden :: proc(
+	t: ^testing.T,
+	path, ext: string,
+	dump: Golden_Dump,
+	allocator: runtime.Allocator,
+) {
 	data, read_err := os.read_entire_file(path, context.allocator)
 	if !testing.expectf(t, read_err == nil, "%s: cannot read: %v", path, read_err) {
 		return
 	}
 	defer delete(data)
 
-	got := dump_tokens(string(data))
+	got := dump(path, string(data), allocator)
 	defer delete(got)
 
-	tokens_path := strings.concatenate({path[:len(path) - len(".vega")], ".tokens"})
-	defer delete(tokens_path)
+	golden_path := strings.concatenate({path[:len(path) - len(".vega")], ext})
+	defer delete(golden_path)
 
 	when VEGA_UPDATE_GOLDEN {
-		write_err := os.write_entire_file(tokens_path, got)
-		testing.expectf(t, write_err == nil, "%s: cannot write: %v", tokens_path, write_err)
+		write_err := os.write_entire_file(golden_path, got)
+		testing.expectf(t, write_err == nil, "%s: cannot write: %v", golden_path, write_err)
 	} else {
-		want, want_err := os.read_entire_file(tokens_path, context.allocator)
+		want, want_err := os.read_entire_file(golden_path, context.allocator)
 		if !testing.expectf(
 			t,
 			want_err == nil,
-			"%s: missing .tokens; run with -define:VEGA_UPDATE_GOLDEN=true",
+			"%s: missing %s; run with -define:VEGA_UPDATE_GOLDEN=true",
 			path,
+			ext,
 		) {
 			return
 		}
@@ -55,13 +66,13 @@ check_golden :: proc(t: ^testing.T, path: string) {
 		if string(want) != got {
 			line, want_line, got_line := first_difference(string(want), got)
 			if line == 0 {
-				testing.expectf(t, false, "%s: files differ only in trailing lines", tokens_path)
+				testing.expectf(t, false, "%s: files differ only in trailing lines", golden_path)
 			} else {
 				testing.expectf(
 					t,
 					false,
 					"%s: differs at line %d\n  want: %s\n  got:  %s",
-					tokens_path,
+					golden_path,
 					line,
 					want_line,
 					got_line,
@@ -71,9 +82,14 @@ check_golden :: proc(t: ^testing.T, path: string) {
 	}
 }
 
-@(test)
-golden_lexer :: proc(t: ^testing.T) {
-	walker := os.walker_create(GOLDEN_LEXER_DIR)
+check_golden_dir :: proc(t: ^testing.T, dir, ext: string, dump: Golden_Dump) {
+	arena: virtual.Arena
+	arena_err := virtual.arena_init_growing(&arena)
+	assert(arena_err == nil)
+	defer virtual.arena_destroy(&arena)
+	arena_alloc := virtual.arena_allocator(&arena)
+
+	walker := os.walker_create(dir)
 	defer os.walker_destroy(&walker)
 
 	count := 0
@@ -82,10 +98,30 @@ golden_lexer :: proc(t: ^testing.T) {
 			continue
 		}
 		count += 1
-		check_golden(t, info.fullpath)
+		check_golden(t, info.fullpath, ext, dump, arena_alloc)
+		virtual.arena_free_all(&arena)
 	}
 	if path, err := os.walker_error(&walker); err != nil {
 		testing.expectf(t, false, "%s: cannot walk: %v", path, err)
 	}
-	testing.expectf(t, count > 0, "%s: no .vega files found", GOLDEN_LEXER_DIR)
+	testing.expectf(t, count > 0, "%s: no .vega files found", dir)
+}
+
+dump_lexer_golden :: proc(_, src: string, _: runtime.Allocator) -> string {
+	return dump_tokens(src)
+}
+
+dump_parser_golden :: proc(path, src: string, allocator: runtime.Allocator) -> string {
+	file, _ := parse(path, src, allocator)
+	return dump_tree(&file)
+}
+
+@(test)
+golden_lexer :: proc(t: ^testing.T) {
+	check_golden_dir(t, GOLDEN_LEXER_DIR, ".tokens", dump_lexer_golden)
+}
+
+@(test)
+golden_parser :: proc(t: ^testing.T) {
+	check_golden_dir(t, GOLDEN_PARSER_DIR, ".tree", dump_parser_golden)
 }

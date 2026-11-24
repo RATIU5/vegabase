@@ -62,7 +62,7 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 | `DECIMAL` | digits, `.`, digits (lang D-70) |
 | `HOST_VALUE` | `$`, then names joined by `.` |
 
-Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`.
+Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. A reserved word counts only as a whole word, so `iffy` and `format` are names.
 
 Spaces and tabs are ignored. A line break separates entries inside `{ }` and `[ ]`, and is ignored inside `( )`. Nothing else may span lines (lang D-45).
 

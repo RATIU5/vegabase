@@ -1,0 +1,17 @@
+{{
+  Card :: component {
+    fields {
+      iffy: Text
+      slotted: Text
+      format: Text
+      notice: Bool
+      truely: Bool
+      offset: Int
+    }
+  }
+
+  template Card
+}}
+<p>{{iffy}} {{slotted}} {{format}} {{notice}} {{orange}} {{nullish}}</p>
+{{if notice and truely}}{{offset}}{{/if}}
+{{for inner in format}}{{inner}}{{/for}}

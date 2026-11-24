@@ -5,7 +5,7 @@ parse_record :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 	if open.kind != .Open_Brace {
 		return {}, parse_fail(p, open, EXPECTED_OPEN_BRACE)
 	}
-	if p.depth == MAX_NESTING {
+	if p.depth >= MAX_NESTING {
 		return {}, parse_fail(p, open, NESTED_TOO_DEEPLY)
 	}
 	p.depth += 1

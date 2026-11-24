@@ -79,7 +79,7 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		open_tags   = make([dynamic]Open_Tag, allocator),
 	}
 	rest := blocks[:]
-	if len(blocks) > 0 && strings.trim_space(src[:blocks[0].span.start]) == "" {
+	if len(blocks) > 0 && strings.trim(src[:blocks[0].span.start], " \t\r\n") == "" {
 		first := blocks[0]
 		file.template.start = first.span.end
 		if !lex(src, first.code, &tokens, &file.errors) {

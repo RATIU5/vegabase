@@ -125,3 +125,24 @@ nesting_too_deep :: proc(t: ^testing.T) {
 	strings.write_string(&b, "\n    }\n  }\n}}\n")
 	expect_nesting_rejected(t, strings.to_string(b))
 }
+
+@(test)
+first_block_leading_whitespace :: proc(t: ^testing.T) {
+	arena: virtual.Arena
+	arena_err := virtual.arena_init_growing(&arena)
+	assert(arena_err == nil)
+	defer virtual.arena_destroy(&arena)
+	arena_alloc := virtual.arena_allocator(&arena)
+
+	parsed, ok := parse("a.vega", " \t\r\n{{\n  use std\n}}\n", arena_alloc)
+	testing.expect(t, ok)
+	testing.expect_value(t, len(parsed.errors), 0)
+	virtual.arena_free_all(&arena)
+
+	parsed, ok = parse("b.vega", "\v{{use std}}\n", arena_alloc)
+	testing.expect(t, !ok)
+	testing.expect_value(t, len(parsed.errors), 1)
+	if len(parsed.errors) == 1 {
+		testing.expect_value(t, parsed.errors[0].message, STATEMENT_OUTSIDE_FIRST_BLOCK)
+	}
+}

@@ -27,7 +27,7 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 
 - A block starts at `{{` and ends at the first `}}` that is outside a string, outside a comment, and not inside an open `{ }`.
 - A comment starts at `#` and runs to the end of the line or to `}}`.
-- A block at the very start of the file is the first block. Every other block is a later block.
+- A block with only spaces, tabs and line breaks before it is the first block. Every other block is a later block.
 - `if` and `for` must be closed by `/if` and `/for` in order. `elif` and `else` sit inside an open `if`, and nothing follows `else` but `/if`.
 
 **Code layer**, the rules in `vega.lark`. It has two entry points:

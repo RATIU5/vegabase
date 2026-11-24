@@ -42,7 +42,7 @@ check_golden :: proc(
 	defer delete(data)
 
 	got := dump(path, string(data), allocator)
-	defer delete(got)
+	defer delete(got, allocator)
 
 	golden_path := strings.concatenate({path[:len(path) - len(".vega")], ext})
 	defer delete(golden_path)
@@ -107,13 +107,13 @@ check_golden_dir :: proc(t: ^testing.T, dir, ext: string, dump: Golden_Dump) {
 	testing.expectf(t, count > 0, "%s: no .vega files found", dir)
 }
 
-dump_lexer_golden :: proc(_, src: string, _: runtime.Allocator) -> string {
-	return dump_tokens(src)
+dump_lexer_golden :: proc(_, src: string, allocator: runtime.Allocator) -> string {
+	return dump_tokens(src, allocator)
 }
 
 dump_parser_golden :: proc(path, src: string, allocator: runtime.Allocator) -> string {
 	file, _ := parse(path, src, allocator)
-	return dump_tree(&file)
+	return dump_tree(&file, allocator)
 }
 
 @(test)

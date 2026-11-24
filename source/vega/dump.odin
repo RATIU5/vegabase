@@ -50,7 +50,7 @@ dump_tokens :: proc(src: string, allocator := context.allocator) -> string {
 
 	b := strings.builder_make(allocator)
 	starts := line_starts(src, allocator)
-	defer delete(starts)
+	defer delete(starts, allocator)
 
 	scanned := scan(src, &blocks, &errors)
 	for block in blocks {
@@ -259,7 +259,7 @@ write_decl :: proc(b: ^strings.Builder, file: ^File, starts: []u32, decl: Decl) 
 dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 	b := strings.builder_make(allocator)
 	starts := line_starts(file.src, allocator)
-	defer delete(starts)
+	defer delete(starts, allocator)
 
 	write_node(&b, file, starts, 0, "File", {0, u32(len(file.src))}, false)
 	for use in file.uses {

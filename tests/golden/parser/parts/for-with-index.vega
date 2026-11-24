@@ -1,0 +1,2 @@
+<p>{{for item in items}}{{item}}{{/for}}</p>
+<p>{{for item, i in items}}{{i}}{{/for}}</p>

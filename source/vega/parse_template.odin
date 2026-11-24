@@ -1,10 +1,11 @@
 package vega
 
 EXPECTED_BLOCK_END :: "expected }} to end the block"
+EXPECTED_IN :: "expected in"
 
 is_tag_keyword :: proc(kind: Token_Kind) -> bool {
 	#partial switch kind {
-	case .For, .End_For, .Slot, .Render:
+	case .Slot, .Render:
 		return true
 	}
 	return false
@@ -15,6 +16,51 @@ add_html :: proc(p: ^Parser, start, end: int) {
 		return
 	}
 	append(&p.file.parts, Part{kind = .Html, span = {u32(start), u32(end)}, position = .Text})
+}
+
+parse_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {
+	name := peek(p)
+	if name.kind != .Name {
+		return {}, parse_fail(p, name, EXPECTED_NAME)
+	}
+	p.pos += 1
+	return name.span, true
+}
+
+parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
+	token := peek(p)
+	#partial switch token.kind {
+	case .If, .Elif:
+		part.kind = .If if token.kind == .If else .Elif
+		p.pos += 1
+		part.expr = parse_expr(p) or_return
+	case .Else:
+		part.kind = .Else
+		p.pos += 1
+	case .End_If:
+		part.kind = .End_If
+		p.pos += 1
+	case .For:
+		part.kind = .For
+		p.pos += 1
+		part.item = parse_name(p) or_return
+		if peek(p).kind == .Comma {
+			p.pos += 1
+			part.index = parse_name(p) or_return
+		}
+		if peek(p).kind != .In {
+			return parse_fail(p, peek(p), EXPECTED_IN)
+		}
+		p.pos += 1
+		part.expr = parse_expr(p) or_return
+	case .End_For:
+		part.kind = .End_For
+		p.pos += 1
+	case:
+		part.kind = .Value
+		part.expr = parse_expr(p) or_return
+	}
+	return true
 }
 
 parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> bool {
@@ -31,25 +77,9 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> 
 			continue
 		}
 		part := Part {
-			kind = .Value,
 			span = block.span,
 		}
-		#partial switch kind {
-		case .If:
-			part.kind = .If
-		case .Elif:
-			part.kind = .Elif
-		case .Else:
-			part.kind = .Else
-		case .End_If:
-			part.kind = .End_If
-		}
-		if part.kind != .Value {
-			p.pos += 1
-		}
-		if part.kind == .Value || part.kind == .If || part.kind == .Elif {
-			part.expr = parse_expr(p) or_return
-		}
+		parse_tag(p, &part) or_return
 		if peek(p).kind != .End {
 			return parse_fail(p, peek(p), EXPECTED_BLOCK_END)
 		}

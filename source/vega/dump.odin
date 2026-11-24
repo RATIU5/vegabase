@@ -284,6 +284,12 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 				part.span,
 				part.kind == .Html,
 			)
+			if part.kind == .For {
+				write_node(&b, file, starts, 2, "Item", part.item)
+				if part.index != {} {
+					write_node(&b, file, starts, 2, "Index", part.index)
+				}
+			}
 			write_expr(&b, file, starts, 2, part.expr)
 		}
 	}

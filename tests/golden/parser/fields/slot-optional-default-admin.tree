@@ -1,0 +1,14 @@
+File@0..104 1:1
+  Component@5..100 2:3
+    Name@5..9 2:3 "Card"
+    Fields@44..90 4:7
+      Field(slot,optional)@44..90 4:7
+        Name@44..48 4:7 "body"
+        Named@55..59 4:18 "Text"
+          Name@55..59 4:18 "Text"
+        Expr@63..70 4:26 "\"hello\""
+        Admin@74..88 4:37
+          Entry@74..88 4:37
+            Key@74..79 4:37 "label"
+            Expr@82..88 4:45 "\"Body\""
+  Template_Text@103..104 7:3 "\n"

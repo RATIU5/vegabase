@@ -96,6 +96,101 @@ write_node :: proc(
 	strings.write_byte(b, '\n')
 }
 
+write_expr :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, id: Expr_Id) {
+	if id != 0 {
+		write_node(b, file, starts, depth, "Expr", file.exprs[id].span)
+	}
+}
+
+write_entries :: proc(
+	b: ^strings.Builder,
+	file: ^File,
+	starts: []u32,
+	depth: int,
+	label: string,
+	range: Range,
+) {
+	if range.count == 0 {
+		return
+	}
+	entries := file.entries[range.first:][:range.count]
+	span := Span{entries[0].span.start, entries[len(entries) - 1].span.end}
+	write_node(b, file, starts, depth, label, span, false)
+	for entry in entries {
+		write_node(b, file, starts, depth + 1, "Entry", entry.span, false)
+		write_node(b, file, starts, depth + 2, "Key", entry.key)
+		if entry.type != 0 {
+			write_type(b, file, starts, depth + 2, entry.type)
+		}
+		write_expr(b, file, starts, depth + 2, entry.value)
+	}
+}
+
+write_type :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, id: Type_Id) {
+	t := file.types[id]
+	write_node(b, file, starts, depth, reflect.enum_string(t.kind), t.span)
+	switch t.kind {
+	case .Named:
+		if t.prefix != {} {
+			write_node(b, file, starts, depth + 1, "Prefix", t.prefix)
+		}
+		write_node(b, file, starts, depth + 1, "Name", t.name)
+	case .Literal:
+	case .Union:
+		for i in 0 ..< t.members.count {
+			write_type(b, file, starts, depth + 1, Type_Id(t.members.first + i))
+		}
+	}
+	write_entries(b, file, starts, depth + 1, "Limits", t.limits)
+}
+
+field_label :: proc(field: Field) -> string {
+	switch {
+	case field.is_slot && field.optional:
+		return "Field(slot,optional)"
+	case field.is_slot:
+		return "Field(slot)"
+	case field.optional:
+		return "Field(optional)"
+	}
+	return "Field"
+}
+
+write_fields :: proc(
+	b: ^strings.Builder,
+	file: ^File,
+	starts: []u32,
+	depth: int,
+	label: string,
+	range: Range,
+) {
+	if range.count == 0 {
+		return
+	}
+	fields := file.fields[range.first:][:range.count]
+	span := Span{fields[0].span.start, fields[len(fields) - 1].span.end}
+	write_node(b, file, starts, depth, label, span, false)
+	for field in fields {
+		write_node(b, file, starts, depth + 1, field_label(field), field.span, false)
+		write_node(b, file, starts, depth + 2, "Name", field.name)
+		write_type(b, file, starts, depth + 2, field.type)
+		write_expr(b, file, starts, depth + 2, field.default)
+		write_entries(b, file, starts, depth + 2, "Admin", field.admin)
+	}
+}
+
+write_decl :: proc(b: ^strings.Builder, file: ^File, starts: []u32, decl: Decl) {
+	write_node(b, file, starts, 1, reflect.enum_string(decl.kind), decl.span, false)
+	write_node(b, file, starts, 2, "Name", decl.name)
+	write_entries(b, file, starts, 2, "Admin", decl.admin)
+	write_fields(b, file, starts, 2, "Fields", decl.fields)
+	write_fields(b, file, starts, 2, "Props", decl.props)
+	if decl.type != 0 {
+		write_type(b, file, starts, 2, decl.type)
+	}
+	write_entries(b, file, starts, 2, "Entries", decl.entries)
+}
+
 dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 	b := strings.builder_make(allocator)
 	starts := line_starts(file.src, allocator)
@@ -109,8 +204,7 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 		write_node(&b, file, starts, 1, "Template_Type", file.template_type)
 	}
 	for decl in file.decls[1:] {
-		write_node(&b, file, starts, 1, reflect.enum_string(decl.kind), decl.span, false)
-		write_node(&b, file, starts, 2, "Name", decl.name)
+		write_decl(&b, file, starts, decl)
 	}
 	if len(file.errors) > 0 {
 		write_error(&b, starts, file.errors[len(file.errors) - 1])

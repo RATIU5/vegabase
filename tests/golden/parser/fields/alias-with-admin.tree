@@ -1,0 +1,14 @@
+File@0..55 1:1
+  Alias@5..51 2:3
+    Name@5..13 2:3 "Headline"
+    Admin@38..49 2:36
+      Entry@38..49 2:36
+        Key@38..43 2:36 "label"
+        Expr@46..49 2:44 "\"x\""
+    Named@17..34 2:15 "Text { max = 80 }"
+      Name@17..21 2:15 "Text"
+      Limits@24..32 2:22
+        Entry@24..32 2:22
+          Key@24..27 2:22 "max"
+          Expr@30..32 2:28 "80"
+  Template_Text@54..55 3:3 "\n"

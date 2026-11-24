@@ -1,0 +1,7 @@
+{{
+  Card :: component {
+    fields {
+      body: slot Text? = "hello" @{ label = "Body" }
+    }
+  }
+}}

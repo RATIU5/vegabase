@@ -1,0 +1,6 @@
+{{
+  Card :: component {
+    fields { a: Text }
+    fields { b: Text }
+  }
+}}

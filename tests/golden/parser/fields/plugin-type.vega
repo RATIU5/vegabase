@@ -1,0 +1,11 @@
+{{
+  use std
+  use maps
+
+  Card :: component {
+    fields {
+      image: std.Image
+      map: maps.Map
+    }
+  }
+}}

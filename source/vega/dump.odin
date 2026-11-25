@@ -36,7 +36,7 @@ write_head :: proc(b: ^strings.Builder, starts: []u32, label: string, span: Span
 write_error :: proc(b: ^strings.Builder, starts: []u32, err: Error) {
 	write_head(b, starts, "Error", err.span)
 	strings.write_byte(b, ' ')
-	write_quoted(b, err.message)
+	write_quoted(b, ERROR_MESSAGES[err.code])
 	strings.write_byte(b, '\n')
 }
 

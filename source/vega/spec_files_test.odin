@@ -27,7 +27,7 @@ spec_files :: proc(t: ^testing.T) {
 					false,
 					"%s: %s at %v",
 					file.name,
-					parsed.errors[0].message if len(parsed.errors) > 0 else "no error",
+					ERROR_MESSAGES[parsed.errors[0].code] if len(parsed.errors) > 0 else "no error",
 					parsed.errors[0].span if len(parsed.errors) > 0 else Span{},
 				)
 			}
@@ -91,7 +91,7 @@ expect_nesting_rejected :: proc(t: ^testing.T, src: string) {
 	testing.expect(t, !ok)
 	testing.expect(t, len(file.errors) == 1)
 	if len(file.errors) == 1 {
-		testing.expect_value(t, file.errors[0].message, NESTED_TOO_DEEPLY)
+		testing.expect_value(t, file.errors[0].code, Error_Code.Nested_Too_Deeply)
 	}
 }
 
@@ -143,6 +143,6 @@ first_block_leading_whitespace :: proc(t: ^testing.T) {
 	testing.expect(t, !ok)
 	testing.expect_value(t, len(parsed.errors), 1)
 	if len(parsed.errors) == 1 {
-		testing.expect_value(t, parsed.errors[0].message, STATEMENT_OUTSIDE_FIRST_BLOCK)
+		testing.expect_value(t, parsed.errors[0].code, Error_Code.Statement_Outside_First_Block)
 	}
 }

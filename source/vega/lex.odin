@@ -2,8 +2,6 @@ package vega
 
 import "core:unicode/utf8"
 
-UNEXPECTED_CHARACTER :: "unexpected character"
-
 Token_Kind :: enum u8 {
 	Invalid,
 	End,
@@ -146,10 +144,10 @@ lex_string :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int
 		case c == '"':
 			return i + 1, true
 		case c == '\n':
-			return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
+			return 0, fail(errors, start, start + 1, .String_Never_Closed)
 		case c == '\\':
 			if i + 1 >= len(s) {
-				return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
+				return 0, fail(errors, start, start + 1, .String_Never_Closed)
 			}
 			escaped := s[i + 1]
 			if escaped == '"' || escaped == '\\' {
@@ -160,18 +158,18 @@ lex_string :: proc(s: string, start: int, errors: ^[dynamic]Error) -> (next: int
 			if escaped >= 0x80 {
 				_, width = utf8.decode_rune_in_string(s[i + 1:])
 			}
-			return 0, fail(errors, i, i + 1 + width, "unknown escape in string")
+			return 0, fail(errors, i, i + 1 + width, .Unknown_Escape)
 		case c >= 0x80:
 			r, width := utf8.decode_rune_in_string(s[i:])
 			if r == utf8.RUNE_ERROR && width == 1 {
-				return 0, fail(errors, i, i + 1, "string is not valid UTF-8")
+				return 0, fail(errors, i, i + 1, .Invalid_Utf8)
 			}
 			i += width
 		case:
 			i += 1
 		}
 	}
-	return 0, fail(errors, start, start + 1, STRING_NEVER_CLOSED)
+	return 0, fail(errors, start, start + 1, .String_Never_Closed)
 }
 
 lex_number :: proc(s: string, start: int) -> (kind: Token_Kind, next: int) {
@@ -315,7 +313,7 @@ lex :: proc(
 				i += 2
 				kind = .Newline
 			} else {
-				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
+				return fail(errors, i, i + 1, .Unexpected_Character)
 			}
 		case '#':
 			for i < end && s[i] != '\n' {
@@ -348,7 +346,7 @@ lex :: proc(
 				i = lex_host_value(s, i)
 				kind = .Host_Value
 			} else {
-				return fail(errors, i, i + 1, UNEXPECTED_CHARACTER)
+				return fail(errors, i, i + 1, .Unexpected_Character)
 			}
 		case '/':
 			kind, i = lex_slash(s, i, end)
@@ -362,7 +360,7 @@ lex :: proc(
 				if c >= 0x80 {
 					_, width = utf8.decode_rune_in_string(s[i:])
 				}
-				return fail(errors, i, i + width, UNEXPECTED_CHARACTER)
+				return fail(errors, i, i + width, .Unexpected_Character)
 			}
 		}
 

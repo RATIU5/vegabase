@@ -1,15 +1,5 @@
 package vega
 
-EXPECTED_BLOCK_END :: "expected }} to end the block"
-EXPECTED_IN :: "expected in"
-ELIF_OUTSIDE_IF :: "{{elif}} is not inside an open {{if}}"
-ELSE_OUTSIDE_IF :: "{{else}} is not inside an open {{if}}"
-END_IF_CLOSES_NOTHING :: "{{/if}} closes nothing"
-END_FOR_CLOSES_NOTHING :: "{{/for}} closes nothing"
-IF_NEVER_CLOSED :: "{{if}} is never closed"
-FOR_NEVER_CLOSED :: "{{for}} is never closed"
-STATEMENT_OUTSIDE_FIRST_BLOCK :: "use, template and declarations belong in the first block"
-
 add_html :: proc(p: ^Parser, start, end: int) {
 	if start == end {
 		return
@@ -20,7 +10,7 @@ add_html :: proc(p: ^Parser, start, end: int) {
 parse_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {
 	name := peek(p)
 	if name.kind != .Name {
-		return {}, parse_fail(p, name, EXPECTED_NAME)
+		return {}, parse_fail(p, name, .Expected_Name)
 	}
 	p.pos += 1
 	return name.span, true
@@ -48,7 +38,7 @@ parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
 			part.index = parse_name(p) or_return
 		}
 		if peek(p).kind != .In {
-			return parse_fail(p, peek(p), EXPECTED_IN)
+			return parse_fail(p, peek(p), .Expected_In)
 		}
 		p.pos += 1
 		part.expr = parse_expr(p) or_return
@@ -85,8 +75,8 @@ nest_part :: proc(p: ^Parser, part: ^Part) -> bool {
 		append(&p.open_tags, Open_Tag{opener = id, last = id})
 	case .Elif, .Else:
 		if top < 0 || parts[p.open_tags[top].opener].kind != .If || p.open_tags[top].has_else {
-			message := ELIF_OUTSIDE_IF if part.kind == .Elif else ELSE_OUTSIDE_IF
-			return fail(&p.file.errors, int(part.span.start), int(part.span.end), message)
+			code := Error_Code.Elif_Outside_If if part.kind == .Elif else .Else_Outside_If
+			return fail(&p.file.errors, int(part.span.start), int(part.span.end), code)
 		}
 		tag := &p.open_tags[top]
 		parts[tag.last].closes = id
@@ -95,8 +85,11 @@ nest_part :: proc(p: ^Parser, part: ^Part) -> bool {
 	case .End_If, .End_For:
 		want := Part_Kind.If if part.kind == .End_If else Part_Kind.For
 		if top < 0 || parts[p.open_tags[top].opener].kind != want {
-			message := END_IF_CLOSES_NOTHING if part.kind == .End_If else END_FOR_CLOSES_NOTHING
-			return fail(&p.file.errors, int(part.span.start), int(part.span.end), message)
+			code := Error_Code.End_For_Closes_Nothing
+			if part.kind == .End_If {
+				code = .End_If_Closes_Nothing
+			}
+			return fail(&p.file.errors, int(part.span.start), int(part.span.end), code)
 		}
 		tag := p.open_tags[top]
 		parts[tag.last].closes = id
@@ -129,12 +122,12 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token) -> bool {
 		skip_newlines(p)
 		if kind := peek(p).kind;
 		   kind == .Use || kind == .Template || peek(p, 1).kind == .Colon_Colon {
-			return parse_fail(p, peek(p), STATEMENT_OUTSIDE_FIRST_BLOCK)
+			return parse_fail(p, peek(p), .Statement_Outside_First_Block)
 		}
 		p.pos = 0
 		parse_tag(p, &part) or_return
 		if peek(p).kind != .End {
-			return parse_fail(p, peek(p), EXPECTED_BLOCK_END)
+			return parse_fail(p, peek(p), .Expected_Block_End)
 		}
 		nest_part(p, &part) or_return
 		append(&p.file.parts, part)
@@ -142,8 +135,8 @@ parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token) -> bool {
 	add_html(p, at, len(p.file.src))
 	if len(p.open_tags) > 0 {
 		open := p.file.parts[p.open_tags[len(p.open_tags) - 1].opener]
-		message := IF_NEVER_CLOSED if open.kind == .If else FOR_NEVER_CLOSED
-		return fail(&p.file.errors, int(open.span.start), int(open.span.end), message)
+		code := Error_Code.If_Never_Closed if open.kind == .If else .For_Never_Closed
+		return fail(&p.file.errors, int(open.span.start), int(open.span.end), code)
 	}
 	return true
 }

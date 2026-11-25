@@ -3,29 +3,6 @@ package vega
 import "base:runtime"
 import "core:strings"
 
-EXPECTED_STATEMENT :: "expected use, template or a declaration"
-EXPECTED_NEWLINE :: "expected a new line after the statement"
-EXPECTED_NAME :: "expected a name"
-EXPECTED_TYPE_NAME :: "expected a type name"
-EXPECTED_COLON_COLON :: "expected ::"
-EXPECTED_DECLARATION :: "expected component, content or a type after ::"
-EXPECTED_LOCALE :: "expected locale after ::"
-EXPECTED_OPEN_BRACE :: "expected {"
-EXPECTED_BODY_PART :: "expected @, fields or props"
-EXPECTED_PART_END :: "expected a new line or }"
-EXPECTED_COLON :: "expected :"
-EXPECTED_SEPARATOR :: "expected , or a new line or }"
-EXPECTED_EQUAL :: "expected ="
-EXPECTED_ENTRY_KEY :: "expected a name or of"
-EXPECTED_TYPE :: "expected a type"
-EXPECTED_EXPRESSION :: "expected an expression"
-DUPLICATE_ADMIN :: "a declaration can have only one @ block"
-DUPLICATE_FIELDS :: "a declaration can have only one fields group"
-DUPLICATE_PROPS :: "a declaration can have only one props group"
-BAD_LOCALE_NAME :: "locale name must be a language code such as en or pt_BR"
-UNCLOSED_BRACKET :: "bracket is never closed"
-NESTED_TOO_DEEPLY :: "nesting is too deep"
-
 MAX_NESTING :: 64
 
 Open_Tag :: struct {
@@ -90,13 +67,13 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 	return file, ok
 }
 
-parse_fail :: proc(p: ^Parser, token: Token, message: string) -> bool {
-	return fail(&p.file.errors, int(token.span.start), int(token.span.end), message)
+parse_fail :: proc(p: ^Parser, token: Token, code: Error_Code) -> bool {
+	return fail(&p.file.errors, int(token.span.start), int(token.span.end), code)
 }
 
 enter :: proc(p: ^Parser, token: Token) -> bool {
 	if p.depth >= MAX_NESTING {
-		return parse_fail(p, token, NESTED_TOO_DEEPLY)
+		return parse_fail(p, token, .Nested_Too_Deeply)
 	}
 	p.depth += 1
 	return true
@@ -122,7 +99,7 @@ parse_first_block :: proc(p: ^Parser) -> bool {
 			return false
 		}
 		if kind := peek(p).kind; kind != .Newline && kind != .End {
-			return parse_fail(p, peek(p), EXPECTED_NEWLINE)
+			return parse_fail(p, peek(p), .Expected_Newline)
 		}
 	}
 }
@@ -164,7 +141,7 @@ parse_statement :: proc(p: ^Parser) -> bool {
 	case .Use:
 		name := peek(p, 1)
 		if name.kind != .Name {
-			return parse_fail(p, name, EXPECTED_NAME)
+			return parse_fail(p, name, .Expected_Name)
 		}
 		append(&p.file.uses, name.span)
 		p.pos += 2
@@ -172,7 +149,7 @@ parse_statement :: proc(p: ^Parser) -> bool {
 	case .Template:
 		name := peek(p, 1)
 		if name.kind != .Type {
-			return parse_fail(p, name, EXPECTED_TYPE_NAME)
+			return parse_fail(p, name, .Expected_Type_Name)
 		}
 		append(&p.file.templates, name.span)
 		p.pos += 2
@@ -180,17 +157,17 @@ parse_statement :: proc(p: ^Parser) -> bool {
 	case .Type:
 		return parse_declaration(p)
 	}
-	return parse_fail(p, token, EXPECTED_STATEMENT)
+	return parse_fail(p, token, .Expected_Statement)
 }
 
 parse_locale :: proc(p: ^Parser) -> bool {
 	name := peek(p)
 	if !is_locale_name(p.file.src[name.span.start:name.span.end]) {
-		return parse_fail(p, name, BAD_LOCALE_NAME)
+		return parse_fail(p, name, .Bad_Locale_Name)
 	}
 	p.pos += 2
 	if peek(p).kind != .Locale {
-		return parse_fail(p, peek(p), EXPECTED_LOCALE)
+		return parse_fail(p, peek(p), .Expected_Locale)
 	}
 	p.pos += 1
 	decl := Decl {
@@ -205,7 +182,7 @@ parse_locale :: proc(p: ^Parser) -> bool {
 parse_declaration :: proc(p: ^Parser) -> bool {
 	name := peek(p)
 	if peek(p, 1).kind != .Colon_Colon {
-		return parse_fail(p, peek(p, 1), EXPECTED_COLON_COLON)
+		return parse_fail(p, peek(p, 1), .Expected_Colon_Colon)
 	}
 	p.pos += 2
 	decl := Decl {
@@ -220,7 +197,7 @@ parse_declaration :: proc(p: ^Parser) -> bool {
 		parse_body(p, &decl) or_return
 	case .Type, .String, .Name:
 		if body.kind == .Name && (peek(p, 1).kind != .Dot || peek(p, 2).kind != .Type) {
-			return parse_fail(p, body, EXPECTED_DECLARATION)
+			return parse_fail(p, body, .Expected_Declaration)
 		}
 		decl.type = parse_type(p) or_return
 		if peek(p).kind == .At {
@@ -228,7 +205,7 @@ parse_declaration :: proc(p: ^Parser) -> bool {
 			decl.admin = parse_record(p) or_return
 		}
 	case:
-		return parse_fail(p, body, EXPECTED_DECLARATION)
+		return parse_fail(p, body, .Expected_Declaration)
 	}
 	add_decl(p, decl)
 	return true
@@ -240,11 +217,11 @@ add_decl :: proc(p: ^Parser, decl: Decl) {
 	append(&p.file.decls, decl)
 }
 
-parse_fail_in :: proc(p: ^Parser, open: Token, message: string) -> bool {
+parse_fail_in :: proc(p: ^Parser, open: Token, code: Error_Code) -> bool {
 	if peek(p).kind == .End {
-		return parse_fail(p, open, UNCLOSED_BRACKET)
+		return parse_fail(p, open, .Unclosed_Bracket)
 	}
-	return parse_fail(p, peek(p), message)
+	return parse_fail(p, peek(p), code)
 }
 
 skip_newlines :: proc(p: ^Parser) -> (count: int) {
@@ -269,33 +246,33 @@ Body_Part :: enum u8 {
 	Props,
 }
 
-duplicate_message :: proc(part: Body_Part) -> string {
+duplicate_code :: proc(part: Body_Part) -> Error_Code {
 	switch part {
 	case .Admin:
-		return DUPLICATE_ADMIN
+		return .Duplicate_Admin
 	case .Fields:
-		return DUPLICATE_FIELDS
+		return .Duplicate_Fields
 	case .Props:
-		return DUPLICATE_PROPS
+		return .Duplicate_Props
 	}
-	return ""
+	unreachable()
 }
 
 parse_body :: proc(p: ^Parser, decl: ^Decl) -> bool {
 	open := peek(p)
 	if open.kind != .Open_Brace {
-		return parse_fail(p, open, EXPECTED_OPEN_BRACE)
+		return parse_fail(p, open, .Expected_Open_Brace)
 	}
 	p.pos += 1
 	seen: bit_set[Body_Part]
 	skip_newlines(p)
 	for peek(p).kind != .Close_Brace {
 		if peek(p).kind == .End {
-			return parse_fail(p, open, UNCLOSED_BRACKET)
+			return parse_fail(p, open, .Unclosed_Bracket)
 		}
 		parse_body_part(p, decl, &seen) or_return
 		if skip_newlines(p) == 0 && peek(p).kind != .Close_Brace {
-			return parse_fail_in(p, open, EXPECTED_PART_END)
+			return parse_fail_in(p, open, .Expected_Part_End)
 		}
 	}
 	p.pos += 1
@@ -313,10 +290,10 @@ parse_body_part :: proc(p: ^Parser, decl: ^Decl, seen: ^bit_set[Body_Part]) -> b
 	case .Props:
 		part = .Props
 	case:
-		return parse_fail(p, token, EXPECTED_BODY_PART)
+		return parse_fail(p, token, .Expected_Body_Part)
 	}
 	if part in seen {
-		return parse_fail(p, token, duplicate_message(part))
+		return parse_fail(p, token, duplicate_code(part))
 	}
 	seen^ += {part}
 	p.pos += 1
@@ -334,18 +311,18 @@ parse_body_part :: proc(p: ^Parser, decl: ^Decl, seen: ^bit_set[Body_Part]) -> b
 parse_fields :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 	open := peek(p)
 	if open.kind != .Open_Brace {
-		return {}, parse_fail(p, open, EXPECTED_OPEN_BRACE)
+		return {}, parse_fail(p, open, .Expected_Open_Brace)
 	}
 	p.pos += 1
 	first := len(p.file.fields)
 	skip_newlines(p)
 	for peek(p).kind != .Close_Brace {
 		if peek(p).kind == .End {
-			return {}, parse_fail(p, open, UNCLOSED_BRACKET)
+			return {}, parse_fail(p, open, .Unclosed_Bracket)
 		}
 		parse_field(p) or_return
 		if skip_separators(p) == 0 && peek(p).kind != .Close_Brace {
-			return {}, parse_fail_in(p, open, EXPECTED_SEPARATOR)
+			return {}, parse_fail_in(p, open, .Expected_Separator)
 		}
 	}
 	p.pos += 1
@@ -355,11 +332,11 @@ parse_fields :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 parse_field :: proc(p: ^Parser) -> bool {
 	name := peek(p)
 	if name.kind != .Name {
-		return parse_fail(p, name, EXPECTED_NAME)
+		return parse_fail(p, name, .Expected_Name)
 	}
 	p.pos += 1
 	if peek(p).kind != .Colon {
-		return parse_fail(p, peek(p), EXPECTED_COLON)
+		return parse_fail(p, peek(p), .Expected_Colon)
 	}
 	p.pos += 1
 	field := Field {

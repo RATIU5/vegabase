@@ -3,7 +3,7 @@ package vega
 parse_record :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 	open := peek(p)
 	if open.kind != .Open_Brace {
-		return {}, parse_fail(p, open, EXPECTED_OPEN_BRACE)
+		return {}, parse_fail(p, open, .Expected_Open_Brace)
 	}
 	enter(p, open) or_return
 	defer leave(p)
@@ -12,12 +12,12 @@ parse_record :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 	skip_newlines(p)
 	for peek(p).kind != .Close_Brace {
 		if peek(p).kind == .End {
-			return {}, parse_fail(p, open, UNCLOSED_BRACKET)
+			return {}, parse_fail(p, open, .Unclosed_Bracket)
 		}
 		entry := parse_entry(p) or_return
 		append(&p.entry_stack, entry)
 		if skip_separators(p) == 0 && peek(p).kind != .Close_Brace {
-			return {}, parse_fail_in(p, open, EXPECTED_SEPARATOR)
+			return {}, parse_fail_in(p, open, .Expected_Separator)
 		}
 	}
 	p.pos += 1
@@ -30,11 +30,11 @@ parse_record :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 parse_entry :: proc(p: ^Parser) -> (entry: Entry, ok: bool) {
 	key := peek(p)
 	if key.kind != .Name && key.kind != .Of {
-		return {}, parse_fail(p, key, EXPECTED_ENTRY_KEY)
+		return {}, parse_fail(p, key, .Expected_Entry_Key)
 	}
 	p.pos += 1
 	if peek(p).kind != .Equal {
-		return {}, parse_fail(p, peek(p), EXPECTED_EQUAL)
+		return {}, parse_fail(p, peek(p), .Expected_Equal)
 	}
 	p.pos += 1
 	entry.key = key.span
@@ -91,7 +91,7 @@ parse_type_atom :: proc(p: ^Parser) -> (atom: Type, ok: bool) {
 			name   = name,
 		}
 	case:
-		return {}, parse_fail(p, token, EXPECTED_TYPE)
+		return {}, parse_fail(p, token, .Expected_Type)
 	}
 	if peek(p).kind == .Open_Brace {
 		atom.limits = parse_record(p) or_return
@@ -107,11 +107,11 @@ parse_type_name :: proc(p: ^Parser) -> (prefix, name: Span, ok: bool) {
 		return {}, token.span, true
 	}
 	if token.kind != .Name || peek(p, 1).kind != .Dot {
-		return {}, {}, parse_fail(p, token, EXPECTED_TYPE)
+		return {}, {}, parse_fail(p, token, .Expected_Type)
 	}
 	type := peek(p, 2)
 	if type.kind != .Type {
-		return {}, {}, parse_fail(p, type, EXPECTED_TYPE_NAME)
+		return {}, {}, parse_fail(p, type, .Expected_Type_Name)
 	}
 	p.pos += 3
 	return token.span, type.span, true

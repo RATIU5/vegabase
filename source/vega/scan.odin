@@ -2,8 +2,6 @@ package vega
 
 import "core:strings"
 
-BLOCK_NEVER_CLOSED :: "{{ is never closed"
-
 Block :: struct {
 	span: Span,
 	code: Span,
@@ -40,7 +38,7 @@ next_block :: proc(
 	depth := 0
 	for {
 		if j >= len(src) {
-			return {}, false, fail(errors, start, start + 2, BLOCK_NEVER_CLOSED)
+			return {}, false, fail(errors, start, start + 2, .Block_Never_Closed)
 		}
 		switch src[j] {
 		case '"':
@@ -49,7 +47,7 @@ next_block :: proc(
 				end += 2 if src[end] == '\\' else 1
 			}
 			if end >= len(src) || src[end] != '"' {
-				return {}, false, fail(errors, j, j + 1, STRING_NEVER_CLOSED)
+				return {}, false, fail(errors, j, j + 1, .String_Never_Closed)
 			}
 			j = end + 1
 		case '#':
@@ -57,7 +55,7 @@ next_block :: proc(
 			line_end := len(src) if newline < 0 else j + newline
 			close := strings.index(src[j:line_end], "}}")
 			if newline < 0 && close < 0 {
-				return {}, false, fail(errors, start, start + 2, BLOCK_NEVER_CLOSED)
+				return {}, false, fail(errors, start, start + 2, .Block_Never_Closed)
 			}
 			if close >= 0 {
 				j += close
@@ -76,7 +74,7 @@ next_block :: proc(
 					true,
 					true
 			} else {
-				return {}, false, fail(errors, j, j + 1, "} with no {")
+				return {}, false, fail(errors, j, j + 1, .Close_Brace_Without_Open)
 			}
 		case:
 			j += 1

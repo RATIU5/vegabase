@@ -1,15 +1,5 @@
 package vega
 
-AND_OR_MIXED :: "`and` and `or` cannot mix; use parentheses"
-COMPARE_CHAINED :: "comparisons cannot be chained; use parentheses"
-PIPE_NEEDS_OPERAND :: "the input of | must be one value; use parentheses"
-COALESCE_NEEDS_OPERAND :: "the left side of ?? must be one value; use parentheses"
-OPERATOR_NEEDS_PARENS :: "use parentheses to combine this operator"
-UNEXPECTED_DOT :: "unexpected . after a value"
-EXPECTED_CLOSE_PAREN :: "expected )"
-EXPECTED_CALL_END :: "expected , or )"
-EXPECTED_LIST_END :: "expected , or a new line or ]"
-
 add_expr :: proc(p: ^Parser, expr: Expr) -> Expr_Id {
 	append(&p.file.exprs, expr)
 	return Expr_Id(len(p.file.exprs) - 1)
@@ -64,7 +54,7 @@ parse_expr :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	#partial switch peek(p).kind {
 	case .Pipe:
 		if !bare {
-			return 0, parse_fail(p, peek(p), PIPE_NEEDS_OPERAND)
+			return 0, parse_fail(p, peek(p), .Pipe_Needs_Operand)
 		}
 		id = parse_pipe(p, start, left) or_return
 	case .And:
@@ -77,12 +67,12 @@ parse_expr :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	token := peek(p)
 	if is_operator(token.kind) {
 		if is_compare(token.kind) && p.file.exprs[id].kind == .Compare {
-			return 0, parse_fail(p, token, COMPARE_CHAINED)
+			return 0, parse_fail(p, token, .Compare_Chained)
 		}
-		return 0, parse_fail(p, token, OPERATOR_NEEDS_PARENS)
+		return 0, parse_fail(p, token, .Operator_Needs_Parens)
 	}
 	if token.kind == .Dot {
-		return 0, parse_fail(p, token, UNEXPECTED_DOT)
+		return 0, parse_fail(p, token, .Unexpected_Dot)
 	}
 	return id, true
 }
@@ -108,7 +98,7 @@ parse_chain :: proc(
 		)
 	}
 	if peek(p).kind == forbidden {
-		return 0, parse_fail(p, peek(p), AND_OR_MIXED)
+		return 0, parse_fail(p, peek(p), .And_Or_Mixed)
 	}
 	return id, true
 }
@@ -157,7 +147,7 @@ parse_simple :: proc(p: ^Parser) -> (id: Expr_Id, bare: bool, ok: bool) {
 		return id, false, true
 	case kind == .Question_Question:
 		if !bare {
-			return 0, false, parse_fail(p, peek(p), COALESCE_NEEDS_OPERAND)
+			return 0, false, parse_fail(p, peek(p), .Coalesce_Needs_Operand)
 		}
 		for peek(p).kind == .Question_Question {
 			p.pos += 1
@@ -245,7 +235,7 @@ parse_operand :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	case .Open_Paren:
 		return parse_paren(p)
 	}
-	return 0, parse_fail(p, token, EXPECTED_EXPRESSION)
+	return 0, parse_fail(p, token, .Expected_Expression)
 }
 
 parse_name_operand :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
@@ -268,7 +258,7 @@ parse_name_operand :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	p.pos += 1
 	for peek(p).kind == .Dot {
 		if peek(p, 1).kind != .Name {
-			return 0, parse_fail(p, peek(p, 1), EXPECTED_NAME)
+			return 0, parse_fail(p, peek(p, 1), .Expected_Name)
 		}
 		p.pos += 2
 	}
@@ -279,14 +269,14 @@ parse_name_operand :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 parse_fn_name :: proc(p: ^Parser) -> (name: Span, ok: bool) {
 	first := peek(p)
 	if first.kind != .Name {
-		return {}, parse_fail(p, first, EXPECTED_NAME)
+		return {}, parse_fail(p, first, .Expected_Name)
 	}
 	p.pos += 1
 	name = first.span
 	if peek(p).kind == .Dot {
 		member := peek(p, 1)
 		if member.kind != .Name {
-			return {}, parse_fail(p, member, EXPECTED_NAME)
+			return {}, parse_fail(p, member, .Expected_Name)
 		}
 		p.pos += 2
 		name.end = member.span.end
@@ -330,7 +320,7 @@ parse_args :: proc(p: ^Parser) -> (range: Range, ok: bool) {
 		}
 	}
 	if peek(p).kind != .Close_Paren {
-		return {}, parse_fail_in(p, open, EXPECTED_CALL_END)
+		return {}, parse_fail_in(p, open, .Expected_Call_End)
 	}
 	p.pos += 1
 	return flush_exprs(p, base), true
@@ -347,12 +337,12 @@ parse_list :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	skip_newlines(p)
 	for peek(p).kind != .Close_Bracket {
 		if peek(p).kind == .End {
-			return 0, parse_fail(p, open, UNCLOSED_BRACKET)
+			return 0, parse_fail(p, open, .Unclosed_Bracket)
 		}
 		item := parse_expr(p) or_return
 		append(&p.expr_stack, item)
 		if skip_separators(p) == 0 && peek(p).kind != .Close_Bracket {
-			return 0, parse_fail_in(p, open, EXPECTED_LIST_END)
+			return 0, parse_fail_in(p, open, .Expected_List_End)
 		}
 	}
 	p.pos += 1
@@ -369,7 +359,7 @@ parse_paren :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	id = parse_expr(p) or_return
 	skip_newlines(p)
 	if peek(p).kind != .Close_Paren {
-		return 0, parse_fail_in(p, open, EXPECTED_CLOSE_PAREN)
+		return 0, parse_fail_in(p, open, .Expected_Close_Paren)
 	}
 	p.pos += 1
 	return id, true

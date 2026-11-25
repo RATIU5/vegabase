@@ -3,12 +3,12 @@ package vega
 import "core:testing"
 
 Scan_Case :: struct {
-	name:    string,
-	src:     string,
-	codes:   []string,
-	ok:      bool,
-	message: string,
-	at:      Span,
+	name:  string,
+	src:   string,
+	codes: []string,
+	ok:    bool,
+	code:  Error_Code,
+	at:    Span,
 }
 
 SCAN_CASES := [?]Scan_Case {
@@ -31,22 +31,17 @@ SCAN_CASES := [?]Scan_Case {
 		ok = true,
 	},
 	{name = "comment closes block", src = `{{x # c}}`, codes = {`x # c`}, ok = true},
-	{name = "unclosed block", src = `{{x`, message = "{{ is never closed", at = {0, 2}},
-	{name = "unclosed string", src = `{{"abc`, message = "string is never closed", at = {2, 3}},
-	{
-		name = "string at newline",
-		src = "{{\"ab\ncd\"}}",
-		message = "string is never closed",
-		at = {2, 3},
-	},
-	{name = "stray close", src = `{{x } y}}`, message = "} with no {", at = {4, 5}},
-	{name = "unclosed comment", src = `{{# note`, message = "{{ is never closed", at = {0, 2}},
-	{name = "close after open", src = `{{ {a }}`, message = "} with no {", at = {7, 8}},
+	{name = "unclosed block", src = `{{x`, code = .Block_Never_Closed, at = {0, 2}},
+	{name = "unclosed string", src = `{{"abc`, code = .String_Never_Closed, at = {2, 3}},
+	{name = "string at newline", src = "{{\"ab\ncd\"}}", code = .String_Never_Closed, at = {2, 3}},
+	{name = "stray close", src = `{{x } y}}`, code = .Close_Brace_Without_Open, at = {4, 5}},
+	{name = "unclosed comment", src = `{{# note`, code = .Block_Never_Closed, at = {0, 2}},
+	{name = "close after open", src = `{{ {a }}`, code = .Close_Brace_Without_Open, at = {7, 8}},
 	{
 		name = "block kept before error",
 		src = `{{a}} {{x } y}} {{b}}`,
 		codes = {`a`},
-		message = "} with no {",
+		code = .Close_Brace_Without_Open,
 		at = {10, 11},
 	},
 }
@@ -76,7 +71,7 @@ scan_table :: proc(t: ^testing.T) {
 		if !testing.expect_value(t, len(errors), 1) {
 			continue
 		}
-		testing.expect_value(t, errors[0].message, c.message)
+		testing.expect_value(t, errors[0].code, c.code)
 		testing.expect_value(t, errors[0].span, c.at)
 		testing.expect_value(t, errors[0].hint, "")
 	}

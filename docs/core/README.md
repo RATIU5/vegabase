@@ -5,7 +5,7 @@ updated: 2026-11-18
 
 # Vegabase: Start here
 
-Vegabase is a hosted, multi-tenant storefront and CMS engine in Odin that renders each tenant from one read index. Phase: design; `source/` is scaffolding. Read this file at session start, then follow the map.
+Vegabase is a hosted, multi-tenant storefront and CMS engine in Odin that renders each tenant from one read index. Phase: building, starting with the language toolchain (ROADMAP.md). Read this file at session start, then follow the map.
 
 ## Doc map
 
@@ -18,6 +18,7 @@ Vegabase is a hosted, multi-tenant storefront and CMS engine in Odin that render
 | OPERATIONS.md   | Ownership and fencing, never-stop serving, moves, upgrades, purges, domains, security ops, observability | Anything about uptime, recovery, domains, secrets or metrics    |
 | STACK.md        | Pins, libraries, verified external facts, environment, workload, spikes                                  | Choosing a library or version, any Shopify, CDN or hosting fact |
 | DECISIONS.md    | Decisions, open questions, risks, influences                                                             | Before treating anything as settled; logging a ruling           |
+| ROADMAP.md      | Build order in coarse stages, and the next five tasks                                                    | Picking what to work on next                                    |
 | ../specs/       | The `.vega` language: syntax and semantics of declarations and templates; start at `specs/README.md`        | Reading or writing schemas or templates, any language rule      |
 
 **Precedence**: CHARTER > DECISIONS > specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK > this file's State section. When docs conflict, the higher one wins; flag the lower line that needs fixing. Each fact lives in one doc; cite it by doc and section or by ID: G, P in CHARTER; D, Q, R, I in DECISIONS; S in STACK.
@@ -62,7 +63,7 @@ Repo process (commits, PRs, releases) is in `docs/WORKFLOW.md`. Done means `mise
 
 ## State
 
-- **Focus**: approve the rebuilt D-001 to D-010, then pin down what G1 needs (Q-001, Q-002).
-- **Changed (2026-11-08)**: nine docs merged into seven; OPERATIONS.md added; D-018 to D-026 and Q-020 to Q-034 logged from a second audit; facts re-verified (STACK); D-011 to D-017 logged from the project lead's rulings; G5, P8 and a hard line on core-owned data added; R-004 and S-9 added.
-- **In play**: Q-001 to Q-049, R-001 to R-004, S-1 to S-9. Proposed: G2, G4, the G3 signal, ranks of P5 and P6.
-- **Next**: the project lead approves or corrects D-001 to D-010, then answers Q-002.
+- **Focus**: ROADMAP stage 1, the language check pass; spike S-4 alongside.
+- **Changed (2026-11-25)**: the `.vega` scanner, lexer and parser landed in `source/vega/`; ROADMAP.md added.
+- **In play**: D-001 to D-010 awaiting approval; Q-001 to Q-049, R-001 to R-004, S-1 to S-9. Proposed: G2, G4, the G3 signal, ranks of P5 and P6.
+- **Next**: the top task in ROADMAP.md "Next up".

@@ -70,13 +70,12 @@ updated: 2026-11-18
 - Absent by design: everything in the CHARTER non-goals.
 - Absent by design: plugins rendering HTML or acting as middleware; only the core renders.
 
-## Code map (planned; `source/` is scaffolding today)
+## Code map (planned; only `source/vega/` holds code today)
 
 | Directory          | Part                                                                      |
 | ------------------ | ------------------------------------------------------------------------- |
 | `source/http/`     | Edge front router and request pipeline                                    |
-| `source/template/` | `.vega` templates (language toolchain, shared with the deploy pipeline)   |
-| `source/schema/`   | `.vega` declarations and type checker (language toolchain)                |
+| `source/vega/`     | `.vega` language toolchain, shared with the deploy pipeline: scanner, lexer and parser today; check, types and render next |
 | `source/store/`    | Data layer (name clashes with the glossary "store"; consider `data/`)     |
 | `source/plugin/`   | Extension host: WASM sandbox, capabilities, host functions                |
 | `source/bind/`     | One hand-written binding package per C library (DESIGN §7)                |

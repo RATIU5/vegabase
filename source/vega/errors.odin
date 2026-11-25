@@ -3,7 +3,6 @@ package vega
 Error :: struct {
 	span: Span,
 	code: Error_Code,
-	hint: string,
 }
 
 Error_Code :: enum u8 {

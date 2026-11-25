@@ -111,16 +111,9 @@ Part_Kind :: enum u8 {
 	Render,
 }
 
-Html_Position :: enum u8 {
-	Text,
-	Start_Tag,
-	Attribute_Value,
-}
-
 Part :: struct {
 	kind:        Part_Kind,
 	span:        Span,
-	position:    Html_Position,
 	expr:        Expr_Id,
 	item, index: Span,
 	name:        Qualified_Name,

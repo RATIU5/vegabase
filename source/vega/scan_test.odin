@@ -73,7 +73,6 @@ scan_table :: proc(t: ^testing.T) {
 		}
 		testing.expect_value(t, errors[0].code, c.code)
 		testing.expect_value(t, errors[0].span, c.at)
-		testing.expect_value(t, errors[0].hint, "")
 	}
 }
 

@@ -4,7 +4,7 @@ add_html :: proc(p: ^Parser, start, end: int) {
 	if start == end {
 		return
 	}
-	append(&p.file.parts, Part{kind = .Html, span = {u32(start), u32(end)}, position = .Text})
+	append(&p.file.parts, Part{kind = .Html, span = {u32(start), u32(end)}})
 }
 
 parse_name :: proc(p: ^Parser) -> (span: Span, ok: bool) {

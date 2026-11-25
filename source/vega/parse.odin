@@ -22,6 +22,7 @@ Parser :: struct {
 }
 
 parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, ok: bool) {
+	assert(allocator.data != context.temp_allocator.data)
 	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 	file = File {
 		path       = path,

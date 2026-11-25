@@ -265,8 +265,8 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 	for use in file.uses {
 		write_node(&b, file, starts, 1, "Use", use)
 	}
-	if file.template_type != {} {
-		write_node(&b, file, starts, 1, "Template_Type", file.template_type)
+	for template in file.templates {
+		write_node(&b, file, starts, 1, "Template_Type", template)
 	}
 	for decl in file.decls[1:] {
 		write_decl(&b, file, starts, decl)

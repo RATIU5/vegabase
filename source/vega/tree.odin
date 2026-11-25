@@ -138,16 +138,16 @@ Part :: struct {
 }
 
 File :: struct {
-	path, src:     string,
-	uses:          [dynamic]Span,
-	template_type: Span,
-	template:      Span,
-	decls:         [dynamic]Decl,
-	fields:        [dynamic]Field,
-	types:         [dynamic]Type,
-	entries:       [dynamic]Entry,
-	exprs:         [dynamic]Expr,
-	expr_items:    [dynamic]Expr_Id,
-	parts:         [dynamic]Part,
-	errors:        [dynamic]Error,
+	path, src:  string,
+	uses:       [dynamic]Span,
+	templates:  [dynamic]Span,
+	template:   Span,
+	decls:      [dynamic]Decl,
+	fields:     [dynamic]Field,
+	types:      [dynamic]Type,
+	entries:    [dynamic]Entry,
+	exprs:      [dynamic]Expr,
+	expr_items: [dynamic]Expr_Id,
+	parts:      [dynamic]Part,
+	errors:     [dynamic]Error,
 }

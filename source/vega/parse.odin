@@ -49,6 +49,7 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		path       = path,
 		src        = src,
 		uses       = make([dynamic]Span, allocator),
+		templates  = make([dynamic]Span, allocator),
 		decls      = make([dynamic]Decl, allocator),
 		fields     = make([dynamic]Field, allocator),
 		types      = make([dynamic]Type, allocator),
@@ -173,7 +174,7 @@ parse_statement :: proc(p: ^Parser) -> bool {
 		if name.kind != .Type {
 			return parse_fail(p, name, EXPECTED_TYPE_NAME)
 		}
-		p.file.template_type = name.span
+		append(&p.file.templates, name.span)
 		p.pos += 2
 		return true
 	case .Type:

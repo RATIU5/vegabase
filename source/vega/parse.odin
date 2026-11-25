@@ -22,6 +22,7 @@ Parser :: struct {
 }
 
 parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, ok: bool) {
+	runtime.DEFAULT_TEMP_ALLOCATOR_TEMP_GUARD()
 	file = File {
 		path       = path,
 		src        = src,
@@ -46,13 +47,13 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 
 	first, found := next_block(src, 0, &file.errors) or_return
 	file.template = {0, u32(len(src))}
-	tokens := make([dynamic]Token, allocator)
+	tokens := make([dynamic]Token, context.temp_allocator)
 	p := Parser {
 		file        = &file,
-		entry_stack = make([dynamic]Entry, allocator),
-		type_stack  = make([dynamic]Type, allocator),
-		expr_stack  = make([dynamic]Expr_Id, allocator),
-		open_tags   = make([dynamic]Open_Tag, allocator),
+		entry_stack = make([dynamic]Entry, context.temp_allocator),
+		type_stack  = make([dynamic]Type, context.temp_allocator),
+		expr_stack  = make([dynamic]Expr_Id, context.temp_allocator),
+		open_tags   = make([dynamic]Open_Tag, context.temp_allocator),
 	}
 	if found && strings.trim(src[:first.span.start], " \t\r\n") == "" {
 		file.template.start = first.span.end

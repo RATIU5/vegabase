@@ -4,6 +4,10 @@ Span :: struct {
 	start, end: u32,
 }
 
+Qualified_Name :: struct {
+	prefix, name: Span,
+}
+
 Range :: struct {
 	first, count: u32,
 }
@@ -51,8 +55,7 @@ Type_Kind :: enum u8 {
 Type :: struct {
 	kind:    Type_Kind,
 	span:    Span,
-	prefix:  Span,
-	name:    Span,
+	name:    Qualified_Name,
 	limits:  Range,
 	members: Range,
 }
@@ -89,7 +92,7 @@ Expr_Kind :: enum u8 {
 Expr :: struct {
 	kind:        Expr_Kind,
 	span:        Span,
-	name:        Span,
+	name:        Qualified_Name,
 	op:          Token_Kind,
 	left, right: Expr_Id,
 	items:       Range,
@@ -115,13 +118,14 @@ Html_Position :: enum u8 {
 }
 
 Part :: struct {
-	kind:              Part_Kind,
-	span:              Span,
-	position:          Html_Position,
-	expr:              Expr_Id,
-	item, index, name: Span,
-	entries:           Range,
-	closes:            Part_Id,
+	kind:        Part_Kind,
+	span:        Span,
+	position:    Html_Position,
+	expr:        Expr_Id,
+	item, index: Span,
+	name:        Qualified_Name,
+	entries:     Range,
+	closes:      Part_Id,
 }
 
 File :: struct {

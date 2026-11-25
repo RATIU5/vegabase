@@ -48,16 +48,14 @@ parse_tag :: proc(p: ^Parser, part: ^Part) -> bool {
 	case .Slot:
 		part.kind = .Slot
 		p.pos += 1
-		part.name = parse_name(p) or_return
+		part.name.name = parse_name(p) or_return
 		if peek(p).kind == .Open_Brace {
 			part.entries = parse_record(p) or_return
 		}
 	case .Render:
 		part.kind = .Render
 		p.pos += 1
-		start := peek(p).span.start
-		_, name := parse_type_name(p) or_return
-		part.name = {start, name.end}
+		part.name = parse_type_name(p) or_return
 		part.entries = parse_record(p) or_return
 	case:
 		part.kind = .Value

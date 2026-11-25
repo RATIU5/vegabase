@@ -148,14 +148,14 @@ write_expr :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, 
 		write_expr(b, file, starts, depth + 1, e.left)
 		write_expr(b, file, starts, depth + 1, e.right)
 	case .Call:
-		write_node(b, file, starts, depth + 1, "Name", e.name)
+		write_qualified(b, file, starts, depth + 1, e.name)
 		write_items(b, file, starts, depth + 1, e.items)
 	case .List:
 		write_items(b, file, starts, depth + 1, e.items)
 	case .Record:
 		write_entries(b, file, starts, depth + 1, "Entries", e.items)
 	case .Component_Value:
-		write_node(b, file, starts, depth + 1, "Name", e.name)
+		write_qualified(b, file, starts, depth + 1, e.name)
 		write_entries(b, file, starts, depth + 1, "Entries", e.items)
 	case .Path, .String, .Int, .Decimal, .Bool, .Null, .Host_Value:
 	}
@@ -191,15 +191,25 @@ write_entries :: proc(
 	}
 }
 
+write_qualified :: proc(
+	b: ^strings.Builder,
+	file: ^File,
+	starts: []u32,
+	depth: int,
+	name: Qualified_Name,
+) {
+	if name.prefix != {} {
+		write_node(b, file, starts, depth, "Prefix", name.prefix)
+	}
+	write_node(b, file, starts, depth, "Name", name.name)
+}
+
 write_type :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, id: Type_Id) {
 	t := file.types[id]
 	write_node(b, file, starts, depth, reflect.enum_string(t.kind), t.span)
 	switch t.kind {
 	case .Named:
-		if t.prefix != {} {
-			write_node(b, file, starts, depth + 1, "Prefix", t.prefix)
-		}
-		write_node(b, file, starts, depth + 1, "Name", t.name)
+		write_qualified(b, file, starts, depth + 1, t.name)
 	case .Literal:
 	case .Union:
 		for i in 0 ..< t.members.count {
@@ -291,7 +301,7 @@ dump_tree :: proc(file: ^File, allocator := context.allocator) -> string {
 				}
 			}
 			if part.kind == .Slot || part.kind == .Render {
-				write_node(&b, file, starts, 2, "Name", part.name)
+				write_qualified(&b, file, starts, 2, part.name)
 				write_entries(&b, file, starts, 2, "Entries", part.entries)
 			}
 			write_expr(&b, file, starts, 2, part.expr)

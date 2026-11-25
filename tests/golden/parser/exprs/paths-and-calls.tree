@@ -19,7 +19,8 @@ File@0..248 1:1
         Named@92..96 6:10 "Text"
           Name@92..96 6:10 "Text"
         Call@99..124 6:17 "std.imageUrl(image, 1600)"
-          Name@99..111 6:17 "std.imageUrl"
+          Prefix@99..102 6:17 "std"
+          Name@103..111 6:21 "imageUrl"
           Path@112..117 6:30 "image"
           Int@119..123 6:37 "1600"
       Field@131..144 7:7
@@ -33,7 +34,8 @@ File@0..248 1:1
         Named@154..158 8:10 "Text"
           Name@154..158 8:10 "Text"
         Call@161..210 8:17 "std.imageUrl(\n        image,\n        1600\n      )"
-          Name@161..173 8:17 "std.imageUrl"
+          Prefix@161..164 8:17 "std"
+          Name@165..173 8:21 "imageUrl"
           Path@183..188 9:9 "image"
           Int@198..202 10:9 "1600"
       Field@217..234 12:7

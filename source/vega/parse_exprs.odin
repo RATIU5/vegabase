@@ -263,33 +263,36 @@ parse_name_operand :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 		p.pos += 2
 	}
 	span := span_from(p, start)
-	return add_expr(p, Expr{kind = .Path, name = span, span = span}), true
+	return add_expr(p, Expr{kind = .Path, name = {name = span}, span = span}), true
 }
 
-parse_fn_name :: proc(p: ^Parser) -> (name: Span, ok: bool) {
+parse_fn_name :: proc(p: ^Parser) -> (name: Qualified_Name, ok: bool) {
 	first := peek(p)
 	if first.kind != .Name {
 		return {}, parse_fail(p, first, .Expected_Name)
 	}
 	p.pos += 1
-	name = first.span
+	name.name = first.span
 	if peek(p).kind == .Dot {
 		member := peek(p, 1)
 		if member.kind != .Name {
 			return {}, parse_fail(p, member, .Expected_Name)
 		}
 		p.pos += 2
-		name.end = member.span.end
+		name.prefix = first.span
+		name.name = member.span
 	}
 	return name, true
 }
 
 parse_component_value :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 	start := p.pos
+	name: Qualified_Name
 	if peek(p).kind == .Name {
+		name.prefix = peek(p).span
 		p.pos += 2
 	}
-	name := Span{p.tokens[start].span.start, peek(p).span.end}
+	name.name = peek(p).span
 	p.pos += 1
 	items := parse_record(p) or_return
 	expr := Expr {

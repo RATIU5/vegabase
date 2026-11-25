@@ -42,7 +42,8 @@ File@0..345 1:1
         Named@197..201 12:10 "Link"
           Name@197..201 12:10 "Link"
         Component_Value@204..226 12:17 "std.Link { url = \"/\" }"
-          Name@204..212 12:17 "std.Link"
+          Prefix@204..207 12:17 "std"
+          Name@208..212 12:21 "Link"
           Entries@215..224 12:28
             Entry@215..224 12:28
               Key@215..218 12:28 "url"
@@ -58,7 +59,8 @@ File@0..345 1:1
         Named@260..264 14:10 "Link"
           Name@260..264 14:10 "Link"
         Component_Value@267..331 14:17 "std.Link {\n        url = \"/\"\n        label = t(\"go\") | f\n      }"
-          Name@267..275 14:17 "std.Link"
+          Prefix@267..270 14:17 "std"
+          Name@271..275 14:21 "Link"
           Entries@286..323 15:9
             Entry@286..295 15:9
               Key@286..289 15:9 "url"

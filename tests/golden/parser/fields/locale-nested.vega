@@ -1,0 +1,6 @@
+{{
+  en :: locale {
+    hero = { label = "Hero", hint = "Banner" }
+    ok = "ok"
+  }
+}}

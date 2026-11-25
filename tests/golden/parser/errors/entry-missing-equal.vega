@@ -1,0 +1,1 @@
+{{ Headline :: Text { max 80 } }}

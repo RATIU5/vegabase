@@ -1,0 +1,4 @@
+<p>hello</p>
+{{x}}
+<a>{{a.b | f}}</a>
+bye

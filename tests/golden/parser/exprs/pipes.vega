@@ -1,0 +1,10 @@
+{{
+  Card :: component {
+    fields {
+      a: Text = x | std.imageUrl(1600) | f
+      b: Text = x | f()
+      c: Text = a.b | std.upper
+      d: Text = (x ?? y) | f(1, 2)
+    }
+  }
+}}

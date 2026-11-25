@@ -1,0 +1,6 @@
+{{
+  Card :: component {
+    props { a: Text }
+    props { b: Text }
+  }
+}}

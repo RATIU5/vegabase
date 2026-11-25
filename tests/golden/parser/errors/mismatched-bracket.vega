@@ -1,0 +1,1 @@
+{{ Hero :: component { fields { a: Text = ( 1 ] } } }}

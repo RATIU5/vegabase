@@ -1,0 +1,13 @@
+{{
+  Card :: component {
+    fields {
+      title: Text, subtitle: Text
+      body: Text,
+      note: Text
+    }
+    props {
+      site: Text
+      theme: Text,
+    }
+  }
+}}

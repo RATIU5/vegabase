@@ -1,0 +1,7 @@
+{{
+  Card :: component {
+    fields {
+      a: Bool = a and b or c
+    }
+  }
+}}

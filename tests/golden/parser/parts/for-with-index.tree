@@ -1,0 +1,21 @@
+File@0..90 1:1
+  Html@0..3 1:1 "<p>"
+  For@3..24 1:4
+    Item@9..13 1:10 "item"
+    Path@17..22 1:18 "items"
+    Closes@32..40 1:33
+  Value@24..32 1:25
+    Path@26..30 1:27 "item"
+  End_For@32..40 1:33
+    Closes@3..24 1:4
+  Html@40..48 1:41 "</p>\n<p>"
+  For@48..72 2:4
+    Item@54..58 2:10 "item"
+    Index@60..61 2:16 "i"
+    Path@65..70 2:21 "items"
+    Closes@77..85 2:33
+  Value@72..77 2:28
+    Path@74..75 2:30 "i"
+  End_For@77..85 2:33
+    Closes@48..72 2:4
+  Html@85..90 2:41 "</p>\n"

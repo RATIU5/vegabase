@@ -1,0 +1,18 @@
+File@0..88 1:1
+  Locale@5..84 2:3
+    Name@5..7 2:3 "en"
+    Entries@24..80 3:5
+      Entry@24..66 3:5
+        Key@24..28 3:5 "hero"
+        Record@31..66 3:12 "{ label = \"Hero\", hint = \"Banner\" }"
+          Entries@33..64 3:14
+            Entry@33..47 3:14
+              Key@33..38 3:14 "label"
+              String@41..47 3:22 "\"Hero\""
+            Entry@49..64 3:30
+              Key@49..53 3:30 "hint"
+              String@56..64 3:37 "\"Banner\""
+      Entry@71..80 4:5
+        Key@71..73 4:5 "ok"
+        String@76..80 4:10 "\"ok\""
+  Html@87..88 6:3 "\n"

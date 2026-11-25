@@ -1,0 +1,13 @@
+{{
+  Card :: component {
+    fields {
+      a: Bool = not a
+      b: Bool = a and b and c
+      c: Bool = (a or b) and c
+      d: Text = a ?? b ?? "x"
+      e: Bool = a < b or c >= d or not e
+      f: Int = (a + b) ?? c
+      g: Bool = not (a == b)
+    }
+  }
+}}

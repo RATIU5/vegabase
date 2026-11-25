@@ -1,0 +1,1 @@
+<p>{{if a}}yes{{elif b}}{{x}}{{else}}no{{/if}}</p>

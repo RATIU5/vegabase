@@ -1,0 +1,9 @@
+{{
+  or :: locale {
+    hello = "ନମସ୍କାର"
+  }
+
+  in :: locale {
+    hello = "Halo"
+  }
+}}

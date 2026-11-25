@@ -1,0 +1,14 @@
+{{
+  Card :: component {
+    fields {
+      a: Text = "hi"
+      b: Int = 12
+      c: Decimal = 19.5
+      d: Bool = true
+      e: Bool = false
+      f: Text? = null
+      g: Text = $id
+      h: Text = $page.title
+    }
+  }
+}}

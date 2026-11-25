@@ -1,0 +1,13 @@
+{{
+  en :: locale {
+    hello = "Hello"
+  }
+
+  pt_BR :: locale {
+    hello = "Olá"
+  }
+
+  zh_Hant :: locale {
+    hello = "你好"
+  }
+}}

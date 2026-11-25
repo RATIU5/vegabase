@@ -66,7 +66,7 @@ def check(src):
     stack = []
     for n, (start, code) in enumerate(blocks(src)):
         line = line_of(src, start)
-        is_first = n == 0 and src[:start].strip() == ""
+        is_first = n == 0 and src[:start].strip(" \t\r\n") == ""
         try:
             tree = (FIRST if is_first else INLINE).parse(code)
         except LarkError as e:

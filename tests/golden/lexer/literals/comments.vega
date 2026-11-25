@@ -1,0 +1,7 @@
+{{
+  # top
+  use std # trailing
+  # between
+  render hero
+  # last
+}}

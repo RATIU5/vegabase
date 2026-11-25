@@ -1,0 +1,21 @@
+File@0..104 1:1
+  Component@5..100 2:3
+    Name@5..9 2:3 "Card"
+    Fields@44..90 4:7
+      Field@44..90 4:7
+        Name@44..49 4:7 "items"
+        Named@51..90 4:14 "List { of = Text { max = 3 }, max = 5 }"
+          Name@51..55 4:14 "List"
+          Limits@58..88 4:21
+            Entry@58..79 4:21
+              Key@58..60 4:21 "of"
+              Named@63..79 4:26 "Text { max = 3 }"
+                Name@63..67 4:26 "Text"
+                Limits@70..77 4:33
+                  Entry@70..77 4:33
+                    Key@70..73 4:33 "max"
+                    Int@76..77 4:39 "3"
+            Entry@81..88 4:44
+              Key@81..84 4:44 "max"
+              Int@87..88 4:50 "5"
+  Html@103..104 7:3 "\n"

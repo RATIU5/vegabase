@@ -1,0 +1,30 @@
+File@0..174 1:1
+  Component@5..170 2:3
+    Name@5..9 2:3 "Card"
+    Fields@44..106 4:7
+      Field@44..55 4:7
+        Name@44..49 4:7 "title"
+        Named@51..55 4:14 "Text"
+          Name@51..55 4:14 "Text"
+      Field@57..71 4:20
+        Name@57..65 4:20 "subtitle"
+        Named@67..71 4:30 "Text"
+          Name@67..71 4:30 "Text"
+      Field@78..88 5:7
+        Name@78..82 5:7 "body"
+        Named@84..88 5:13 "Text"
+          Name@84..88 5:13 "Text"
+      Field@96..106 6:7
+        Name@96..100 6:7 "note"
+        Named@102..106 6:13 "Text"
+          Name@102..106 6:13 "Text"
+    Props@131..159 9:7
+      Field@131..141 9:7
+        Name@131..135 9:7 "site"
+        Named@137..141 9:13 "Text"
+          Name@137..141 9:13 "Text"
+      Field@148..159 10:7
+        Name@148..153 10:7 "theme"
+        Named@155..159 10:14 "Text"
+          Name@155..159 10:14 "Text"
+  Html@173..174 13:3 "\n"

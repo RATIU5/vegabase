@@ -1,0 +1,7 @@
+{{
+  Card :: component {
+    fields {
+      items: List { of = Text { max = 3 }, max = 5 }
+    }
+  }
+}}

@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # Language decisions, open questions, prior art
@@ -39,7 +39,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-24 A name the theme declares is written bare and is visible from every file.** There is no `theme.` prefix and no `use theme`. A prefix always names a library. Declaring the same name twice is an error naming both places. *Open:* whether declaring a built-in name is an error.
 
-**D-68 Twenty-one words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid.
+**D-68 Twenty-one words are reserved.** `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. None can name a field, a prop, a loop item or a locale key. Any word may follow a `.`, so `site.locale` is valid. A reserved word may name a locale table, because a language tag is not a name: `or :: locale { }` is Odia.
 
 **D-25 Cycles.** Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component, because stored content is finite. Declaration order and file order never matter.
 
@@ -55,9 +55,9 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-47 A lowercase name with `( )` is a function call; a capitalised name with `{ }` is a type being filled in.** `( )` holds bare values by position. `{ }` holds `name = value` entries in any order. A `name =` never appears inside `( )`. Types start with a capital letter and every other name starts lowercase; the checker enforces it. `[ ]` holds a list of values.
 
-**D-70 Literals.** A string sits in double quotes on one line; `\"` and `\\` are its only escapes. A number is whole and may start with `-`. The other literals are `true`, `false` and `null`. *Open:* decimal numbers, which wait on a decimal type.
+**D-70 Literals.** A string sits in double quotes on one line; `\"` and `\\` are its only escapes. A number is whole, `12`, or a decimal, `1.5`: digits, `.`, digits; `.5`, `1.` and `1e3` are errors. A negative number is a number after `-` (D-69). The other literals are `true`, `false` and `null`.
 
-**D-71 `Text`, `Int` and `Bool` are built in.** They need no `use` and no prefix.
+**D-71 `Text`, `Int`, `Decimal` and `Bool` are built in.** They need no `use` and no prefix. A `Decimal` is an exact base-10 number, never a float, so money adds up exactly. It takes the same limits as `Int`: `Decimal { min = 0, max = 1 }`. It is output in its shortest exact form, so `19.50` is output as `19.5`; fixed places are a format function.
 
 **D-72 An alias names a type.** `Headline :: Text { max = 80 } @{ label = "Headline" }`. An alias may carry limits and an admin block. A field's own admin block wins, entry by entry.
 
@@ -129,7 +129,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 **D-33 A pipe mixed with another operator needs parentheses.** `(a ?? b ?? c) | std.imageUrl(1200)`. A pipe alone needs none. `x | std.length > 0` is an error. A pipe passes the value on its left as the first argument of the call on its right; a call with no other arguments needs no parentheses: `price | shopify.money`.
 
-**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; and the pipe. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. `not` applies to one value, so negating a comparison is written `not (a == b)`. There is no arithmetic; a calculation is a function from the core or a vendor lib.
+**D-69 The operators.** `not`; the comparisons `==`, `!=`, `<`, `<=`, `>`, `>=`; `??`; `and` and `or`; the arithmetic `+`, `-`, `*`, `/` and `%`; and the pipe. `*`, `/` and `%` bind tighter than `+` and `-`, and arithmetic binds tighter than a comparison: `a + 1 > b`. A leading `-` negates one value: `-2`, `-offset`. `and` or `or` joins comparisons without parentheses: `a > b and c != null`. Mixing `and` with `or` needs parentheses. `not` applies to one value, so negating a comparison is written `not (a == b)`. Arithmetic mixed with `??` or a pipe needs parentheses: `(a ?? 0) + 1`. Arithmetic takes numbers only; `+` never joins text, because `{{a}}{{b}}` already does. `Int / Int` gives an `Int`, truncated toward zero. An `Int` with a `Decimal` gives a `Decimal`. `a / b` and `a % b` may be null, because `b` may be zero, so the result is handled like any `T?`: `(a / b) ?? 0`. A divisor that is a literal other than zero gives a plain value: `price / 2`.
 
 **D-40 There is no whitespace syntax.** (1) A line that holds only a tag or a comment leaves nothing behind, not even its newline. (2) Whitespace inside an HTML start tag is normalised. (3) All other whitespace is kept as written.
 
@@ -137,7 +137,7 @@ Status words: a **D-** entry is decided by the project lead. An *Open* point ins
 
 ### Translations
 
-**D-36 `locale` is the word for a table of translations for one language.** A locale's name is a language tag: `en`, `pt-BR`, `zh-Hant`.
+**D-36 `locale` is the word for a table of translations for one language.** A locale's name is a language tag written with `_` between its parts: `en`, `pt_BR`, `zh_Hant`. The host maps a tag's `-` to `_`.
 
 **D-34 Translation keys are strings.** `t("hero.label")`, so a key cannot be mistaken for a field. A key missing from any locale table is a check error. There is no fallback to another locale.
 

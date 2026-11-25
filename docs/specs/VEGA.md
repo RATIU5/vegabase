@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # The `.vega` language: declarations
@@ -40,7 +40,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | A prefix always names a library: the core's `std`, or a plugin | lang D-18, D-24 |
 | `use name` in the first block names a library. Every file that reads a value typed by a library has `use` for it, however the value arrived | lang D-9 |
 | Declaring the same name twice is an error naming both places | lang D-24 |
-| Twenty-one words are reserved and cannot name a field, a prop, a loop item or a locale key. Any word may follow a `.`. The list is in VEGA-GRAMMAR §4 | lang D-68 |
+| Twenty-one words are reserved and cannot name a field, a prop, a loop item or a locale key. Any word may follow a `.`. A reserved word may name a locale table: `or :: locale { }` is Odia. The list is in VEGA-GRAMMAR §4 | lang D-68 |
 
 **Cycles** (lang D-25). Errors: an alias cycle; a type that contains itself directly, not through `List` or `?`; a `render` cycle. Allowed: a slot that accepts its own component.
 
@@ -58,7 +58,7 @@ What a `.vega` file may declare: names, types, components, content types, locale
 
 - `fields { }` and `props { }` hold `name: Type` lines, not `name = value` (lang D-59).
 - In a `name = value` block, `of` is the only entry that takes a type. Every other entry takes a value, so `label = "Hero"` is a string, never a type (lang D-50).
-- A string sits in double quotes on one line, with `\"` and `\\` as its only escapes. A number is whole and may start with `-` (lang D-70).
+- A string sits in double quotes on one line, with `\"` and `\\` as its only escapes. A number is whole, `12`, or a decimal, `1.5`; `-2` is `2` negated (lang D-69, D-70).
 - Entries are separated by a comma or a newline. Entries that share a line need a comma. A comma at a line end is allowed (lang D-45).
 - Only a `{ }`, `[ ]` or `( )` may span lines. A field line or an expression never continues on the next line; to break a long expression, wrap it in parentheses (lang D-45).
 
@@ -70,13 +70,14 @@ What a `.vega` file may declare: names, types, components, content types, locale
 | --- | --- | --- |
 | `Text` | a string; built in | lang D-71 |
 | `Int` | a whole number; built in | lang D-71 |
+| `Decimal` | an exact base-10 number, never a float; built in | lang D-71 |
 | `Bool` | true or false; built in | lang D-71 |
 | `List { of = T }` | a list of `T` | lang D-50 |
 | `std.Image` | a stored image; a picker in the admin | lang D-55 |
 | `std.Url` | `http`, `https`, `mailto`, `tel` or a relative path; anything else is rejected on save | lang D-41 |
 | `std.RichText` | the only value output as HTML | lang D-37 |
 
-*Open:* decimal, date and colour types.
+*Open:* date and colour types.
 
 ### 4.2 Limits, null and defaults
 
@@ -205,7 +206,7 @@ en :: locale {
 }
 ```
 
-- A `locale` table holds the translations for one language. Its name is a language tag: `en`, `pt-BR`, `zh-Hant` (lang D-36).
+- A `locale` table holds the translations for one language. Its name is a language tag written with `_` between its parts: `en`, `pt_BR`, `zh_Hant`. The host maps a tag's `-` to `_` (lang D-36).
 - A key is read as a string: `t("hero.label")`. A key missing from any locale table is a check error. There is no fallback to another locale (lang D-34).
 
 *Open:* values and plural forms in a translation (lang Q-33).

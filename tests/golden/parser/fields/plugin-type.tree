@@ -1,0 +1,17 @@
+File@0..116 1:1
+  Use@9..12 2:7 "std"
+  Use@19..23 3:7 "maps"
+  Component@27..112 5:3
+    Name@27..31 5:3 "Card"
+    Fields@66..102 7:7
+      Field@66..82 7:7
+        Name@66..71 7:7 "image"
+        Named@73..82 7:14 "std.Image"
+          Prefix@73..76 7:14 "std"
+          Name@77..82 7:18 "Image"
+      Field@89..102 8:7
+        Name@89..92 8:7 "map"
+        Named@94..102 8:12 "maps.Map"
+          Prefix@94..98 8:12 "maps"
+          Name@99..102 8:17 "Map"
+  Html@115..116 11:3 "\n"

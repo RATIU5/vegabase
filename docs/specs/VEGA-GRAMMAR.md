@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-20
 ---
 
 # The `.vega` language: grammar
@@ -27,7 +27,7 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 
 - A block starts at `{{` and ends at the first `}}` that is outside a string, outside a comment, and not inside an open `{ }`.
 - A comment starts at `#` and runs to the end of the line or to `}}`.
-- A block at the very start of the file is the first block. Every other block is a later block.
+- A block with only spaces, tabs and line breaks before it is the first block. Every other block is a later block.
 - `if` and `for` must be closed by `/if` and `/for` in order. `elif` and `else` sit inside an open `if`, and nothing follows `else` but `/if`.
 
 **Code layer**, the rules in `vega.lark`. It has two entry points:
@@ -57,11 +57,12 @@ A `.vega` file is HTML with code blocks in it, so there are two layers.
 | `NAME` | a lowercase letter, then letters, digits and `_`; not a reserved word |
 | `MEMBER` | the same as `NAME`, but any word; used after a `.` |
 | `STRING` | `"`, then characters on one line, with `\"` and `\\` as the only escapes, then `"` (lang D-70) |
-| `LOCALE_NAME` | a language tag: two or three lowercase letters, then parts joined by `-` (lang D-36) |
-| `INT` | digits, with an optional leading `-` (lang D-70) |
+| `LOCALE_NAME` | a language tag: two or three lowercase letters, then parts of two to eight letters or digits, each after a `_`; a reserved word is allowed (lang D-36, D-68) |
+| `INT` | digits; a leading `-` is the negation operator (lang D-69, D-70) |
+| `DECIMAL` | digits, `.`, digits (lang D-70) |
 | `HOST_VALUE` | `$`, then names joined by `.` |
 
-Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`.
+Reserved words (lang D-68): `of`, `use`, `template`, `component`, `content`, `fields`, `props`, `locale`, `slot`, `render`, `if`, `elif`, `else`, `for`, `in`, `not`, `and`, `or`, `true`, `false`, `null`. A reserved word counts only as a whole word, so `iffy` and `format` are names.
 
 Spaces and tabs are ignored. A line break separates entries inside `{ }` and `[ ]`, and is ignored inside `( )`. Nothing else may span lines (lang D-45).
 

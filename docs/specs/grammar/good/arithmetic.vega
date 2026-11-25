@@ -1,0 +1,20 @@
+{{
+  Card :: component {
+    fields {
+      price: Int
+      quantity: Int
+      offset: Int = -2
+    }
+  }
+
+  template Card
+}}
+<p>{{price * quantity}}</p>
+<p>{{price + quantity * 2 - offset}}</p>
+<p>{{price-1}}</p>
+<p>{{-offset}}</p>
+<p>{{(price / 2) % 3}}</p>
+{{if price * 2 > quantity + 1}}
+{{/if}}
+<p>{{(price ?? 0) + 1}}</p>
+<p>{{(price + 1) | std.format}}</p>

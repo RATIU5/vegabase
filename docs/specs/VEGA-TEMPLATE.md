@@ -114,6 +114,7 @@ Limits (lang D-62):
 | comparison | `tone == "dark"`, `link != null`, `a > b`, `a <= b` | lang D-69 |
 | `not` | `not variant.available` | lang D-69 |
 | `and`, `or` | `a != null and a > b` | lang D-69 |
+| arithmetic | `price * quantity`, `i % 2 == 0`, `-offset` | lang D-69 |
 | translation | `t("hero.label")` | lang D-34 |
 
 - A pipe passes the value on its left as the first value of the call on its right. A call with no other values needs no parentheses: `price | shopify.money` (lang D-33).
@@ -121,7 +122,9 @@ Limits (lang D-62):
 - A translation key is a string, so it cannot be mistaken for a field (lang D-34).
 - Functions come from the core (`std`) and from first-party plugins (lang D-67). A template defines none.
 
-- `and` or `or` joins comparisons without parentheses. Mixing `and` with `or` needs them. `not` applies to one value: `not (a == b)`. There is no arithmetic (lang D-69).
+- `and` or `or` joins comparisons without parentheses. Mixing `and` with `or` needs them. `not` applies to one value: `not (a == b)` (lang D-69).
+- `*`, `/` and `%` bind tighter than `+` and `-`; arithmetic binds tighter than a comparison. Arithmetic mixed with `??` or a pipe needs parentheses: `(a ?? 0) + 1` (lang D-69).
+- Arithmetic takes numbers only; `+` never joins text. `Int / Int` truncates toward zero; an `Int` with a `Decimal` gives a `Decimal`. `a / b` and `a % b` may be null, because `b` may be zero: `(a / b) ?? 0`. A divisor that is a literal other than zero gives a plain value (lang D-69).
 
 *Open:* local names in a template (lang Q-10).
 

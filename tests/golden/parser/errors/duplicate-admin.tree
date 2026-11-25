@@ -1,0 +1,2 @@
+File@0..50 1:1
+Error@38..39 4:5 "a declaration can have only one @ block"

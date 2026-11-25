@@ -29,6 +29,8 @@ File@0..185 1:1
           Name@114..118 6:10 "Text"
         Pipe@121..136 6:17 "a.b | std.upper"
           Path@121..124 6:17 "a.b"
+            Name@121..122 6:17 "a"
+            Name@123..124 6:19 "b"
           Call@127..136 6:23 "std.upper"
             Prefix@127..130 6:23 "std"
             Name@131..136 6:27 "upper"

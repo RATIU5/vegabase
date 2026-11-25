@@ -33,6 +33,7 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		entries    = make([dynamic]Entry, allocator),
 		exprs      = make([dynamic]Expr, allocator),
 		expr_items = make([dynamic]Expr_Id, allocator),
+		segments   = make([dynamic]Span, allocator),
 		parts      = make([dynamic]Part, allocator),
 		errors     = make([dynamic]Error, allocator),
 	}

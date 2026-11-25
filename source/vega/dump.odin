@@ -157,7 +157,13 @@ write_expr :: proc(b: ^strings.Builder, file: ^File, starts: []u32, depth: int, 
 	case .Component_Value:
 		write_qualified(b, file, starts, depth + 1, e.name)
 		write_entries(b, file, starts, depth + 1, "Entries", e.items)
-	case .Path, .String, .Int, .Decimal, .Bool, .Null, .Host_Value:
+	case .Path:
+		if e.items.count > 1 {
+			for span in file.segments[e.items.first:][:e.items.count] {
+				write_node(b, file, starts, depth + 1, "Name", span)
+			}
+		}
+	case .String, .Int, .Decimal, .Bool, .Null, .Host_Value:
 	}
 }
 

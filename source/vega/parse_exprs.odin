@@ -255,15 +255,18 @@ parse_name_operand :: proc(p: ^Parser) -> (id: Expr_Id, ok: bool) {
 			true
 	}
 	start := p.pos
+	first := u32(len(p.file.segments))
+	append(&p.file.segments, peek(p).span)
 	p.pos += 1
 	for peek(p).kind == .Dot {
 		if peek(p, 1).kind != .Name {
 			return 0, parse_fail(p, peek(p, 1), .Expected_Name)
 		}
+		append(&p.file.segments, peek(p, 1).span)
 		p.pos += 2
 	}
-	span := span_from(p, start)
-	return add_expr(p, Expr{kind = .Path, name = {name = span}, span = span}), true
+	items := Range{first, u32(len(p.file.segments)) - first}
+	return add_expr(p, Expr{kind = .Path, items = items, span = span_from(p, start)}), true
 }
 
 parse_fn_name :: proc(p: ^Parser) -> (name: Qualified_Name, ok: bool) {

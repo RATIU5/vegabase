@@ -139,6 +139,7 @@ File :: struct {
 	entries:    [dynamic]Entry,
 	exprs:      [dynamic]Expr,
 	expr_items: [dynamic]Expr_Id,
+	segments:   [dynamic]Span,
 	parts:      [dynamic]Part,
 	errors:     [dynamic]Error,
 }

@@ -2,6 +2,7 @@
 
 !/.gitignore
 !/.editorconfig
+!/.gitattributes
 
 !/mise.toml
 !/mise.lock

@@ -21,7 +21,7 @@ Vegabase is a hosted, multi-tenant storefront and CMS engine in Odin that render
 | ROADMAP.md      | Build order in coarse stages, and the next five tasks                                                    | Picking what to work on next                                    |
 | ../specs/       | The `.vega` language: syntax and semantics of declarations and templates; start at `specs/README.md`        | Reading or writing schemas or templates, any language rule      |
 
-**Precedence**: CHARTER > DECISIONS > specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK > this file's State section. When docs conflict, the higher one wins; flag the lower line that needs fixing. Each fact lives in one doc; cite it by doc and section or by ID: G, P in CHARTER; D, Q, R, I in DECISIONS; S in STACK.
+**Precedence**: CHARTER > DECISIONS > specs > GLOSSARY > ARCHITECTURE > DESIGN = OPERATIONS > STACK > ROADMAP > this file's State section. When docs conflict, the higher one wins; flag the lower line that needs fixing. Each fact lives in one doc; cite it by doc and section or by ID: G, P in CHARTER; D, Q, R, I in DECISIONS; S in STACK.
 
 Repo process (commits, PRs, releases) is in `docs/WORKFLOW.md`. Done means `mise run lint` and `mise run test` pass.
 
@@ -63,7 +63,7 @@ Repo process (commits, PRs, releases) is in `docs/WORKFLOW.md`. Done means `mise
 
 ## State
 
-- **Focus**: ROADMAP stage 1, the language check pass; spike S-4 alongside.
+- **Focus**: ROADMAP stage 1, check and render.
 - **Changed (2026-11-25)**: the `.vega` scanner, lexer and parser landed in `source/vega/`; ROADMAP.md added.
 - **In play**: D-001 to D-010 awaiting approval; Q-001 to Q-049, R-001 to R-004, S-1 to S-9. Proposed: G2, G4, the G3 signal, ranks of P5 and P6.
 - **Next**: the top task in ROADMAP.md "Next up".

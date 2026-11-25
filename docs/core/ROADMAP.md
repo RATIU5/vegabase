@@ -11,34 +11,37 @@ updated: 2026-11-25
 
 The next five tasks, in order. Take the top one; when it is done, delete it and add one at the bottom from the current stage.
 
-1. Check pass: a name declared twice is an error naming both places (lang D-24). This adds a second span to `Error`.
-2. Check pass: two `template` lines, a `template` line with no HTML, HTML with no `template` line (VEGA §5).
-3. Check pass: at most one admin block, `fields` and `props` per declaration, moved out of the parser (VEGA-GRAMMAR §5).
-4. Spike S-4: h2o from Odin, multi-threaded, shell plus SSE (STACK §7).
-5. Check pass: every name resolves, to a declaration, a `use` library or a built-in (VEGA §2).
+1. Load a theme: parse every `.vega` file in one folder into one checked set. Each error carries its file, and an error can point at a second place. `specs/examples/Map.vega` stays out until lang D-64 says how a file joins its plugin.
+2. Declared twice (lang D-24): report both places, across components, content types, aliases and locale tables. Built-in names are left alone while that point is *Open*.
+3. Template errors (VEGA §5, lang D-61): the four listed there, plus `template Name` naming a component the theme declares. HTML means any text outside blocks other than spaces, tabs and line breaks.
+4. Resolve bare names: type names, union members and `render` targets, against theme declarations and the built-in types (VEGA §4.1). A prefixed name only needs a matching `use`.
+5. Spike S-4, first slice: vendor h2o by commit, build it, and serve one static response from Odin.
+
+## Waiting on the lead
+
+These block later tasks; answer them before the task that needs them reaches "Next up".
+
+| Item                                                        | Blocks                                             |
+| ----------------------------------------------------------- | -------------------------------------------------- |
+| How a file joins its plugin (lang D-64 *Open*)              | Checking `Map.vega` and plugin files               |
+| A provisional `std` and `shopify` surface (Q-043, lang Q-27) | Prefixed names, type checking and rendering       |
+| PoC data sources and fixture format (lang Q-12)             | Rendering in stage 1, and stage 3                  |
+| How the host finds the shell component (lang Q-40)          | Stage 3                                            |
+| Which stores are ours (Q-002), then their baseline (Q-001)  | Stage 4                                            |
 
 ## Stages
 
-| #   | Stage                     | Proves                                                           | Done when                                                                              |
-| --- | ------------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
-| 1   | Language toolchain        | Broken themes fail before activation (G2)                        | Every file in `specs/examples/` checks, and renders to HTML from fixture data         |
-| 2   | Foundation spikes         | The pinned stack works from Odin (STACK §7)                      | S-1 to S-9 each pass, or a failed one has a D- or Q- entry that replaces it            |
-| 3   | One page, end to end      | A request renders from local data only (P2)                      | A product page renders from a fixture read index through the request pipeline         |
-| 4   | Our first store           | G1 on real data                                                  | One of our stores serves real catalog pages, and LCP and JS weight are measured        |
-| 5   | The rest of 1.0           | CHARTER scope (1.0)                                              | Every 1.0 scope line works for our own stores                                          |
+| #   | Stage                | Proves                                                       | Done when                                                                                           |
+| --- | -------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
+| 1   | Check and render     | A type error names the file, line and field; a page renders from sample data (BRIEF PoC 1, 2) | The theme in `specs/examples/` checks clean, a broken copy gives the expected errors, and a product page renders from fixtures |
+| 2   | Foundation spikes    | The pinned stack works from Odin (STACK §7)                  | S-1 to S-9 each pass, or a failed one has a D- or Q- entry that replaces it                         |
+| 3   | One page, end to end | Renders read only local data (ARCHITECTURE quality goal 2)   | A product page renders through the request pipeline from a fixture read index, a composition and a fetch plan |
+| 4   | First store, measured | G1 on real data                                             | One of our stores serves real catalog pages on a preview host, with LCP and JS weight measured against its baseline |
+| 5   | The rest of 1.0      | CHARTER scope (1.0), D-013                                   | Our stores run live on the engine, and every 1.0 scope line works                                   |
 
-Stages 1 and 2 run side by side. Stage 3 needs the render part of stage 1 and spikes S-4 and S-5. Stage 4 needs S-9.
-
-## Stage 1: language toolchain
-
-- Done: scanner, lexer and parser in `source/vega/` (specs/VEGA-GRAMMAR.md).
-- Next: a check pass that resolves names and reports the check errors in VEGA.md and VEGA-TEMPLATE.md, then type checking, then rendering.
-
-## Stage 2: spikes, riskiest first
-
-S-4 (h2o and SSE), S-5 (StardustDB), S-9 (Shopify bulk pricing), S-3 (wasmtime), then the rest. A failed spike can change ARCHITECTURE, so log the outcome in DECISIONS before building on it.
+Stages 1 and 2 run side by side. Stage 3 needs stage 1's renderer and spikes S-4 and S-5. Stage 4 needs S-9, and its baseline is measured on the current theme before the store moves. Going live (cart, domains, CDN), the admin app, plugins, editions, and the distributable toolchain with its editor support all sit in stage 5 until they are next.
 
 ## Keeping this current
 
-- Update the table when a stage finishes, a spike fails or the order changes.
+- Update this file when a stage finishes, a spike fails, the order changes or a "Waiting on the lead" item is answered.
 - Add detail to a stage only when work on it starts, and keep that detail in the doc that owns it.

@@ -75,8 +75,8 @@ updated: 2026-11-18
 | Directory          | Part                                                                      |
 | ------------------ | ------------------------------------------------------------------------- |
 | `source/http/`     | Edge front router and request pipeline                                    |
-| `source/vega/`     | `.vega` language toolchain, shared with the deploy pipeline: scanner, lexer and parser today; check, types and render next |
-| `source/store/`    | Data layer (name clashes with the glossary "store"; consider `data/`)     |
+| `source/vega/`     | `.vega` language toolchain, shared with the deploy pipeline               |
+| `source/data/`     | Data layer                                                                |
 | `source/plugin/`   | Extension host: WASM sandbox, capabilities, host functions                |
 | `source/bind/`     | One hand-written binding package per C library (DESIGN §7)                |
 | `third_party/`     | Vendored C library sources, pinned by commit                              |

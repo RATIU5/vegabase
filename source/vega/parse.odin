@@ -65,10 +65,7 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 	append(&file.exprs, Expr{})
 	append(&file.parts, Part{})
 
-	blocks := make([dynamic]Block, allocator)
-	if !scan(src, &blocks, &file.errors) {
-		return file, false
-	}
+	first, found := next_block(src, 0, &file.errors) or_return
 	file.template = {0, u32(len(src))}
 	tokens := make([dynamic]Token, allocator)
 	p := Parser {
@@ -78,9 +75,7 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		expr_stack  = make([dynamic]Expr_Id, allocator),
 		open_tags   = make([dynamic]Open_Tag, allocator),
 	}
-	rest := blocks[:]
-	if len(blocks) > 0 && strings.trim(src[:blocks[0].span.start], " \t\r\n") == "" {
-		first := blocks[0]
+	if found && strings.trim(src[:first.span.start], " \t\r\n") == "" {
 		file.template.start = first.span.end
 		if !lex(src, first.code, &tokens, &file.errors) {
 			return file, false
@@ -89,9 +84,8 @@ parse :: proc(path, src: string, allocator: runtime.Allocator) -> (file: File, o
 		if !parse_first_block(&p) {
 			return file, false
 		}
-		rest = blocks[1:]
 	}
-	ok = parse_template(&p, &tokens, rest)
+	ok = parse_template(&p, &tokens)
 	return file, ok
 }
 

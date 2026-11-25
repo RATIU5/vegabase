@@ -107,9 +107,13 @@ nest_part :: proc(p: ^Parser, part: ^Part) -> bool {
 	return true
 }
 
-parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token, blocks: []Block) -> bool {
+parse_template :: proc(p: ^Parser, tokens: ^[dynamic]Token) -> bool {
 	at := int(p.file.template.start)
-	for block in blocks {
+	for {
+		block, found := next_block(p.file.src, at, &p.file.errors) or_return
+		if !found {
+			break
+		}
 		add_html(p, at, int(block.span.start))
 		at = int(block.span.end)
 		clear(tokens)

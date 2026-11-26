@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-25
 ---
 
 # Vegabase: Charter
@@ -62,7 +62,7 @@ Merchants and their visitors (our own stores first); agency developers, then ten
 
 ## Assumptions
 
-- StardustDB (alpha) can run hosted multi-tenant production. Invalidated if its terms, licence activation or file-format stability fail (Q-019).
+- StardustDB (alpha) can run hosted multi-tenant production. Invalidated if its terms, licence activation or file-format stability fail (D-034).
 - Shopify Admin API bulk operations plus webhooks keep catalog, per-market prices and translations fresh enough. Invalidated if bulk operations can't fetch `contextualPricing` or translations (spike S-9), or if staleness limits are missed under real volume.
 - Our current themes are a fair G1 baseline. Invalidated if they are atypically heavy or atypically optimized.
 - Stellar CSS terms allow hosted use, or our own token sheet suffices (Q-017).

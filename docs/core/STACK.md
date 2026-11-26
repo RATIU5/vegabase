@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-08
+updated: 2026-11-25
 ---
 
 # Vegabase: Stack and environment
@@ -76,7 +76,9 @@ Derived (Speculation: 5 page views per visitor, 60% of peak in the busiest 4 hou
 ## 5. Shopify facts
 
 - 2026-10 is the latest stable version, accessible until 2027-10-16. Stable versions are supported for at least 12 months. Retired versions fall forward to the oldest supported one; check `X-Shopify-API-Version`.
-- Bulk operations: up to 5 concurrent bulk queries and 5 bulk mutations per shop (2026-01 and later). S-9 confirms `contextualPricing` and translations in bulk.
+- Bulk operations: up to 5 concurrent bulk queries and 5 bulk mutations per shop (2026-01 and later); at most 5 connections and 2 levels of nesting per query; 10 days to finish; query execution is not rate limited.
+- `ProductVariant.contextualPricing(context:)` and `translations(locale:, marketId:)` are plain fields, not connections, so bulk queries may select them. One field returns one country (`country`, `companyLocationId` or `locationId`); the docs do not say whether aliases may repeat it for several countries (S-9).
+- Single-query rate limits per app and store: Plus 1,000 points/s, enterprise (Commerce Components) 2,000 points/s; any one query costs at most 1,000 points. Our stores are on Plus or enterprise.
 - 430 "Security Rejection" answers requests judged malicious. Rate limits apply to bot traffic; buyer traffic is exempt. Web Bot Auth signed traffic gets higher limits once its keys are registered.
 - Customer Account API refresh tokens go to customer-account clients configured on the shop. Storefront checkout creation is throttled per minute.
 
@@ -101,8 +103,8 @@ Derived (Speculation: 5 page views per visitor, 60% of peak in the busiest 4 hou
 | S-6 | CDN: tag purge, multi-tag response, SSE past the timeout, authenticated origin pull limits, origin rejects direct hits, uploading our ACME certificates for tenant hostnames (D-021) | Purge is visible within seconds                                     |
 | S-7 | Datastar CSP mode on a cached shell                                                        | Runs without `unsafe-eval`, from cache                              |
 | S-8 | Fetching C deps on a clean machine                                                         | Every commit and hash matches                                       |
-| S-9 | Shopify bulk query with `contextualPricing` per market and translations on a dev store     | Both return complete data                                           |
+| S-9 | One Shopify bulk query with `contextualPricing` for several countries (aliased) plus translations | Matches single-variant queries per country; else one bulk query per country |
 
 ## Sources
 
-Odin github.com/odin-lang/Odin/releases · wasmtime github.com/bytecodealliance/wasmtime/releases · lexbor, curl, zstd, brotli, h2o: their GitHub releases · Datastar data-star.dev/reference/security · StardustDB stardustdb.com · PostgreSQL postgresql.org · Shopify shopify.dev/docs/api/usage/versioning, …/bulk-operations/queries, …/response-codes, …/rate-limits, shopify.dev/docs/api/customer · Cloudflare developers.cloudflare.com/cache/how-to/purge-cache/, …/error-524/, …/cloudflare-for-saas/plans/, blog.cloudflare.com/updated-tos/ · Hetzner hetzner.com/cloud · OrbStack orbstack.dev/pricing · Codespaces docs.github.com/en/billing/concepts/product-billing/github-codespaces
+Odin github.com/odin-lang/Odin/releases · wasmtime github.com/bytecodealliance/wasmtime/releases · lexbor, curl, zstd, brotli, h2o: their GitHub releases · Datastar data-star.dev/reference/security · StardustDB stardustdb.com · PostgreSQL postgresql.org · Shopify shopify.dev/docs/api/usage/versioning, …/bulk-operations/queries, …/response-codes, …/rate-limits, …/admin-graphql/latest/input-objects/ContextualPricingContext, shopify.dev/docs/api/customer · Cloudflare developers.cloudflare.com/cache/how-to/purge-cache/, …/error-524/, …/cloudflare-for-saas/plans/, blog.cloudflare.com/updated-tos/ · Hetzner hetzner.com/cloud · OrbStack orbstack.dev/pricing · Codespaces docs.github.com/en/billing/concepts/product-billing/github-codespaces

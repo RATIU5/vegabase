@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-25
 ---
 
 # Vegabase: Decisions
@@ -17,7 +17,7 @@ updated: 2026-11-18
 
 **D-004 Hypermedia UI**: Draft (rebuilt). Datastar over SSE; theme CSS on replaceable design tokens (Stellar CSS or our own, Q-017). Why: server state, morphing, no client framework (I-003, I-004).
 
-**D-005 Databases**: Draft (rebuilt). One StardustDB database per tenant for content, routes and the read index; Postgres for the control plane. Why: an embedded per-tenant database gives local reads and simple tenant moves; Postgres gives durable shared state and `LISTEN/NOTIFY`. Risk: StardustDB is alpha (Q-018, Q-019).
+**D-005 Databases**: Draft (rebuilt). One StardustDB database per tenant for content, routes and the read index; Postgres for the control plane. Why: an embedded per-tenant database gives local reads and simple tenant moves; Postgres gives durable shared state and `LISTEN/NOTIFY`. Risk: StardustDB is alpha (Q-018, D-034).
 
 **D-006 Isolation model**: Draft (rebuilt). Logical isolation at API boundaries; hard resource limits only for WASM; dedicated workers for sensitive tenants. Why: density for most tenants; vendor libs are encapsulated, not sandboxed.
 
@@ -75,6 +75,8 @@ updated: 2026-11-18
 
 **D-033 One file type, `.vega`**: Accepted 2026-11-18. Amends D-027 and D-029; closes Q-013. Schema code and templates share `.vega` files, specified in `specs/VEGA.md` and `specs/VEGA-TEMPLATE.md`. A theme may declare content types. Why: the lead's rulings, lang D-16 and D-63.
 
+**D-034 StardustDB terms**: Accepted 2026-11-25. Closes Q-019. The lead is agreeing terms for hosted multi-tenancy and licence activation directly with the StardustDB team.
+
 ## Open questions
 
 | ID | Question | Options · settled by |
@@ -96,7 +98,6 @@ updated: 2026-11-18
 | Q-016 | Is linux_arm64 a production target? | amd64 only for 1.0 · both · hosting cost comparison |
 | Q-017 | Do Stellar CSS terms allow hosted use by agencies and tenants? | License Stellar · own token sheet · written terms (no Stellar licence text found; Datastar says Stellar works without Pro) |
 | Q-018 | How do we bound StardustDB history while keeping backups, rollback and erasure? | Confirm capabilities (S-5) · retention decision |
-| Q-019 | What are StardustDB's terms for hosted multi-tenancy and licence activation? | Vendor's terms in writing; 30-day tokens are confirmed |
 | Q-020 | Who owns search, filtering, facets and sorting? | Core per-tenant index · Shopify Storefront API · extension · decide as the project grows |
 | Q-021 | What RPO, RTO, backup cadence and restore drill do tenant databases need? A restore must re-apply erasures | After S-5 |
 | Q-022 | After an activation flip, what happens when a worker never acknowledges? | Fence the worker · roll back · retry; scope query raised by the project lead |

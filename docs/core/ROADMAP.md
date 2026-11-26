@@ -48,8 +48,31 @@ Stages 1 and 2 run side by side, and each spike runs ahead of the stage that nee
 
 - Stage 3 needs stage 1's renderer, S-1, S-4, S-5 and S-8. S-4 needs S-8, a pinned h2o commit (STACK §1) and the base image (STACK §4, TBD).
 - Stage 4 needs S-9, S-2 (the Shopify vendor lib is a signed `.so`, DESIGN §7), S-6, and the store's theme ported to `.vega` (D-025). Its baseline is measured on the current theme before the store moves.
-- Stage 5 needs S-7, and holds ownership, leases, activation, moves, upgrades, domains, cart, gates, logs and metrics.
-- Stage 6 needs S-3, and holds the admin app and composer, plugins, editions, core content types, SEO, the porting guide, and the distributable toolchain with its editor support.
+- Stage 5 needs S-7. Stage 6 needs S-3.
+
+Stages 5 and 6 build their features in this order, named as in CHARTER "Scope (1.0)". Reorder when one of our stores needs something sooner.
+
+Stage 5, run our stores:
+
+1. Ownership, leases and fencing (D-018, Q-023)
+2. Activation
+3. Per-tenant logs and metrics (D-024)
+4. Routes, redirects, and market and language URLs; their admin screens come in stage 6
+5. SEO basics
+6. Custom domains with our own certificates (D-021), behind the CDN
+7. Shopify webhooks, cart, customer login and B2B context
+8. Gates
+9. Tenant moves, then rolling upgrades
+
+Stage 6, the rest of 1.0:
+
+1. The admin app and composer
+2. Core content types: page, post, media (D-020)
+3. Push fragments over SSE
+4. Vendor libs and sandboxed WASM plugins (D-011)
+5. Two supported editions with migrations
+6. The distributable toolchain with its editor support (D-012)
+7. The theme porting guide (D-025)
 
 ## Keeping this current
 

@@ -19,7 +19,7 @@ The next five tasks, in order. Take the top one; when it is done, delete it and 
 
 ## Waiting on the lead
 
-These block later tasks; answer them before the task that needs them reaches "Next up".
+These block later tasks; answer them before the task that needs them reaches "Next up". Never add anything that's considered scope-creep; when in doubt, you must ask the user.
 
 | Item                                                        | Blocks                                             |
 | ----------------------------------------------------------- | -------------------------------------------------- |

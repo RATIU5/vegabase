@@ -1,6 +1,6 @@
 ---
 status: draft
-updated: 2026-11-18
+updated: 2026-11-25
 ---
 
 # Vegabase: Design
@@ -80,7 +80,7 @@ CDN (client TLS, HTTP/3, caching) ─ authenticated origin pull / mTLS
 ## 8. Shopify vendor lib
 
 - Cart in Shopify (Storefront Cart API): we hold the cart ID per session; checkout redirects to `checkoutUrl`; mutations are serialized per cart and handle payload `userErrors`.
-- Ingestion only through Shopify Admin API bulk operations (up to 5 concurrent per shop): catalog, `contextualPricing` per market, translations. Bulk support for the last two is Unverified (spike S-9).
+- Ingestion only through Shopify Admin API bulk operations (up to 5 concurrent per shop): catalog, `contextualPricing` per market, translations. Bulk queries allow both; several countries in one query is Unverified (S-9).
 - Visitor-driven Storefront requests send `Shopify-Storefront-Private-Token`, `Shopify-Storefront-Buyer-IP`, and the customer and B2B context via `@inContext`.
 - Customer accounts: OAuth 2.0 + PKCE with discovery; validate `state` and `nonce`; durable pending-login state; each tenant domain registered as a redirect URI. Refresh tokens are issued only to customer-account clients configured on the shop; otherwise re-authorize. Logout via `end_session_endpoint`.
 - B2B: the selected company location is part of the context key; all B2B results are private.
